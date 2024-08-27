@@ -1,4 +1,4 @@
-![CMake Multi Platform Build](https://github.com/github/docs/actions/workflows/cmake-multi-platform.yml/badge.svg)
+![CMake Multi Platform Build](https://github.com/FreddyOm/BorealisEngine/actions/workflows/cmake-multi-platform.yml/badge.svg)
 
 # Borealis Engine
 
