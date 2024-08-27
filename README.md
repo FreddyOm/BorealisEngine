@@ -1,3 +1,5 @@
+![CMake Multi Platform Build](https://github.com/github/docs/actions/workflows/cmake-multi-platform.yml/badge.svg)
+
 # Borealis Engine
 
 **A C++ based 3D high performance engine with aim for AAA graphics, fast iteration and great tooling.**
