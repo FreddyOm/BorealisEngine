@@ -1,0 +1,28 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+      "major": 3,
+      "minor": 19,
+      "patch": 0
+    },
+    "include": [
+    ],
+    "configurePresets": [
+        {
+            "name": "windows-default",
+            "displayName": "Windows x64 Debug",
+            "description": "Sets Ninja generator, compilers, x64 architecture, build and install directory, debug build type",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "architecture": {
+              "value": "x64",
+              "strategy": "external"
+            },
+            "vendor": {
+              "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                "hostOS": [ "Windows" ]
+              }
+            }
+        }
+    ]
+  }
