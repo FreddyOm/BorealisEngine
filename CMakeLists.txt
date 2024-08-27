@@ -15,7 +15,9 @@ project(
 message("Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION}")
 
 # Project source files
-set(SOURCES src/main.cpp)
+set(SOURCES 
+    src/main.cpp 
+)
 
 # Create executable
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
