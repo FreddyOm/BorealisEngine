@@ -8,7 +8,7 @@ TODO: CMake Setup and dependencies
 
 ## Features
 
-- [] Job System
+- [ ] Job System
 
 ## Dependencies
 
