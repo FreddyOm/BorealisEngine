@@ -5,12 +5,12 @@
 
 ## Setup 
 
-TODO: CMake Setup and dependencies
+TODO: CMake Setup and dependancies
 
 ## Features
 
 - [ ] Job System
 
-## Dependencies
+## Dependancies
 
 ## Sources
