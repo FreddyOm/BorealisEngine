@@ -27,6 +27,7 @@ FetchContent_MakeAvailable(googletest)
 # Project source files
 set(SOURCES 
     test_helpers.cpp
+    test_types.cpp
 )
 
 add_executable(BorealisEngineTests ${SOURCES})

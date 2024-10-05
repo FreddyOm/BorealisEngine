@@ -45,18 +45,4 @@ namespace Borealis::Types
 
 #endif;
 
-#ifndef NDEBUG
-
-		static_assert(sizeof(Int8) == 1, "Type size of Int8 is not correct on the current platform configuration!");
-		static_assert(sizeof(Int16) == 2, "Type size of Int16 is not correct on the current platform configuration!");
-		static_assert(sizeof(Int32) == 4, "Type size of Int32 is not correct on the current platform configuration!");
-		static_assert(sizeof(Int64) == 8, "Type size of Int64 is not correct on the current platform configuration!");
-
-		static_assert(sizeof(Uint8) == 1, "Type size of Uint8 is not correct on the current platform configuration!");
-		static_assert(sizeof(Uint16) == 2, "Type size of Uint16 is not correct on the current platform configuration!");
-		static_assert(sizeof(Uint32) == 4, "Type size of Uint32 is not correct on the current platform configuration!");
-		static_assert(sizeof(Uint64) == 8, "Type size of Uint64 is not correct on the current platform configuration!");
-
-#endif
-
 }
