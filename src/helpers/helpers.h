@@ -117,7 +117,7 @@ namespace Borealis
 
 			inline bool AllBitsSet() const
 			{
-				throw;
+				return bitMask == ~static_cast<Types::Uint64>(0);
 			}
 
 			const Types::Uint64& GetRawBitMaskRef()
@@ -167,7 +167,7 @@ namespace Borealis
 			Vector2& operator=(const Vector2<T>& other)
 			{
 				x = other.x;
-				y = other.y
+				y = other.y;
 			}
 
 			Vector2& operator=(Vector2<T>&& other) noexcept
@@ -731,7 +731,7 @@ namespace Borealis
 				x -= sub.x;
 				y -= sub.y;
 				z -= sub.z;
-				w -= sub.w
+				w -= sub.w;
 			}
 
 

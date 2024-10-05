@@ -2,19 +2,18 @@
 #include "../../borealis_engine.h"
 #include <cstdint>
 
-namespace Borealis
+namespace Borealis::Types
 {	
-	namespace Types
-	{
+	
 #ifdef BOREALIS_WIN
 
 		typedef int_fast8_t		Int8;
-		typedef int_fast16_t	Int16;
+		typedef short			Int16;
 		typedef int_fast32_t	Int32;
 		typedef int_fast64_t	Int64;
 		
 		typedef uint_fast8_t	Uint8;
-		typedef uint_fast16_t	Uint16;
+		typedef unsigned short	Uint16;
 		typedef uint_fast32_t	Uint32;
 		typedef uint_fast64_t	Uint64;
 		
@@ -52,7 +51,7 @@ namespace Borealis
 		static_assert(sizeof(Int16) == 2, "Type size of Int16 is not correct on the current platform configuration!");
 		static_assert(sizeof(Int32) == 4, "Type size of Int32 is not correct on the current platform configuration!");
 		static_assert(sizeof(Int64) == 8, "Type size of Int64 is not correct on the current platform configuration!");
-		
+
 		static_assert(sizeof(Uint8) == 1, "Type size of Uint8 is not correct on the current platform configuration!");
 		static_assert(sizeof(Uint16) == 2, "Type size of Uint16 is not correct on the current platform configuration!");
 		static_assert(sizeof(Uint32) == 4, "Type size of Uint32 is not correct on the current platform configuration!");
@@ -60,5 +59,4 @@ namespace Borealis
 
 #endif
 
-	}
 }

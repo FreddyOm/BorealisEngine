@@ -12,6 +12,10 @@ project(
     LANGUAGES CXX C
 )
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+
 if(WIN32)
     message("Configuring for Windows platform")
     add_compile_definitions(BOREALIS_WIN)
@@ -37,5 +41,10 @@ set(HEADERS
     src/helpers/helpers.h
 )
 
+# Create test
+enable_testing()
+add_subdirectory(tests)
+
 # Create executable
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES} ${HEADERS})
+
