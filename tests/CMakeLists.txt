@@ -7,7 +7,7 @@ endif()
 
 # Project information
 project(
-    BorealisTests 
+    BorealisTests
     VERSION 0.1.0
     LANGUAGES CXX C
 )
@@ -29,10 +29,10 @@ set(SOURCES
     test_helpers.cpp
 )
 
-add_executable(BorealisTest ${SOURCES})
-target_link_libraries(BorealisTest GTest::gtest_main)
+add_executable(BorealisEngineTests ${SOURCES})
+target_link_libraries(BorealisEngineTests GTest::gtest_main)
 
 
 # Tests
 include(GoogleTest)
-gtest_discover_tests(BorealisTest)
+gtest_discover_tests(BorealisEngineTests)

@@ -2,6 +2,10 @@
 #include "../src/helpers/helpers.h"
 
 using namespace Borealis::Helpers;
+using namespace Borealis::Math;
+
+// ------------------------- BITMASK ------------------------- //
+
 
 TEST(BitMaskTest, EnableAndCheckBit) {
     BitMask mask1;
@@ -111,7 +115,7 @@ TEST(BitMaskTest, BitwiseOrOperator) {
 TEST(BitMaskTest, BitwiseOrAssignmentOperator) {
     BitMask mask1;
     mask1.EnableBit(2);
-    mask1 |= 1;  // Set bit 0
+    mask1 |= 1;
 
     EXPECT_TRUE(mask1.IsBitEnabled(0));
     EXPECT_TRUE(mask1.IsBitEnabled(2));
@@ -121,7 +125,7 @@ TEST(BitMaskTest, BitwiseAndAssignmentOperator) {
     BitMask mask1;
     mask1.EnableBit(0);
     mask1.EnableBit(1);
-    mask1 &= 1;  // Only keep bit 0
+    mask1 &= 1;
 
     EXPECT_TRUE(mask1.IsBitEnabled(0));
     EXPECT_FALSE(mask1.IsBitEnabled(1));
@@ -223,4 +227,319 @@ TEST(BitMaskTest, MoveAssignmentOperator) {
     EXPECT_FALSE(original.IsBitEnabled(9));
     EXPECT_FALSE(original.IsBitEnabled(14));
     EXPECT_EQ(original.GetRawBitMask(), 0);
+}
+
+
+// ------------------------- VECTOR2 ------------------------- //
+
+
+TEST(Vector2Test, DefaultConstructor) {
+    Vector2<int> v;
+    EXPECT_EQ(v.x, 0);
+    EXPECT_EQ(v.y, 0);
+}
+
+TEST(Vector2Test, ParameterizedConstructor) {
+    Vector2<float> v(1.0f, 2.0f);
+    EXPECT_FLOAT_EQ(v.x, 1.0f);
+    EXPECT_FLOAT_EQ(v.y, 2.0f);
+}
+
+TEST(Vector2Test, Addition) {
+    Vector2<int> v1(1, 2);
+    Vector2<int> v2(3, 4);
+    Vector2<int> result = v1 + v2;
+    EXPECT_EQ(result.x, 4);
+    EXPECT_EQ(result.y, 6);
+}
+
+TEST(Vector2Test, Subtraction) {
+    Vector2<double> v1(5.0, 7.0);
+    Vector2<double> v2(2.0, 3.0);
+    Vector2<double> result = v1 - v2;
+    EXPECT_DOUBLE_EQ(result.x, 3.0);
+    EXPECT_DOUBLE_EQ(result.y, 4.0);
+}
+
+TEST(Vector2Test, ScalarMultiplication) {
+    Vector2<int> v(2, 3);
+    Vector2<int> result = v * 3.f;
+    EXPECT_EQ(result.x, 6);
+    EXPECT_EQ(result.y, 9);
+}
+
+TEST(Vector2Test, DotProduct) {
+    Vector2<int> v1(1, 2);
+    Vector2<int> v2(3, 4);
+    EXPECT_EQ(v1.Dot(v2), 11);
+}
+
+TEST(Vector2Test, Length) {
+    Vector2<float> v(3.0f, 4.0f);
+    EXPECT_FLOAT_EQ(v.Length(), 5.0f); 
+}
+
+TEST(Vector2Test, Normalize) {
+    Vector2<float> v(3.0f, 4.0f);
+    Vector2<float> result = v.Normalize();
+    EXPECT_FLOAT_EQ(result.Length(), 1.0f);
+}
+
+TEST(Vector2Test, Equality) {
+    Vector2<int> v1(1, 2);
+    Vector2<int> v2(1, 2);
+    EXPECT_TRUE(v1 == v2);
+}
+
+TEST(Vector2Test, Inequality) {
+    Vector2<int> v1(1, 2);
+    Vector2<int> v2(3, 4);
+    EXPECT_FALSE(v1 == v2);
+}
+
+TEST(Vector2Test, Negation) {
+    Vector2<int> v(1, -2);
+    Vector2<int> result = v * -1.f;
+    EXPECT_EQ(result.x, -1);
+    EXPECT_EQ(result.y, 2);
+}
+
+TEST(Vector2Test, AdditionWithZero) {
+    Vector2<int> v(5, 10);
+    Vector2<int> zero;
+    Vector2<int> result = v + zero;
+    EXPECT_EQ(result.x, 5);
+    EXPECT_EQ(result.y, 10);
+}
+
+TEST(Vector2Test, SubtractionWithItself) {
+    Vector2<int> v(7, 9);
+    Vector2<int> result = v - v;
+    EXPECT_EQ(result.x, 0);
+    EXPECT_EQ(result.y, 0);
+}
+
+TEST(Vector2Test, DotProductWithZeroVector) {
+    Vector2<int> v(2, 3);
+    Vector2<int> zero;
+    EXPECT_EQ(v.Dot(zero), 0);
+}
+
+TEST(Vector2Test, ScalarMultiplicationByZero) {
+    Vector2<int> v(2, 3);
+    Vector2<int> result = v * (Borealis::Types::Uint64) 0;
+    EXPECT_EQ(result.x, 0);
+    EXPECT_EQ(result.y, 0);
+}
+
+
+// ------------------------- VECTOR3 ------------------------- //
+
+
+TEST(Vector3Test, DefaultConstructor) {
+    Vector3<int> v;
+    EXPECT_EQ(v.x, 0);
+    EXPECT_EQ(v.y, 0);
+    EXPECT_EQ(v.z, 0);
+}
+
+TEST(Vector3Test, ParameterizedConstructor) {
+    Vector3<double> v(1.0, 2.0, 3.0);
+    EXPECT_DOUBLE_EQ(v.x, 1.0);
+    EXPECT_DOUBLE_EQ(v.y, 2.0);
+    EXPECT_DOUBLE_EQ(v.z, 3.0);
+}
+
+TEST(Vector3Test, Addition) {
+    Vector3<int> v1(1, 2, 3);
+    Vector3<int> v2(4, 5, 6);
+    Vector3<int> result = v1 + v2;
+    EXPECT_EQ(result.x, 5);
+    EXPECT_EQ(result.y, 7);
+    EXPECT_EQ(result.z, 9);
+}
+
+TEST(Vector3Test, Subtraction) {
+    Vector3<int> v1(10, 20, 30);
+    Vector3<int> v2(5, 10, 15);
+    Vector3<int> result = v1 - v2;
+    EXPECT_EQ(result.x, 5);
+    EXPECT_EQ(result.y, 10);
+    EXPECT_EQ(result.z, 15);
+}
+
+TEST(Vector3Test, ScalarMultiplication) {
+    Vector3<int> v(1, 2, 3);
+    Vector3<int> result = v * 2.f;
+    EXPECT_EQ(result.x, 2);
+    EXPECT_EQ(result.y, 4);
+    EXPECT_EQ(result.z, 6);
+}
+
+TEST(Vector3Test, DotProduct) {
+    Vector3<int> v1(1, 2, 3);
+    Vector3<int> v2(4, 5, 6);
+    EXPECT_EQ(v1.Dot(v2), 32);
+}
+
+TEST(Vector3Test, CrossProduct) {
+    Vector3<int> v1(1, 0, 0);
+    Vector3<int> v2(0, 1, 0);
+    Vector3<int> result = v1.Cross(v2);
+    EXPECT_EQ(result.x, 0);
+    EXPECT_EQ(result.y, 0);
+    EXPECT_EQ(result.z, 1);
+}
+
+TEST(Vector3Test, Length) {
+    Vector3<float> v(3.0f, 4.0f, 0.0f);
+    EXPECT_FLOAT_EQ(v.Length(), 5.0f);
+}
+
+TEST(Vector3Test, Normalize) {
+    Vector3<float> v(3.0f, 4.0f, 0.0f);
+    Vector3<float> result = v.Normalize();
+    EXPECT_FLOAT_EQ(result.Length(), 1.0f);
+}
+
+TEST(Vector3Test, Equality) {
+    Vector3<int> v1(1, 2, 3);
+    Vector3<int> v2(1, 2, 3);
+    EXPECT_TRUE(v1 == v2);
+}
+
+TEST(Vector3Test, Inequality) {
+    Vector3<int> v1(1, 2, 3);
+    Vector3<int> v2(3, 2, 1);
+    EXPECT_FALSE(v1 == v2);
+}
+
+TEST(Vector3Test, AdditionWithZero) {
+    Vector3<int> v(1, 2, 3);
+    Vector3<int> zero;
+    Vector3<int> result = v + zero;
+    EXPECT_EQ(result.x, 1);
+    EXPECT_EQ(result.y, 2);
+    EXPECT_EQ(result.z, 3);
+}
+
+TEST(Vector3Test, SubtractionWithItself) {
+    Vector3<int> v(1, 2, 3);
+    Vector3<int> result = v - v;
+    EXPECT_EQ(result.x, 0);
+    EXPECT_EQ(result.y, 0);
+    EXPECT_EQ(result.z, 0);
+}
+
+TEST(Vector3Test, CrossProductWithItself) {
+    Vector3<int> v(1, 2, 3);
+    Vector3<int> result = v.Cross(v);
+    EXPECT_EQ(result.x, 0);
+    EXPECT_EQ(result.y, 0);
+    EXPECT_EQ(result.z, 0);
+}
+
+TEST(Vector3Test, ScalarMultiplicationByZero) {
+    Vector3<int> v(2, 3, 4);
+    Vector3<int> result = v * 0.0f;
+    EXPECT_EQ(result.x, 0);
+    EXPECT_EQ(result.y, 0);
+    EXPECT_EQ(result.z, 0);
+}
+
+TEST(Vector3Test, DotProductWithZeroVector) {
+    Vector3<int> v(2, 3, 4);
+    Vector3<int> zero;
+    EXPECT_EQ(v.Dot(zero), 0);
+}
+
+
+
+// ------------------------- VECTOR4 ------------------------- //
+
+
+
+TEST(Vector4Test, DefaultConstructor) {
+    Vector4<int> v;
+    EXPECT_EQ(v.x, 0);
+    EXPECT_EQ(v.y, 0);
+    EXPECT_EQ(v.z, 0);
+    EXPECT_EQ(v.w, 0);
+}
+
+TEST(Vector4Test, ParameterizedConstructor) {
+    Vector4<double> v(1.0, 2.0, 3.0, 4.0);
+    EXPECT_DOUBLE_EQ(v.x, 1.0);
+    EXPECT_DOUBLE_EQ(v.y, 2.0);
+    EXPECT_DOUBLE_EQ(v.z, 3.0);
+    EXPECT_DOUBLE_EQ(v.w, 4.0);
+}
+
+TEST(Vector4Test, Addition) {
+    Vector4<int> v1(1, 2, 3, 4);
+    Vector4<int> v2(4, 5, 6, 7);
+    Vector4<int> result = v1 + v2;
+    EXPECT_EQ(result.x, 5);
+    EXPECT_EQ(result.y, 7);
+    EXPECT_EQ(result.z, 9);
+    EXPECT_EQ(result.w, 11);
+}
+
+TEST(Vector4Test, Subtraction) {
+    Vector4<int> v1(10, 20, 30, 40);
+    Vector4<int> v2(5, 10, 15, 20);
+    Vector4<int> result = v1 - v2;
+    EXPECT_EQ(result.x, 5);
+    EXPECT_EQ(result.y, 10);
+    EXPECT_EQ(result.z, 15);
+    EXPECT_EQ(result.w, 20);
+}
+
+TEST(Vector4Test, ScalarMultiplication) {
+    Vector4<int> v(1, 2, 3, 4);
+    Vector4<int> result = v * 2.f;
+    EXPECT_EQ(result.x, 2);
+    EXPECT_EQ(result.y, 4);
+    EXPECT_EQ(result.z, 6);
+    EXPECT_EQ(result.w, 8);
+}
+
+TEST(Vector4Test, Equality) {
+    Vector4<int> v1(1, 2, 3, 4);
+    Vector4<int> v2(1, 2, 3, 4);
+    EXPECT_TRUE(v1 == v2);
+}
+
+TEST(Vector4Test, Inequality) {
+    Vector4<int> v1(1, 2, 3, 4);
+    Vector4<int> v2(4, 3, 2, 1);
+    EXPECT_FALSE(v1 == v2);
+}
+
+TEST(Vector4Test, AdditionWithZero) {
+    Vector4<int> v(1, 2, 3, 4);
+    Vector4<int> zero;
+    Vector4<int> result = v + zero;
+    EXPECT_EQ(result.x, 1);
+    EXPECT_EQ(result.y, 2);
+    EXPECT_EQ(result.z, 3);
+    EXPECT_EQ(result.w, 4);
+}
+
+TEST(Vector4Test, SubtractionWithItself) {
+    Vector4<int> v(1, 2, 3, 4);
+    Vector4<int> result = v - v;
+    EXPECT_EQ(result.x, 0);
+    EXPECT_EQ(result.y, 0);
+    EXPECT_EQ(result.z, 0);
+    EXPECT_EQ(result.w, 0);
+}
+
+TEST(Vector4Test, ScalarMultiplicationByZero) {
+    Vector4<int> v(2, 3, 4, 5);
+    Vector4<int> result = v * 0.f;
+    EXPECT_EQ(result.x, 0);
+    EXPECT_EQ(result.y, 0);
+    EXPECT_EQ(result.z, 0);
+    EXPECT_EQ(result.w, 0);
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../core/types/types.h"
 
@@ -165,6 +165,17 @@ namespace Borealis
 			}
 
 
+			bool operator==(const Vector2& other) const
+			{
+				return x == other.x && y == other.y;
+			}
+
+			bool operator!=(const Vector2& other) const
+			{
+				return x != other.x || y != other.y;
+			}
+
+
 			Vector2& operator=(const Vector2<T>& other)
 			{
 				x = other.x;
@@ -180,24 +191,24 @@ namespace Borealis
 			}
 
 
-			Vector2& operator*(Types::Uint64 mul)
+			Vector2 operator*(Types::Uint64 mul)
 			{
-				return {x * mul, y * mul};
+				return Vector2{x * (T)mul, y * (T)mul};
 			}
 
-			Vector2& operator/(Types::Uint64 div)
+			Vector2 operator/(Types::Uint64 div)
 			{
-				return {x / div, y / div};
+				return Vector2{x / (T)div, y / (T)div};
 			}
 
-			Vector2& operator+(Types::Uint64 add)
+			Vector2 operator+(Types::Uint64 add)
 			{
-				return {x + add, y + add};
+				return Vector2{x + (T)add, y + (T)add};
 			}
 
-			Vector2& operator-(Types::Uint64 sub)
+			Vector2 operator-(Types::Uint64 sub)
 			{
-				return {x - sub, y - sub};
+				return Vector2{x - (T)sub, y - (T)sub};
 			}
 			
 
@@ -226,24 +237,24 @@ namespace Borealis
 			}
 
 
-			Vector2& operator*(float mul)
+			Vector2 operator*(float mul)
 			{
-				return { x * mul, y * mul };
+				return Vector2 (x * mul, y * mul );
 			}
 
-			Vector2& operator/(float div)
+			Vector2 operator/(float div)
 			{
-				return { x / div, y / div };
+				return Vector2{ x / div, y / div };
 			}
 
-			Vector2& operator+(float add)
+			Vector2 operator+(float add)
 			{
-				return { x + add, y + add };
+				return Vector2{ x + add, y + add };
 			}
 
-			Vector2& operator-(float sub)
+			Vector2 operator-(float sub)
 			{
-				return { x - sub, y - sub };
+				return Vector2{ x - sub, y - sub };
 			}
 
 
@@ -272,24 +283,24 @@ namespace Borealis
 			}
 
 
-			Vector2& operator*(Vector2<T> mul)
+			Vector2 operator*(Vector2<T> mul)
 			{
-				return { x * mul.x, y * mul.y };
+				return Vector2( x * mul.x, y * mul.y );
 			}
 
-			Vector2& operator/(Vector2<T> div)
+			Vector2 operator/(Vector2<T> div)
 			{
-				return { x / div.x, y / div.y };
+				return Vector2( x / div.x, y / div.y );
 			}
 
-			Vector2& operator+(Vector2<T> add)
+			Vector2 operator+(Vector2<T> add)
 			{
-				return { x + add.x, y + add.y };
+				return Vector2(x + add.x, y + add.y);
 			}
 
-			Vector2& operator-(Vector2<T> sub)
+			Vector2 operator-(Vector2<T> sub)
 			{
-				return { x - sub.x, y - sub.y };
+				return Vector2(x - sub.x, y - sub.y);
 			}
 
 
@@ -324,7 +335,22 @@ namespace Borealis
 				y = {};
 			}
 
-		private:
+			float Dot(const Vector2<T>& other) const
+			{
+				if (Length() == 0 || other.Length() == 0) return 0.f;
+				return (x * other.x) + (y * other.y);
+			}
+
+			float Length() const
+			{
+				return sqrtf( (x * x) + (y * y) );
+			}
+
+			Vector2 Normalize() const
+			{
+				float len = Length();
+				return Vector2(x / len, y / len);
+			}
 
 			T x;
 			T y;
@@ -351,6 +377,16 @@ namespace Borealis
 				other.Reset();
 			}
 
+			bool operator==(const Vector3<T>& other) const
+			{
+				return x == other.x && y == other.y && z == other.z;
+			}
+
+			bool operator!=(const Vector3<T>& other) const
+			{
+				return x != other.x || y != other.y || z != other.z;
+			}
+
 
 			Vector3& operator=(const Vector3<T>& other)
 			{
@@ -369,153 +405,166 @@ namespace Borealis
 			}
 
 
-			Vector3& operator*(Types::Uint64 mul)
+			Vector3 operator*(Types::Uint64 mul)
 			{
-				return { x * mul, y * mul, z * mul };
+				return Vector3{ x * mul, y * mul, z * mul };
 			}
 
-			Vector3& operator/(Types::Uint64 div)
+			Vector3 operator/(Types::Uint64 div)
 			{
-				return { x / div, y / div, z / div };
+				return Vector3{ x / div, y / div, z / div };
 			}
 
-			Vector3& operator+(Types::Uint64 add)
+			Vector3 operator+(Types::Uint64 add)
 			{
-				return { x + add, y + add, z + add };
+				return Vector3{ x + add, y + add, z + add };
 			}
 
-			Vector3& operator-(Types::Uint64 sub)
+			Vector3 operator-(Types::Uint64 sub)
 			{
-				return { x - sub, y - sub, z - sub };
+				return Vector3{ x - sub, y - sub, z - sub };
 			}
 
 
-			void operator*=(Types::Uint64 mul)
+			Vector3& operator*=(Types::Uint64 mul)
 			{
 				x *= mul;
 				y *= mul;
 				z *= mul;
+				return *this;
 			}
 
-			void operator/=(Types::Uint64 div)
+			Vector3& operator/=(Types::Uint64 div)
 			{
 				x /= div;
 				y /= div;
 				z /= div;
+
+				return *this;
 			}
 
-			void operator+=(Types::Uint64 add)
+			Vector3& operator+=(Types::Uint64 add)
 			{
 				x += add;
 				y += add;
 				z += add;
+				return *this;
 			}
 
-			void operator-=(Types::Uint64 sub)
+			Vector3& operator-=(Types::Uint64 sub)
 			{
 				x -= sub;
 				y -= sub;
 				z -= sub;
+				return *this;
 			}
 
 
-			Vector3& operator*(float mul)
+			Vector3 operator*(float mul)
 			{
-				return { x * mul, y * mul, z * mul };
+				return Vector3{ x * (T)mul, y * (T)mul, z * (T)mul };
 			}
 
-			Vector3& operator/(float div)
+			Vector3 operator/(float div)
 			{
-				return { x / div, y / div, z / div };
+				return Vector3{ x / (T)div, y / (T)div, z / (T)div };
 			}
 
-			Vector3& operator+(float add)
+			Vector3 operator+(float add)
 			{
-				return { x + add, y + add, z + add };
+				return Vector3{ x + (T)add, y + (T)add, z + (T)add };
 			}
 
-			Vector3& operator-(float sub)
+			Vector3 operator-(float sub)
 			{
-				return { x - sub, y - sub, z - sub };
+				return Vector3{ x - (T)sub, y - (T)sub, z - (T)sub };
 			}
 
 
-			void operator*=(float mul)
+			Vector3& operator*=(float mul)
 			{
 				x *= mul;
 				y *= mul;
 				z *= mul;
+				return *this;
 			}
 
-			void operator/=(float div)
+			Vector3& operator/=(float div)
 			{
 				x /= div;
 				y /= div;
 				z /= div;
+				return *this;
 			}
 
-			void operator+=(float add)
+			Vector3& operator+=(float add)
 			{
 				x += add;
 				y += add;
 				z += add;
+				return *this;
 			}
 
-			void operator-=(float sub)
+			Vector3& operator-=(float sub)
 			{
 				x -= sub;
 				y -= sub;
 				z -= sub;
+				return *this;
 			}
 
 			
-			Vector3& operator*(Vector3<T> mul)
+			Vector3 operator*(Vector3<T> mul)
 			{
-				return { x * mul.x, y * mul.y, z * mul.z };
+				return Vector3{ x * mul.x, y * mul.y, z * mul.z };
 			}
 
-			Vector3& operator/(Vector3<T> div)
+			Vector3 operator/(Vector3<T> div)
 			{
-				return { x / div.x, y / div.y, z / div.z };
+				return Vector3{ x / div.x, y / div.y, z / div.z };
 			}
 
-			Vector3& operator+(Vector3<T> add)
+			Vector3 operator+(Vector3<T> add)
 			{
-				return { x + add.x, y + add.y, z + add.z };
+				return Vector3{ x + add.x, y + add.y, z + add.z };
 			}
 
-			Vector3& operator-(Vector3<T> sub)
+			Vector3 operator-(Vector3<T> sub)
 			{
-				return { x - sub.x, y - sub.y, z - sub.z };
+				return Vector3{ x - sub.x, y - sub.y, z - sub.z };
 			}
 
 
-			void operator*=(Vector3<T> mul)
+			Vector3& operator*=(Vector3<T> mul)
 			{
 				x *= mul.x;
 				y *= mul.y;
 				z *= mul.z;
+				return *this;
 			}
 
-			void operator/=(Vector3<T> div)
+			Vector3& operator/=(Vector3<T> div)
 			{
 				x /= div.x;
 				y /= div.y;
 				z /= div.z;
+				return *this;
 			}
 
-			void operator+=(Vector3<T> add)
+			Vector3& operator+=(Vector3<T> add)
 			{
 				x += add.x;
 				y += add.y;
 				z += add.z;
+				return *this;
 			}
 
-			void operator-=(Vector3<T> sub)
+			Vector3& operator-=(Vector3<T> sub)
 			{
 				x -= sub.x;
 				y -= sub.y;
 				z -= sub.z;
+				return *this;
 			}
 
 
@@ -526,7 +575,32 @@ namespace Borealis
 				z = {};
 			}
 
-		private:
+
+			float Dot(const Vector3<T>& other) const
+			{
+				if (Length() == 0 || other.Length() == 0) return 0.f;
+				return (x * other.x) + (y * other.y) + (z * other.z);
+			}
+
+			float Length() const
+			{
+				return sqrtf((x * x) + (y * y) + (z * z));
+			}
+
+			Vector3 Normalize() const
+			{
+				float len = Length();
+				return Vector3( x / len, y / len, z / len );
+			}
+
+			Vector3 Cross(const Vector3<T>& other) const
+			{
+				T newX = (y * other.z) - (z * other.y);
+				T newY = (z * other.x) - (x * other.z);
+				T newZ = (x * other.y) - (y * other.x);
+
+				return Vector3<T>(newX, newY, newZ);
+			}
 
 			T x;
 			T y;
@@ -554,6 +628,17 @@ namespace Borealis
 				other.Reset();
 			}
 
+			bool operator==(const Vector4<T>& other) const
+			{
+				return x == other.x && y == other.y &&
+					z == other.z && w == other.w;
+			}
+
+			bool operator!=(const Vector4<T>& other) const
+			{
+				return x != other.x || y != other.y || 
+					z != other.z || w != other.w;
+			}
 
 			Vector4& operator=(const Vector4<T>& other)
 			{
@@ -574,24 +659,24 @@ namespace Borealis
 			}
 
 
-			Vector4& operator*(Types::Uint64 mul)
+			Vector4 operator*(Types::Uint64 mul)
 			{
-				return { x * mul, y * mul, z * mul, w * mul };
+				return Vector4{ x * mul, y * mul, z * mul, w * mul };
 			}
 
-			Vector4& operator/(Types::Uint64 div)
+			Vector4 operator/(Types::Uint64 div)
 			{
-				return { x / div, y / div, z / div, w / div };
+				return Vector4{ x / div, y / div, z / div, w / div };
 			}
 
-			Vector4& operator+(Types::Uint64 add)
+			Vector4 operator+(Types::Uint64 add)
 			{
-				return { x + add, y + add, z + add, w + add };
+				return Vector4{ x + add, y + add, z + add, w + add };
 			}
 
-			Vector4& operator-(Types::Uint64 sub)
+			Vector4 operator-(Types::Uint64 sub)
 			{
-				return { x - sub, y - sub, z - sub, w - sub };
+				return Vector4{ x - sub, y - sub, z - sub, w - sub };
 			}
 
 
@@ -628,24 +713,24 @@ namespace Borealis
 			}
 
 
-			Vector4& operator*(float mul)
+			Vector4 operator*(float mul)
 			{
-				return { x * mul, y * mul, z * mul, w * mul };
+				return Vector4{ x * (T)mul, y * (T)mul, z * (T)mul, w * (T)mul };
 			}
 
-			Vector4& operator/(float div)
+			Vector4 operator/(float div)
 			{
-				return { x / div, y / div, z / div, w / div };
+				return Vector4{ x / (T)div, y / (T)div, z / (T)div, w / (T)div };
 			}
 
-			Vector4& operator+(float add)
+			Vector4 operator+(float add)
 			{
-				return { x + add, y + add, z + add, w + add };
+				return Vector4{ x + (T)add, y + (T)add, z + (T)add, w + (T)add };
 			}
 
-			Vector4& operator-(float sub)
+			Vector4 operator-(float sub)
 			{
-				return { x - sub, y - sub, z - sub, w - sub };
+				return Vector4{ x - (T)sub, y - (T)sub, z - (T)sub, w - (T)sub };
 			}
 
 
@@ -682,24 +767,24 @@ namespace Borealis
 			}
 
 
-			Vector4& operator*(Vector4<T> mul)
+			Vector4 operator*(Vector4<T> mul)
 			{
-				return { x * mul.x, y * mul.y, z * mul.z, w * mul.w };
+				return Vector4{ x * mul.x, y * mul.y, z * mul.z, w * mul.w };
 			}
 
-			Vector4& operator/(Vector4<T> div)
+			Vector4 operator/(Vector4<T> div)
 			{
-				return { x / div.x, y / div.y, z / div.z, w / div.w };
+				return Vector4{ x / div.x, y / div.y, z / div.z, w / div.w };
 			}
 
-			Vector4& operator+(Vector4<T> add)
+			Vector4 operator+(Vector4<T> add)
 			{
-				return { x + add.x, y + add.y, z + add.z, w + add.w };
+				return Vector4{ x + add.x, y + add.y, z + add.z, w + add.w };
 			}
 
-			Vector4& operator-(Vector4<T> sub)
+			Vector4 operator-(Vector4<T> sub)
 			{
-				return { x - sub.x, y - sub.y, z - sub.z, w - sub.w };
+				return Vector4{ x - sub.x, y - sub.y, z - sub.z, w - sub.w };
 			}
 
 
@@ -743,8 +828,6 @@ namespace Borealis
 				z = {};
 				w = {};
 			}
-
-		private:
 
 			T x;
 			T y;
