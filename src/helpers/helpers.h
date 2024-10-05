@@ -16,8 +16,7 @@ namespace Borealis
 				bitMask(mask)
 			{ }
 
-			~BitMask()
-			{ }
+			~BitMask() = default;
 
 			BitMask(const BitMask& other)
 				: bitMask(other.bitMask)
@@ -32,12 +31,14 @@ namespace Borealis
 			BitMask& operator=(const BitMask& other)
 			{
 				bitMask = other.bitMask;
+				return *this;
 			}
 
 			BitMask& operator=(BitMask&& other) noexcept
 			{
 				bitMask = other.bitMask;
 				other.Reset();
+				return *this;
 			}
 
 			bool operator==(const BitMask& other) const
@@ -60,12 +61,12 @@ namespace Borealis
 				return bitMask > other.bitMask;
 			}
 
-			bool operator&(const BitMask& other) const
+			BitMask operator&(const BitMask& other) const
 			{
-				return bitMask & other.bitMask;
+				return BitMask(bitMask & other.bitMask);
 			}
 
-			bool operator|(const BitMask& other) const
+			BitMask operator|(const BitMask& other) const
 			{
 				return bitMask | other.bitMask;
 			}
@@ -90,42 +91,42 @@ namespace Borealis
 				return ~bitMask;
 			}
 
-			void operator<<(const Types::Uint8 bit)
+			BitMask operator<<(const Types::Uint8 bit)
 			{
-				bitMask << bit;
+				return BitMask(bitMask << bit);
 			}
 
-			void operator>>(const Types::Uint8 bit)
+			BitMask operator>>(const Types::Uint8 bit)
 			{
-				bitMask >> bit;
+				return BitMask(bitMask >> bit);
 			}
 
-			inline void SetBit(const Types::Uint8 bit)
+			inline void EnableBit(const Types::Uint8 bit)
 			{
 				bitMask |= (static_cast<Types::Uint64>(1) << bit);
 			}
 
-			inline void UnSetBit(const Types::Uint8 bit)
+			inline void DisableBit(const Types::Uint8 bit)
 			{
-				bitMask |= (static_cast<Types::Uint64>(0) << bit);
+				bitMask &= ~(static_cast<Types::Uint64>(1) << bit);
 			}
 
-			inline bool IsBitSet(const Types::Uint8 bit) const
+			inline bool IsBitEnabled(const Types::Uint8 bit) const
 			{
 				return bitMask & (static_cast<Types::Uint64>(1) << bit);
 			}
 
-			inline bool AllBitsSet() const
+			inline bool AllBitsEnabled() const
 			{
 				return bitMask == ~static_cast<Types::Uint64>(0);
 			}
 
-			const Types::Uint64& GetRawBitMaskRef()
+			const Types::Uint64& GetRawBitMaskRef() const
 			{
 				return bitMask;
 			}
 
-			Types::Uint64 GetRawBitMask()
+			Types::Uint64 GetRawBitMask() const
 			{
 				return bitMask;
 			}
