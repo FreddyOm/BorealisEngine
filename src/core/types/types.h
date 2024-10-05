@@ -43,6 +43,5 @@ namespace Borealis::Types
 		typedef uint_fast32_t	Uint32;
 		typedef uint_fast64_t	Uint64;
 
-#endif;
-
+#endif
 }
