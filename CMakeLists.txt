@@ -12,12 +12,30 @@ project(
     LANGUAGES CXX C
 )
 
-message("Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION}")
+if(WIN32)
+    message("Configuring for Windows platform")
+    add_compile_definitions(BOREALIS_WIN)
+elseif(APPLE)
+    message("Configuring for MacOS platform")
+    add_compile_definitions(BOREALIS_OSX)
+elseif(UNIX)
+    message("Configuring for Linux platform")
+    add_compile_definitions(BOREALIS_LINUX)
+endif()
+
+message("Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
 
 # Project source files
 set(SOURCES 
-    src/main.cpp 
+    src/main.cpp
+)
+
+# Project include files
+set(HEADERS
+    src/core/types/types.h
+    src/borealis_engine.h
+    src/helpers/helpers.h
 )
 
 # Create executable
-add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
+add_executable(${CMAKE_PROJECT_NAME} ${SOURCES} ${HEADERS})
