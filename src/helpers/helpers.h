@@ -13,7 +13,7 @@ namespace Borealis
 				bitMask(0)
 			{ }
 
-			BitMask(Types::Uint64 mask) : 
+			BitMask(Borealis::Types::uint64 mask) :
 				bitMask(mask)
 			{ }
 
@@ -72,62 +72,62 @@ namespace Borealis
 				return bitMask | other.bitMask;
 			}
 
-			void operator|=(const Types::Uint8 bit)
+			void operator|=(const Borealis::Types::uint8 bit)
 			{
 				bitMask |= bit;
 			}
 
-			void operator&=(const Types::Uint8 bit)
+			void operator&=(const Borealis::Types::uint8 bit)
 			{
 				bitMask &= bit;
 			}
 
-			void operator^=(const Types::Uint8 bit)
+			void operator^=(const Borealis::Types::uint8 bit)
 			{
 				bitMask ^= bit;
 			}
 
-			Types::Uint8 operator~()
+			Borealis::Types::uint8 operator~()
 			{
 				return ~bitMask;
 			}
 
-			BitMask operator<<(const Types::Uint8 bit)
+			BitMask operator<<(const Borealis::Types::uint8 bit)
 			{
 				return BitMask(bitMask << bit);
 			}
 
-			BitMask operator>>(const Types::Uint8 bit)
+			BitMask operator>>(const Borealis::Types::uint8 bit)
 			{
 				return BitMask(bitMask >> bit);
 			}
 
-			inline void EnableBit(const Types::Uint8 bit)
+			inline void EnableBit(const Borealis::Types::uint8 bit)
 			{
-				bitMask |= (static_cast<Types::Uint64>(1) << bit);
+				bitMask |= (static_cast<Borealis::Types::uint64>(1) << bit);
 			}
 
-			inline void DisableBit(const Types::Uint8 bit)
+			inline void DisableBit(const Borealis::Types::uint8 bit)
 			{
-				bitMask &= ~(static_cast<Types::Uint64>(1) << bit);
+				bitMask &= ~(static_cast<Borealis::Types::uint64>(1) << bit);
 			}
 
-			inline bool IsBitEnabled(const Types::Uint8 bit) const
+			inline bool IsBitEnabled(const Borealis::Types::uint8 bit) const
 			{
-				return bitMask & (static_cast<Types::Uint64>(1) << bit);
+				return bitMask & (static_cast<Borealis::Types::uint64>(1) << bit);
 			}
 
 			inline bool AllBitsEnabled() const
 			{
-				return bitMask == ~static_cast<Types::Uint64>(0);
+				return bitMask == ~static_cast<Borealis::Types::uint64>(0);
 			}
 
-			const Types::Uint64& GetRawBitMaskRef() const
+			const Borealis::Types::uint64& GetRawBitMaskRef() const
 			{
 				return bitMask;
 			}
 
-			Types::Uint64 GetRawBitMask() const
+			Borealis::Types::uint64 GetRawBitMask() const
 			{
 				return bitMask;
 			}
@@ -138,7 +138,7 @@ namespace Borealis
 			}
 
 		private:
-			Types::Uint64 bitMask;
+			Borealis::Types::uint64 bitMask;
 		};
 	}
 
@@ -192,46 +192,46 @@ namespace Borealis
 			}
 
 
-			Vector2 operator*(Types::Uint64 mul)
+			Vector2 operator*(Borealis::Types::uint64 mul)
 			{
 				return Vector2{x * (T)mul, y * (T)mul};
 			}
 
-			Vector2 operator/(Types::Uint64 div)
+			Vector2 operator/(Borealis::Types::int64 div)
 			{
 				return Vector2{x / (T)div, y / (T)div};
 			}
 
-			Vector2 operator+(Types::Uint64 add)
+			Vector2 operator+(Borealis::Types::uint64 add)
 			{
 				return Vector2{x + (T)add, y + (T)add};
 			}
 
-			Vector2 operator-(Types::Uint64 sub)
+			Vector2 operator-(Borealis::Types::uint64 sub)
 			{
 				return Vector2{x - (T)sub, y - (T)sub};
 			}
 			
 
-			void operator*=(Types::Uint64 mul)
+			void operator*=(Borealis::Types::uint64 mul)
 			{
 				x *= mul;
 				y *= mul;
 			}
 
-			void operator/=(Types::Uint64 div)
+			void operator/=(Borealis::Types::uint64 div)
 			{
 				x /= div;
 				y /= div;
 			}
 
-			void operator+=(Types::Uint64 add)
+			void operator+=(Borealis::Types::uint64 add)
 			{
 				x += add;
 				y += add;
 			}
 
-			void operator-=(Types::Uint64 sub)
+			void operator-=(Borealis::Types::uint64 sub)
 			{
 				x -= sub;
 				y -= sub;
@@ -406,28 +406,28 @@ namespace Borealis
 			}
 
 
-			Vector3 operator*(Types::Uint64 mul)
+			Vector3 operator*(Borealis::Types::uint64 mul)
 			{
 				return Vector3{ x * mul, y * mul, z * mul };
 			}
 
-			Vector3 operator/(Types::Uint64 div)
+			Vector3 operator/(Borealis::Types::uint64 div)
 			{
 				return Vector3{ x / div, y / div, z / div };
 			}
 
-			Vector3 operator+(Types::Uint64 add)
+			Vector3 operator+(Borealis::Types::uint64 add)
 			{
 				return Vector3{ x + add, y + add, z + add };
 			}
 
-			Vector3 operator-(Types::Uint64 sub)
+			Vector3 operator-(Borealis::Types::uint64 sub)
 			{
 				return Vector3{ x - sub, y - sub, z - sub };
 			}
 
 
-			Vector3& operator*=(Types::Uint64 mul)
+			Vector3& operator*=(Borealis::Types::uint64 mul)
 			{
 				x *= mul;
 				y *= mul;
@@ -435,7 +435,7 @@ namespace Borealis
 				return *this;
 			}
 
-			Vector3& operator/=(Types::Uint64 div)
+			Vector3& operator/=(Borealis::Types::uint64 div)
 			{
 				x /= div;
 				y /= div;
@@ -444,7 +444,7 @@ namespace Borealis
 				return *this;
 			}
 
-			Vector3& operator+=(Types::Uint64 add)
+			Vector3& operator+=(Borealis::Types::uint64 add)
 			{
 				x += add;
 				y += add;
@@ -452,7 +452,7 @@ namespace Borealis
 				return *this;
 			}
 
-			Vector3& operator-=(Types::Uint64 sub)
+			Vector3& operator-=(Borealis::Types::uint64 sub)
 			{
 				x -= sub;
 				y -= sub;
@@ -660,28 +660,28 @@ namespace Borealis
 			}
 
 
-			Vector4 operator*(Types::Uint64 mul)
+			Vector4 operator*(Borealis::Types::uint64 mul)
 			{
 				return Vector4{ x * mul, y * mul, z * mul, w * mul };
 			}
 
-			Vector4 operator/(Types::Uint64 div)
+			Vector4 operator/(Borealis::Types::uint64 div)
 			{
 				return Vector4{ x / div, y / div, z / div, w / div };
 			}
 
-			Vector4 operator+(Types::Uint64 add)
+			Vector4 operator+(Borealis::Types::uint64 add)
 			{
 				return Vector4{ x + add, y + add, z + add, w + add };
 			}
 
-			Vector4 operator-(Types::Uint64 sub)
+			Vector4 operator-(Borealis::Types::uint64 sub)
 			{
 				return Vector4{ x - sub, y - sub, z - sub, w - sub };
 			}
 
 
-			void operator*=(Types::Uint64 mul)
+			void operator*=(Borealis::Types::uint64 mul)
 			{
 				x *= mul;
 				y *= mul;
@@ -689,7 +689,7 @@ namespace Borealis
 				w *= mul;
 			}
 
-			void operator/=(Types::Uint64 div)
+			void operator/=(Borealis::Types::uint64 div)
 			{
 				x /= div;
 				y /= div;
@@ -697,7 +697,7 @@ namespace Borealis
 				w /= div;
 			}
 
-			void operator+=(Types::Uint64 add)
+			void operator+=(Borealis::Types::uint64 add)
 			{
 				x += add;
 				y += add;
@@ -705,7 +705,7 @@ namespace Borealis
 				w += add;
 			}
 
-			void operator-=(Types::Uint64 sub)
+			void operator-=(Borealis::Types::uint64 sub)
 			{
 				x -= sub;
 				y -= sub;

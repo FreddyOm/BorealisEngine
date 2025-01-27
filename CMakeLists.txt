@@ -19,12 +19,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(WIN32)
     message("Configuring for Windows platform")
     add_compile_definitions(BOREALIS_WIN)
+    add_compile_definitions(BOREALIS_BUILD_DLL)
 elseif(APPLE)
     message("Configuring for MacOS platform")
     add_compile_definitions(BOREALIS_OSX)
+    add_compile_definitions(BOREALIS_BUILD_DLL)
 elseif(UNIX)
     message("Configuring for Linux platform")
     add_compile_definitions(BOREALIS_LINUX)
+    add_compile_definitions(BOREALIS_BUILD_DLL)
 endif()
 
 message("Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
@@ -32,12 +35,17 @@ message("Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
 # Project source files
 set(SOURCES 
     src/main.cpp
+    src/core/window/window.cpp
+    src/core/window/window_internal.cpp
 )
 
 # Project include files
 set(HEADERS
-    src/core/types/types.h
+    src/config.h
     src/borealis_engine.h
+    src/core/types/types.h
+    src/core/window/window.h
+    src/core/window/window_internal.h
     src/helpers/helpers.h
 )
 

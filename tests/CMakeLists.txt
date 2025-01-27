@@ -28,9 +28,10 @@ FetchContent_MakeAvailable(googletest)
 set(SOURCES 
     test_helpers.cpp
     test_types.cpp
+    test_window.cpp
 )
 
-add_executable(BorealisEngineTests ${SOURCES})
+add_executable(BorealisEngineTests ${SOURCES} "test_window.cpp")
 target_link_libraries(BorealisEngineTests GTest::gtest_main)
 
 

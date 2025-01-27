@@ -37,7 +37,7 @@ TEST(BitMaskTest, DisableBit) {
 }
 
 TEST(BitMaskTest, AllBitsEnabled) {
-    BitMask mask1(~static_cast<Borealis::Types::Uint64>(0));
+    BitMask mask1(~static_cast<Borealis::Types::uint64>(0));
     EXPECT_TRUE(mask1.AllBitsEnabled());
 
     mask1.DisableBit(5);
@@ -167,7 +167,7 @@ TEST(BitMaskTest, GetRawBitMaskRef) {
     mask1.EnableBit(2);
     mask1.EnableBit(5);
 
-    const Borealis::Types::Uint64& maskRef = mask1.GetRawBitMaskRef();
+    const Borealis::Types::uint64& maskRef = mask1.GetRawBitMaskRef();
     EXPECT_EQ(maskRef, 0b100100);
 }
 
@@ -327,7 +327,7 @@ TEST(Vector2Test, DotProductWithZeroVector) {
 
 TEST(Vector2Test, ScalarMultiplicationByZero) {
     Vector2<int> v(2, 3);
-    Vector2<int> result = v * (Borealis::Types::Uint64) 0;
+    Vector2<int> result = v * (Borealis::Types::uint64) 0;
     EXPECT_EQ(result.x, 0);
     EXPECT_EQ(result.y, 0);
 }
