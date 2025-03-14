@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include "../src/borealis_engine.h"
 #include "../src/core/window/window.h"
 
 TEST(WindowTest, WindowOpen)

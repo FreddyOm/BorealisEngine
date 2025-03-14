@@ -1,6 +1,6 @@
 #pragma once
-#include "../../borealis_engine.h"
 #include <cstdint>
+#include "../../borealis_engine.h"
 
 namespace Borealis::Types
 {	
@@ -11,7 +11,6 @@ namespace Borealis::Types
 		typedef short			int16;
 		typedef int_fast32_t	int32;
 		typedef int_fast64_t	int64;
-		
 		typedef uint_fast8_t	uint8;
 		typedef unsigned short	uint16;
 		typedef uint_fast32_t	uint32;

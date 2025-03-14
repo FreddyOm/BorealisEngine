@@ -1,7 +1,7 @@
 # Build files
 
-build/
-
+/build*
+/out*
 # CMake files
 
 CMakeLists.txt.user

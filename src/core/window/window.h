@@ -1,6 +1,6 @@
 #include <string>
-#include "../../borealis_engine.h"
 #include "../types/types.h"
+#include "../../borealis_engine.h"
 
 namespace Borealis::Core
 {
