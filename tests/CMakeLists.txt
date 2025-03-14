@@ -32,17 +32,14 @@ set(SOURCES
 )
 
 if(WIN32)
-    message("Configuring engine lib for Windows platform")
+    message("Configuring tests for Windows platform")
     add_compile_definitions(BOREALIS_WIN)
-    add_compile_definitions(BOREALIS_BUILD_DLL)
 elseif(APPLE)
-    message("Configuring engine lib for MacOS platform")
+    message("Configuring tests for MacOS platform")
     add_compile_definitions(BOREALIS_OSX)
-    add_compile_definitions(BOREALIS_BUILD_DLL)
 elseif(UNIX)
-    message("Configuring engine lib for Linux platform")
+    message("Configuring tests for Linux platform")
     add_compile_definitions(BOREALIS_LINUX)
-    add_compile_definitions(BOREALIS_BUILD_DLL)
 endif()
 
 add_executable(BorealisEngineTests ${SOURCES})
@@ -50,7 +47,7 @@ add_executable(BorealisEngineTests ${SOURCES})
 add_custom_command(
     TARGET BorealisEngineTests
     PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/../src/BorealisEngineLib.dll ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/../src/Release/BorealisEngineLib.dll ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Copy engine lib to output directory..."
 )
 
