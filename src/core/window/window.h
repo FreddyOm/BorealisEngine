@@ -26,8 +26,8 @@ namespace Borealis::Core
 			bool IsMinimized() const;
 			bool IsRunning() const;
 
-			Types::uint8 GetWindowWidth();
-			Types::uint8 GetWindowHeight();
+			Types::uint8 GetWindowWidth() const;
+			Types::uint8 GetWindowHeight() const;
 
 		private:
 			
