@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #include "../types/types.h"
 #include "../../borealis_engine.h"
