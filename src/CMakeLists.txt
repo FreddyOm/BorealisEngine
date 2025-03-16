@@ -27,6 +27,10 @@ elseif(UNIX)
     message("Configuring engine lib for Linux platform")
     add_compile_definitions(BOREALIS_LINUX)
     add_compile_definitions(BOREALIS_BUILD_DLL)
+
+    find_package(X11 REQUIRED)
+    link_libraries(${X11_LIBRARIES})
+    include_directories(${X11_INCLUDE_DIR})
 endif()
 
 message("Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
