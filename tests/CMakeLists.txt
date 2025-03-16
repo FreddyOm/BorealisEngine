@@ -44,6 +44,7 @@ endif()
 
 add_executable(BorealisEngineTests ${SOURCES})
 
+# Within Github, only ${CMAKE_CURRENT_BINARY_DIR}/../src/Release/BorealisEngineLib.dll works!
 add_custom_command(
     TARGET BorealisEngineTests
     PRE_BUILD
