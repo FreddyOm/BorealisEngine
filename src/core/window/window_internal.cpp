@@ -152,12 +152,32 @@ namespace Borealis::Core
 
 	void OpenWindowInternal(std::string windowName)
 	{
+		isRunning = true;
+	}
+
+	void CloseWindowInternal()
+	{
+		isRunning = false;
+	}
+
+	void UpdateWindowInternal()
+	{
 
 	}
 
 #elif BOREALIS_OSX
 
 	void OpenWindowInternal(std::string windowName)
+	{
+		isRunning = true;
+	}
+
+	void CloseWindowInternal()
+	{
+		isRunning = false;
+	}
+
+	void UpdateWindowInternal()
 	{
 
 	}
