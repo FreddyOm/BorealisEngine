@@ -135,7 +135,7 @@ namespace Borealis::Core
 	{
 		// Reset window data and destroy the window
 		isRunning = false;
-		DestroyWindow(windowHandle);		
+		DestroyWindow(windowHandle);
 		windowHandle = {};
 
 		// Reset window dimensions
