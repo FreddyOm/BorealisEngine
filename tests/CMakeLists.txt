@@ -45,23 +45,33 @@ endif()
 add_executable(BorealisEngineTests ${SOURCES})
 
 # Within Github, only ${CMAKE_CURRENT_BINARY_DIR}/../src/Release/BorealisEngineLib.dll works!
+#add_custom_command(
+#    TARGET BorealisEngineTests
+#    PRE_BUILD
+#    COMMAND ${CMAKE_COMMAND} -E copy_if_different     ${CMAKE_CURRENT_BINARY_DIR}/../src/Release/BorealisEngineLib.dll ${CMAKE_CURRENT_BINARY_DIR}
+#    COMMENT "Copy engine lib to output directory..."
+#)
+
 add_custom_command(
     TARGET BorealisEngineTests
-    PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/../src/Release/BorealisEngineLib.dll ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Copy engine lib to output directory..."
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_RUNTIME_DLLS:BorealisEngineTests>
+        $<TARGET_FILE_DIR:BorealisEngineTests>
+    COMMENT "Copying runtime DLLs to output directory..."
+    COMMAND_EXPAND_LISTS
 )
 
 # Link libraries
 target_link_libraries(BorealisEngineTests 
-GTest::gtest_main 
-BorealisEngineLib
+    GTest::gtest_main 
+    BorealisEngineLib
 )
 
 # Include directories
 target_include_directories(BorealisEngineTests PRIVATE 
-${CMAKE_SOURCE_DIR}/src
-${CMAKE_SOURCE_DIR}/src/core/types
+    ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/src/core/types
 )
 
 # Tests
