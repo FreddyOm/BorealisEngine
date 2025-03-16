@@ -44,23 +44,28 @@ endif()
 
 add_executable(BorealisEngineTests ${SOURCES})
 
-# Within Github, only ${CMAKE_CURRENT_BINARY_DIR}/../src/Release/BorealisEngineLib.dll works!
-#add_custom_command(
-#    TARGET BorealisEngineTests
-#    PRE_BUILD
-#    COMMAND ${CMAKE_COMMAND} -E copy_if_different     ${CMAKE_CURRENT_BINARY_DIR}/../src/Release/BorealisEngineLib.dll ${CMAKE_CURRENT_BINARY_DIR}
-#    COMMENT "Copy engine lib to output directory..."
-#)
+if(WIN32)
 
-add_custom_command(
-    TARGET BorealisEngineTests
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_RUNTIME_DLLS:BorealisEngineTests>
-        $<TARGET_FILE_DIR:BorealisEngineTests>
-    COMMENT "Copying runtime DLLs to output directory..."
-    COMMAND_EXPAND_LISTS
-)
+    # Copy necessary dll to output directory
+    add_custom_command(
+        TARGET BorealisEngineTests
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:BorealisEngineTests>
+            $<TARGET_FILE_DIR:BorealisEngineTests>
+        COMMENT "Copying runtime DLLs to output directory..."
+        COMMAND_EXPAND_LISTS
+    )
+
+elseif(UNIX OR APPLE)
+
+    # Set path for unix and osx to point to lib output dir
+    set_target_properties(BorealisEngineTests PROPERTIES
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/../src"
+    )
+
+endif()
+
 
 # Link libraries
 target_link_libraries(BorealisEngineTests 
