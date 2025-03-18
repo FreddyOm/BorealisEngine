@@ -7,5 +7,5 @@ namespace Borealis::Debug
 {
 	struct DebugInfoDesc;
 
-	int LogMessageInternal(DebugInfoDesc debugInfoDesc);
+	Borealis::Types::int16 LogMessageInternal(DebugInfoDesc debugInfoDesc);
 }

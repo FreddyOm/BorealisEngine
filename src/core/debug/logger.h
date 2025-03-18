@@ -20,7 +20,7 @@ namespace Borealis::Debug
 
     struct DebugInfoDesc // 24 byte
     {
-        DebugInfoDesc(const std::string msg, const std::string file, const int line, const LogLevel type)
+        DebugInfoDesc(const std::string msg, const std::string file, const Borealis::Types::int16 line, const LogLevel type)
             : line(line), debugType(type), fileName(file)
         {
             this->msg = "[";
@@ -59,7 +59,7 @@ namespace Borealis::Debug
         ~DebugInfoDesc()
         { }
 
-        int line = 0;
+        Borealis::Types::int16 line = 0;
         LogLevel debugType = (LogLevel)0; // NONE
         std::string fileName = "";
         std::string msg = "";
@@ -73,11 +73,11 @@ namespace Borealis::Debug
     #define Assert(message, assertion, ...) AssertInternal(__FILE__, __LINE__, message, assertion, ##__VA_ARGS__)
 
 
-    BOREALIS_API int LogInternal(const char* file, const int line, const char* message, ...);
+    BOREALIS_API Borealis::Types::int16 LogInternal(const char* file, const Borealis::Types::int16 line, const char* message, ...);
 
-    BOREALIS_API int LogWarningInternal(const char* file, const int line, const char* message, ...);
+    BOREALIS_API Borealis::Types::int16 LogWarningInternal(const char* file, const Borealis::Types::int16 line, const char* message, ...);
 
-    BOREALIS_API int LogErrorInternal(const char* file, const int line, const char* message, ...);
+    BOREALIS_API Borealis::Types::int16 LogErrorInternal(const char* file, const Borealis::Types::int16 line, const char* message, ...);
 
-    BOREALIS_API int AssertInternal(const char* file, const int line, const bool assertion, const char* message, ...);
+    BOREALIS_API Borealis::Types::int16 AssertInternal(const char* file, const Borealis::Types::int16 line, const bool assertion, const char* message, ...);
 }

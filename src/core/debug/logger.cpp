@@ -4,7 +4,7 @@ namespace Borealis::Debug
 {
 	char logInfoBuffer[1024] = { 0 };
 
-	int LogInternal(const char* file, const int line, const char* message, ...)
+	Borealis::Types::int16 LogInternal(const char* file, const Borealis::Types::int16 line, const char* message, ...)
 	{
 		memset(&logInfoBuffer, 0, 1024);
 		
@@ -19,7 +19,7 @@ namespace Borealis::Debug
 	}
 
 
-	int LogWarningInternal(const char* file, const int line, const char* message, ...)
+	Borealis::Types::int16 LogWarningInternal(const char* file, const Borealis::Types::int16 line, const char* message, ...)
 	{
 		memset(&logInfoBuffer, 0, 1024);
 
@@ -33,7 +33,7 @@ namespace Borealis::Debug
 		return LogMessageInternal(debugInfo);
 	}
 
-	int LogErrorInternal(const char* file, const int line, const char* message, ...)
+	Borealis::Types::int16 LogErrorInternal(const char* file, const Borealis::Types::int16 line, const char* message, ...)
 	{
 		memset(&logInfoBuffer, 0, 1024);
 
@@ -47,7 +47,7 @@ namespace Borealis::Debug
 		return LogMessageInternal(debugInfo);
 	}
 
-	int AssertInternal(const char* file, const int line, const bool assertion, const char* message, ...)
+	Borealis::Types::int16 AssertInternal(const char* file, const Borealis::Types::int16 line, const bool assertion, const char* message, ...)
 	{
 		if (assertion) { return 0; }
 			

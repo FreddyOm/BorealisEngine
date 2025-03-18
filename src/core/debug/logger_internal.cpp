@@ -3,9 +3,9 @@
 
 namespace Borealis::Debug
 {
-	int LogMessageInternal(const DebugInfoDesc desc)
+	Borealis::Types::int16 LogMessageInternal(const DebugInfoDesc desc)
 	{
-		const int result = printf(desc.msg.c_str());
+		const Borealis::Types::int16 result = printf(desc.msg.c_str());
 		printf("\n");
 		return result;
 	}
