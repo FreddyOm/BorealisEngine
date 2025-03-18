@@ -46,8 +46,10 @@ message("Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
 
 # Project source files
 set(SOURCES 
-    ./core/window/window.cpp
-    ./core/window/window_internal.cpp
+    core/window/window.cpp
+    core/window/window_internal.cpp
+    core/debug/logger_internal.cpp
+    core/debug/logger.cpp
 )
 
 # Project include files
@@ -57,6 +59,8 @@ set(HEADERS
     core/types/types.h
     core/window/window.h
     core/window/window_internal.h
+    core/debug/logger.h
+    core/debug/logger_internal.h
     helpers/helpers.h
 )
 

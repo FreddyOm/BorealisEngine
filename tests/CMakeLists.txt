@@ -26,6 +26,7 @@ FetchContent_MakeAvailable(googletest)
 
 # Project source files
 set(SOURCES 
+    test_debug.cpp
     test_helpers.cpp
     test_types.cpp
     test_window.cpp
