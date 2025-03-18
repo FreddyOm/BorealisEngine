@@ -6,10 +6,10 @@
 
 #elif BOREALIS_LINUX
 
-#include <X11/Xlib.h>
-
-#include <X11/Xutil.h>
-#include <X11/XKBlib.h>
+//#include <X11/Xlib.h>
+//
+//#include <X11/Xutil.h>
+//#include <X11/XKBlib.h>
 
 #elif BOREALIS_OSX
 
@@ -160,94 +160,94 @@ namespace Borealis::Core
 
 #elif BOREALIS_LINUX
 
-	pDisplay = nullptr;
+	/*pDisplay = nullptr;
 	Window window {};
-	XEvent event{};
+	XEvent event{};*/
 
 	void OpenWindowInternal(std::string windowName)
 	{
-		if ((pDisplay = XOpenDisplay(NULL)) == nullptr)
-		{
-			return;
-		}
+		//if ((pDisplay = XOpenDisplay(NULL)) == nullptr)
+		//{
+		//	return;
+		//}
 
-		auto screen = DefaultScreen(pDisplay);
-		auto rootWindow = RootWindow(pDisplay, screen);
+		//auto screen = DefaultScreen(pDisplay);
+		//auto rootWindow = RootWindow(pDisplay, screen);
 
-		// Create window 
-		window = XCreateSimpleWindow(pDisplay, rootWindow, 0, 0, 800, 500, 15, BlackPixel(pDisplay, screen), BlackPixel(pDisplay, screen));
+		//// Create window 
+		//window = XCreateSimpleWindow(pDisplay, rootWindow, 0, 0, 800, 500, 15, BlackPixel(pDisplay, screen), BlackPixel(pDisplay, screen));
 
-		if (window == 0)
-		{
-			return;
-		}
+		//if (window == 0)
+		//{
+		//	return;
+		//}
 
-		XSetStandardProperties(pDisplay, window, windowName.c_str(), windowName.c_str(), None, NULL, 0, NULL);
-		XSelectInput(pDisplay, window, ExposureMask | StructureNotifyMask | PointerMotionMask | ButtonPressMask | ButtonReleaseMask | KeyPressMask | KeyReleaseMask);
+		//XSetStandardProperties(pDisplay, window, windowName.c_str(), windowName.c_str(), None, NULL, 0, NULL);
+		//XSelectInput(pDisplay, window, ExposureMask | StructureNotifyMask | PointerMotionMask | ButtonPressMask | ButtonReleaseMask | KeyPressMask | KeyReleaseMask);
 
-		XkbSetDetectableAutoRepeat(pDisplay, true, nullptr);
+		//XkbSetDetectableAutoRepeat(pDisplay, true, nullptr);
 
-		XMapWindow(pDisplay, window);
+		//XMapWindow(pDisplay, window);
 
-		isRunning = true;
+		//isRunning = true;
 	}
 
 	void CloseWindowInternal()
 	{
-		XUnmapWindow(pDisplay, window);
+		/*XUnmapWindow(pDisplay, window);
 		XDestroyWindow(pDisplay, window);
 		XCloseDisplay(pDisplay);
 
-		isRunning = false;
+		isRunning = false;*/
 	}
 
 	void UpdateWindowInternal()
 	{
-		Atom wmDeleteMessage = XInternAtom(pDisplay, "WM_DELETE_WINDOW", False);
-		XSetWMProtocols(pDisplay, window, &wmDeleteMessage, 1);
+		//Atom wmDeleteMessage = XInternAtom(pDisplay, "WM_DELETE_WINDOW", False);
+		//XSetWMProtocols(pDisplay, window, &wmDeleteMessage, 1);
 
-		if (XNextEvent(pDisplay, &event) == 0)
-		{
-			switch (event.type)
-			{
-				case ClientMessage:
-				{
-					if (event.xclient.data.l[0] == wmDeleteMessage)
-					{
-						// Close window
-						WindowCloseEvent wc;
-						SendWindowEvent(wc);
+		//if (XNextEvent(pDisplay, &event) == 0)
+		//{
+		//	switch (event.type)
+		//	{
+		//		case ClientMessage:
+		//		{
+		//			if (event.xclient.data.l[0] == wmDeleteMessage)
+		//			{
+		//				// Close window
+		//				WindowCloseEvent wc;
+		//				SendWindowEvent(wc);
 
-						CloseWindowInternal();
-					}
-					break;
-				}
-				case ConfigureNotify:
-				{
-					XConfigureEvent xce = event.xconfigure;
+		//				CloseWindowInternal();
+		//			}
+		//			break;
+		//		}
+		//		case ConfigureNotify:
+		//		{
+		//			XConfigureEvent xce = event.xconfigure;
 
-					if (xce.width != windowWidth || xce.height != windowHeight)
-					{
-						OnWindowResizedInternal(xce.width, xce.height);
+		//			if (xce.width != windowWidth || xce.height != windowHeight)
+		//			{
+		//				OnWindowResizedInternal(xce.width, xce.height);
 
-						// Send Window Resize Event.
-						WindowResizeEvent wr;
-						wr.width = windowWidth;
-						wr.height = windowHeight;
-						SendWindowEvent(wr);
-					}
-					break;
-				}
-				case MotionNotify:
-				{
-					MouseMovedEvent mm;
-					mm.x = event.xmotion.x;
-					mm.y = event.xmotion.y;
-					SendMouseEvent(mm);
-					break;
-				}
-			}
-		}
+		//				// Send Window Resize Event.
+		//				WindowResizeEvent wr;
+		//				wr.width = windowWidth;
+		//				wr.height = windowHeight;
+		//				SendWindowEvent(wr);
+		//			}
+		//			break;
+		//		}
+		//		case MotionNotify:
+		//		{
+		//			MouseMovedEvent mm;
+		//			mm.x = event.xmotion.x;
+		//			mm.y = event.xmotion.y;
+		//			SendMouseEvent(mm);
+		//			break;
+		//		}
+		//	}
+		//}
 	}
 
 #elif BOREALIS_OSX

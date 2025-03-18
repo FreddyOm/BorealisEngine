@@ -48,8 +48,8 @@ message("Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
 set(SOURCES 
     core/window/window.cpp
     core/window/window_internal.cpp
-    core/debug/logger_internal.cpp
     core/debug/logger.cpp
+    core/debug/logger_internal.cpp
 )
 
 # Project include files
