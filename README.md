@@ -14,7 +14,8 @@
 TODO: CMake Setup and dependencies
 
 ## Features
-
+- [x] Logging
+- [x] Simple Window
 - [ ] [Job System](https://github.com/FreddyOm/BorealisJobs)
 
 ## Dependencies
