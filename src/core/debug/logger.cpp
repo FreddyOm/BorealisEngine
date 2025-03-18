@@ -1,4 +1,5 @@
 #include "logger.h"
+#include <cstring>
 
 namespace Borealis::Debug
 {
