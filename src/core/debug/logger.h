@@ -1,12 +1,12 @@
 #pragma once
 
+#include <stdarg.h>
+#include <utility>
+#include <string>
+
 #include "../../config.h"
 #include "../types/types.h"
 #include "logger_internal.h"
-#include <utility>
-#include <string>
-#include <stdarg.h>
-
 
 namespace Borealis::Debug
 {
@@ -14,14 +14,14 @@ namespace Borealis::Debug
     {
         INFO,
         WARNING,
-        ERROR,
+        ERR,
         ASSERTION,
     };
 
     struct DebugInfoDesc // 24 byte
     {
         DebugInfoDesc(const std::string msg, const std::string file, const Borealis::Types::int16 line, const LogLevel type)
-            : line(line), debugType(type), fileName(file)
+            : line(line), logType(type), fileName(file)
         {
             this->msg = "[";
 
@@ -32,7 +32,7 @@ namespace Borealis::Debug
                     this->msg += "WARNING";
                     break;
                 }
-                case LogLevel::ERROR:
+                case LogLevel::ERR:
                 {
                     this->msg += "ERROR";
                     break;
@@ -51,7 +51,7 @@ namespace Borealis::Debug
             
             this->msg += "] ";
             
-            this->msg = "[";
+            this->msg += "[";
             //this->msg += DateTime::GetTime();
             this->msg += "] " + msg;
         }
@@ -60,7 +60,7 @@ namespace Borealis::Debug
         { }
 
         Borealis::Types::int16 line = 0;
-        LogLevel debugType = (LogLevel)0; // NONE
+        LogLevel logType = (LogLevel)0; // NONE
         std::string fileName = "";
         std::string msg = "";
     };

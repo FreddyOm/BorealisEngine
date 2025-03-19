@@ -43,7 +43,7 @@ namespace Borealis::Debug
 		vsnprintf(logInfoBuffer, 1024, message, argList);
 		va_end(argList);
 
-		DebugInfoDesc debugInfo(logInfoBuffer, file, line, LogLevel::ERROR);
+		DebugInfoDesc debugInfo(logInfoBuffer, file, line, LogLevel::ERR);
 
 		return LogMessageInternal(debugInfo);
 	}

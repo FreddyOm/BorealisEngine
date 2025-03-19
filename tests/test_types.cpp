@@ -43,3 +43,18 @@ TEST(TypeTest, UintSize64)
 {
     EXPECT_EQ(sizeof(uint64), 8);
 }
+
+TEST(TypeTest, IntPtr64)
+{
+    EXPECT_EQ(sizeof(int64Ptr), 8);
+}
+
+TEST(TypeTest, UintPtr64)
+{
+    EXPECT_EQ(sizeof(uint64Ptr), 8);
+
+    uint64Ptr testPtr = 0;
+    --testPtr;
+
+    EXPECT_GT(testPtr, 0);
+}

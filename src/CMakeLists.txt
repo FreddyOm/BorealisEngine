@@ -50,6 +50,8 @@ set(SOURCES
     core/window/window_internal.cpp
     core/debug/logger.cpp
     core/debug/logger_internal.cpp
+    core/memory/allocator.cpp
+    core/memory/stack_allocator.cpp
 )
 
 # Project include files
@@ -61,6 +63,8 @@ set(HEADERS
     core/window/window_internal.h
     core/debug/logger.h
     core/debug/logger_internal.h
+    core/memory/allocator.h
+    core/memory/stack_allocator.h
     helpers/helpers.h
 )
 

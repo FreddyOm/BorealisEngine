@@ -15,6 +15,9 @@ namespace Borealis::Types
 		typedef unsigned short	uint16;
 		typedef uint_fast32_t	uint32;
 		typedef uint_fast64_t	uint64;
+
+		typedef intptr_t		int64Ptr;
+		typedef uintptr_t		uint64Ptr;
 		
 #elif BOREALIS_LINUX
 
@@ -29,6 +32,9 @@ namespace Borealis::Types
 		typedef unsigned int	uint32;
 		typedef uint_fast64_t	uint64;
 
+		typedef intptr_t		int64Ptr;
+		typedef uintptr_t		uint64Ptr;
+
 #elif BOREALIS_OSX
 
 		// @TODO: Adapt for OSX
@@ -41,6 +47,9 @@ namespace Borealis::Types
 		typedef uint_fast16_t	uint16;
 		typedef uint_fast32_t	uint32;
 		typedef uint_fast64_t	uint64;
+
+		typedef intptr_t		int64Ptr;
+		typedef uintptr_t		uint64Ptr;
 
 #endif
 }
