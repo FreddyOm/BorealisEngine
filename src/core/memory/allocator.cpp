@@ -1,34 +1,50 @@
 #include "allocator.h"
+#include "../debug/logger.h"
+
+using namespace Borealis::Debug;
+using namespace Borealis::Types;
 
 namespace Borealis::Memory
 {
-	BaseAllocator::BaseAllocator(Borealis::Types::uint64 memorySize)
-		: size(memorySize), freeSize(memorySize), usedSize(0)
-	{
-		
-	}
+	BaseAllocator::BaseAllocator(uint64 memorySize)
+		: totalMemorySize(memorySize), availableMemorySize(memorySize), usedMemorySize(0)
+	{ }
 	
 	BaseAllocator::~BaseAllocator()
 	{
-		
-
-		size = 0;
-		freeSize = 0;
-		usedSize = 0;
+		totalMemorySize = 0;
+		availableMemorySize = 0;
+		usedMemorySize = 0;
 	}
 
-	Borealis::Types::uint64 BaseAllocator::GetTotalMemorySize() const
+	void BaseAllocator::OnAllocate()
 	{
-		return size;
+		++allocationCount;
 	}
 
-	Borealis::Types::uint64 BaseAllocator::GetUsedMemorySize() const
+	void BaseAllocator::OnFree()
 	{
-		return usedSize;
+		Assert(allocationCount > 0, "Trying to free memory that has not been allocated using this allocator!");
+		--allocationCount;
 	}
 
-	Borealis::Types::uint64 BaseAllocator::GetFreeMemorySize() const
+	uint64 BaseAllocator::GetTotalMemorySize() const
 	{
-		return freeSize;
+		return totalMemorySize;
+	}
+
+	uint64 BaseAllocator::GetUsedMemorySize() const
+	{
+		return usedMemorySize;
+	}
+
+	uint64 BaseAllocator::GetFreeMemorySize() const
+	{
+		return availableMemorySize;
+	}
+	
+	int8 BaseAllocator::GetAllocFreeRatio() const
+	{
+		return static_cast<int8>(allocationCount - freeCount);
 	}
 }

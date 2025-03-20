@@ -8,7 +8,7 @@ namespace Borealis::Memory
 	StackAllocator::StackAllocator()
 		: BaseAllocator(1024)
 	{
-		stackBasePtr = reinterpret_cast<uint64Ptr>(malloc(size));
+		stackBasePtr = reinterpret_cast<uint64Ptr>(malloc(totalMemorySize));
 		stackTopPtr = stackBasePtr;
 	}
 

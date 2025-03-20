@@ -24,11 +24,19 @@ namespace Borealis::Memory
 		Borealis::Types::uint64 GetTotalMemorySize() const;
 		Borealis::Types::uint64 GetUsedMemorySize() const;
 		Borealis::Types::uint64 GetFreeMemorySize() const;
+		Borealis::Types::int8 GetAllocFreeRatio() const;
+
+	protected:
+
+		void OnAllocate();
+		void OnFree();
 
 	protected:
 		
-		Borealis::Types::uint64 size;
-		Borealis::Types::uint64 usedSize;
-		Borealis::Types::uint64 freeSize;
+		Borealis::Types::uint64 totalMemorySize = 0;
+		Borealis::Types::uint64 usedMemorySize = 0;
+		Borealis::Types::uint64 availableMemorySize = 0;
+		Borealis::Types::uint64 allocationCount = 0;
+		Borealis::Types::uint64 freeCount = 0;
 	};
 }
