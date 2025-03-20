@@ -23,7 +23,7 @@ namespace Borealis::Memory
 		
 		Borealis::Types::uint64 GetTotalMemorySize() const;
 		Borealis::Types::uint64 GetUsedMemorySize() const;
-		Borealis::Types::uint64 GetFreeMemorySize() const;
+		Borealis::Types::uint64 GetAvailableMemorySize() const;
 		Borealis::Types::int8 GetAllocFreeRatio() const;
 
 	protected:

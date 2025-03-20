@@ -25,6 +25,22 @@ TEST(StackAllocatorTest, Alloc)
 }
 
 
+TEST(StackAllocatorTest, Free)
+{
+	StackAllocator testAllocator(1024);
+
+	uint32* testObject32 = testAllocator.Alloc<uint32>();
+	uint64* testObject64 = testAllocator.Alloc<uint64>();
+
+	testAllocator.Free(testObject32);
+	testAllocator.Free(testObject64);
+
+	EXPECT_EQ(testAllocator.GetTotalMemorySize(), testAllocator.GetAvailableMemorySize());
+	EXPECT_EQ(testAllocator.GetTotalMemorySize(), 1024);
+	EXPECT_EQ(testAllocator.GetAvailableMemorySize(), 1024);
+	EXPECT_EQ(testAllocator.GetUsedMemorySize(), 0);
+}
+
 TEST(StackAllocatorTest, AllocAligned)
 {
 	StackAllocator testAllocator(1024);
@@ -36,10 +52,10 @@ TEST(StackAllocatorTest, AllocAligned)
 	EXPECT_EQ((uint64) testObject32 % 4, 0);
 	EXPECT_EQ((uint64) testObject64 % 8, 0);
 
-	testAllocator.FreeAligned<uint64>();
-	testAllocator.FreeAligned<uint32>();
+	testAllocator.FreeAligned(testObject64);
+	testAllocator.FreeAligned(testObject32);
 
-	EXPECT_EQ(testAllocator.GetTotalMemorySize(), testAllocator.GetFreeMemorySize());
+	EXPECT_EQ(testAllocator.GetTotalMemorySize(), testAllocator.GetAvailableMemorySize());
 	EXPECT_EQ(testAllocator.GetTotalMemorySize(), 1024);
 }
 
@@ -52,8 +68,8 @@ TEST(StackAllocatorTest, AllocFreeRatio)
 
 	EXPECT_EQ(testAllocator.GetAllocFreeRatio(), 2);
 
-	testAllocator.FreeAligned<uint64>();
-	testAllocator.FreeAligned<uint32>();
+	testAllocator.FreeAligned(testObject64);
+	testAllocator.FreeAligned(testObject32);
 
 	EXPECT_EQ(testAllocator.GetAllocFreeRatio(), 0);
 	
@@ -65,7 +81,7 @@ TEST(StackAllocatorTest, AllocFreeRatio)
 	bool* testBool_v2 = testAllocator.AllocAligned<bool>();
 	bool* testBool_v3 = testAllocator.AllocAligned<bool>();
 
-	testAllocator.FreeAligned<bool>();
+	testAllocator.FreeAligned(testBool_v3);
 
 	EXPECT_EQ(testAllocator.GetAllocFreeRatio(), 3);
 
@@ -73,13 +89,13 @@ TEST(StackAllocatorTest, AllocFreeRatio)
 	bool* testBool_v5 = testAllocator.AllocAligned<bool>();
 	bool* testBool_v6 = testAllocator.AllocAligned<bool>();
 
-	testAllocator.FreeAligned<bool>();
-	testAllocator.FreeAligned<bool>();
-	testAllocator.FreeAligned<bool>();
-	testAllocator.FreeAligned<bool>();
-	testAllocator.FreeAligned<bool>();
+	testAllocator.FreeAligned(testBool_v6);
+	testAllocator.FreeAligned(testBool_v5);
+	testAllocator.FreeAligned(testBool_v4);
+	testAllocator.FreeAligned(testBool_v2);
+	testAllocator.FreeAligned(testBool_v1);
 
-	testAllocator.FreeAligned<uint64>();
+	testAllocator.FreeAligned(testObject64_v2);
 
 	EXPECT_EQ(testAllocator.GetAllocFreeRatio(), 0);
 }

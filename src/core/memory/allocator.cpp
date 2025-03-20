@@ -38,7 +38,7 @@ namespace Borealis::Memory
 		return usedMemorySize;
 	}
 
-	uint64 BaseAllocator::GetFreeMemorySize() const
+	uint64 BaseAllocator::GetAvailableMemorySize() const
 	{
 		return availableMemorySize;
 	}

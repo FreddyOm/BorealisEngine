@@ -70,22 +70,22 @@ namespace Borealis::Memory
 		}
 
 	   template<typename T>
-	   void Free()
+	   void Free(T* object)
 	   {
-		   const uint16 freeSize = sizeof(T);
+		   const uint16 freeSize = sizeof(*object);
 		   Assert(freeSize <= usedMemorySize, "The size of the type requested for freeing memory is greater than the currently allocated space!");
 		   
-		   stackTopPtr -= static_cast<uint64>(freeSize);;
-		   usedMemorySize -= static_cast<uint64>(freeSize);;
-		   availableMemorySize += static_cast<uint64>(freeSize);;
+		   stackTopPtr -= static_cast<uint64>(freeSize);
+		   usedMemorySize -= static_cast<uint64>(freeSize);
+		   availableMemorySize += static_cast<uint64>(freeSize);
 
 		   BaseAllocator::OnFree();
 	   }
 
 	   template<typename T>
-	   void FreeAligned()
+	   void FreeAligned(T* object)
 	   {
-		   const uint16 freeSize = sizeof(T);
+		   const uint16 freeSize = sizeof(*object);
 		   Assert(freeSize <= usedMemorySize, "The size of the type requested for freeing memory is greater than the currently allocated space!");
 		
 		   AllocationOffset* pOffset = reinterpret_cast<AllocationOffset*>(stackTopPtr - freeSize - 1);
