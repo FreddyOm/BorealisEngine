@@ -17,6 +17,15 @@ TODO: CMake Setup and dependencies
 - [x] Logging
 - [x] Simple Window
 - [ ] [Job System](https://github.com/FreddyOm/BorealisJobs)
+- [ ] Custom Memory Allocators
+  - [x] Stack Allocator
+  - [x] Pool Allocator
+  - [ ] Frame Allocator
+  - [ ] Custom RefCnt Pointer
+- [ ] Input System
+  - [ ] Mouse & Keyboard
+  - [ ] Controller (XInput)
+- [ ] Basic D3D11 Rendering Implementation
 
 ## Dependencies
 
