@@ -19,8 +19,9 @@ TODO: CMake Setup and dependencies
 - [ ] [Job System](https://github.com/FreddyOm/BorealisJobs)
 - [ ] Custom Memory Allocators
   - [x] Stack Allocator
-  - [ ] Pool Allocator
+  - [x] Pool Allocator
   - [ ] Frame Allocator
+  - [ ] Custom RefCnt Pointer
 - [ ] Input System
   - [ ] Mouse & Keyboard
   - [ ] Controller (XInput)
