@@ -42,8 +42,8 @@ TEST(DebugTest, Error)
 
 TEST(DebugTest, Assert)
 {
-	EXPECT_NO_FATAL_FAILURE(Assert(0 == 0, "Test Warning"), 0);
+	EXPECT_NO_FATAL_FAILURE(Assert(0 == 0, "Test Warning"));
 	EXPECT_DEATH(Assert(1 == 2, "1 is not equal to 2"), "");
-	EXPECT_NO_FATAL_FAILURE(Assert(true || false, "LoGGING Some test more!!"), 0);
+	EXPECT_NO_FATAL_FAILURE(Assert(true || false, "LoGGING Some test more!!"));
 	EXPECT_NO_FATAL_FAILURE(Assert(37 == 37, "Math doesn't work anymore!"));
 }
