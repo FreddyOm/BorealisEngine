@@ -31,6 +31,10 @@ cmake -S . -B ./build
 
 ## Features
 - [x] Logging
+  - [x] Info Log
+  - [x] Warning Log
+  - [x] Error Log
+  - [x] Assertions
 - [x] Simple Window
 - [ ] [Job System](https://github.com/FreddyOm/BorealisJobs)
 - [ ] Custom Memory Allocators
@@ -42,6 +46,24 @@ cmake -S . -B ./build
   - [ ] Mouse & Keyboard
   - [ ] Controller (XInput)
 - [ ] Basic D3D11 Rendering Implementation
+- [ ] Basic D3D12 Rendering Implementation
+- [ ] Advanced Rendering Features
+  - [ ] Deferred Shading & Texturing
+  - [ ] Depth of Field (see: Tiny Glades)
+  - [ ] VFX
+  - [ ] Volumetric Fog
+- [ ] Physics Implementation
+  - [ ] Nvidia PhysX
+- [ ] Entity Component System
+  - [ ] Jobified updating of ECS data buffers (see JobSystem above)
+- [ ] String Class
+- [ ] Runtime Debugging Toolkit
+  - [ ] Dear ImGui Interface
+  - [ ] Console Implementation
+  - [ ] Rendering Options
+  - [ ] Memory Usage
+- [ ] Custom Profiler / Profiler integration
+  - [ ] Correct representation of jobs
 
 ## Dependencies
 
