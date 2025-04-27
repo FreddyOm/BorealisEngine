@@ -23,4 +23,12 @@ namespace Borealis::Memory
 	{
 		free(reinterpret_cast<void*>(stackBasePtr));
 	}
+
+	void StackAllocator::Clear()
+	{
+		stackTopPtr = stackBasePtr;
+
+		usedMemorySize = 0;
+		availableMemorySize = totalMemorySize;
+	}
 }

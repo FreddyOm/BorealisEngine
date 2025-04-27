@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <math.h>
-#include "types.h"
+#include "../core/types/types.h"
 
 namespace Borealis
 {

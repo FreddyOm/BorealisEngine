@@ -8,6 +8,10 @@
 #include "../types/types.h"
 #include "logger_internal.h"
 
+#ifndef THROW_ON_ASSERT
+#define THROW_ON_ASSERT
+#endif
+
 namespace Borealis::Debug
 {
     enum class LogLevel
@@ -65,7 +69,7 @@ namespace Borealis::Debug
         std::string msg = "";
     };
 
-
+    // @TODO: Add #ifndef NDEBUG and connect with CMake build target!
 
     #define Log(message, ...) LogInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
     #define LogWarning(message, ...) LogWarningInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)

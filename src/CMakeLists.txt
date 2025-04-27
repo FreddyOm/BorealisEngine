@@ -52,6 +52,7 @@ set(SOURCES
     core/debug/logger_internal.cpp
     core/memory/allocator.cpp
     core/memory/stack_allocator.cpp
+    core/memory/pool_allocator.cpp
 )
 
 # Project include files
@@ -65,6 +66,7 @@ set(HEADERS
     core/debug/logger_internal.h
     core/memory/allocator.h
     core/memory/stack_allocator.h
+    core/memory/pool_allocator.h
     helpers/helpers.h
 )
 

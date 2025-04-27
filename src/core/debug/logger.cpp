@@ -1,5 +1,6 @@
 #include "logger.h"
 #include <cstring>
+#include <Windows.h>
 
 namespace Borealis::Debug
 {
@@ -61,6 +62,11 @@ namespace Borealis::Debug
 
 		DebugInfoDesc debugInfo(logInfoBuffer, file, line, LogLevel::ASSERTION);
 
-		return LogMessageInternal(debugInfo);
+		Types::int16 returnVal = LogMessageInternal(debugInfo);
+
+#ifdef THROW_ON_ASSERT
+		exit(668);
+#endif
+		return returnVal;
 	}
 }
