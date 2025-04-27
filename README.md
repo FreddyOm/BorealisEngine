@@ -11,7 +11,23 @@
 
 ## Setup 
 
-TODO: CMake Setup and dependencies
+For the setup of the project you need a installation of **git** and **cmake**.
+To setup the project, follow the steps below.
+
+1. Navigate to your desired directory
+2. Clone this repository.
+```
+git clone -b main https://github.com/FreddyOm/BorealisEngine.git
+```
+3. Navigate into the repository
+```
+cd BorealisEngine
+```
+4. Build the project with CMake
+```
+cmake -S . -B ./build
+```
+
 
 ## Features
 - [x] Logging
