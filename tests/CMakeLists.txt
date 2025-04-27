@@ -84,6 +84,3 @@ target_include_directories(BorealisEngineTests PRIVATE
 # Tests
 include(GoogleTest)
 gtest_discover_tests(BorealisEngineTests)
-
-# ${CMAKE_SOURCE_DIR} -> D:\Repos\BorealisEngine
-# ${CMAKE_CURRENT_BINARY_DIR} -> D:\Repos\BorealisEngine\out\build\x64-Debug\tests
