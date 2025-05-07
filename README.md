@@ -52,6 +52,7 @@ cmake -S . -B ./build
   - [ ] Depth of Field (see: Tiny Glades)
   - [ ] VFX
   - [ ] Volumetric Fog
+  - [ ] Procedural Shading
 - [ ] Physics Implementation
   - [ ] Nvidia PhysX
 - [ ] Entity Component System
