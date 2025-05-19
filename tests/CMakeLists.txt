@@ -28,9 +28,10 @@ FetchContent_MakeAvailable(googletest)
 set(SOURCES 
     test_allocator.cpp
     test_debug.cpp
-    test_helpers.cpp
+    test_math.cpp
     test_types.cpp
     test_window.cpp
+    test_ref_cnt_auto_ptr.cpp
 )
 
 if(WIN32)
@@ -84,6 +85,3 @@ target_include_directories(BorealisEngineTests PRIVATE
 # Tests
 include(GoogleTest)
 gtest_discover_tests(BorealisEngineTests)
-
-# ${CMAKE_SOURCE_DIR} -> D:\Repos\BorealisEngine
-# ${CMAKE_CURRENT_BINARY_DIR} -> D:\Repos\BorealisEngine\out\build\x64-Debug\tests

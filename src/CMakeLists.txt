@@ -53,6 +53,9 @@ set(SOURCES
     core/memory/allocator.cpp
     core/memory/stack_allocator.cpp
     core/memory/pool_allocator.cpp
+    core/memory/heap_allocator.cpp
+    core/memory/ref_cnt_auto_ptr.cpp
+    core/math/math.cpp
 )
 
 # Project include files
@@ -67,7 +70,10 @@ set(HEADERS
     core/memory/allocator.h
     core/memory/stack_allocator.h
     core/memory/pool_allocator.h
-    helpers/helpers.h
+    core/memory/heap_allocator.h
+    core/memory/ref_cnt_auto_ptr.h
+    core/math/math.h
+    
 )
 
 # Create library

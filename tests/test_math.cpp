@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
-#include "../src/helpers/helpers.h"
+#include "../src/core/math/math.h"
 
-using namespace Borealis::Helpers;
 using namespace Borealis::Math;
 
 // ------------------------- BITMASK ------------------------- //
