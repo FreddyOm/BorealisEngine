@@ -28,11 +28,12 @@ namespace Borealis::Memory
 
 	public: 
 
-		void* Alloc(const Types::uint16 allocSize) override;
-		void FreeMemory(const void* address) override;
+		void* RawAlloc(const Types::uint16 allocSize);
+		HandleInfo* Alloc(const Types::uint16 allocSize) override;
+		void FreeMemory(const void* const address) override;
 
-		void* AllocAligned(const Types::uint16 allocSize) override;
-		void FreeAligned(const void* address) override;
+		HandleInfo* AllocAligned(const Types::uint16 allocSize) override;
+		void FreeAligned(const void* const address) override;
 
 		void Clear() override;
 

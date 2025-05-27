@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "../memory/ref_cnt_auto_ptr.h"
 #include "../types/types.h"
-#include "../src/core/memory/allocator.h"
+#include "../src/core/memory/memory.h"
 
 using namespace Borealis::Memory;
 using namespace Borealis::Types;
@@ -17,7 +17,7 @@ TEST(RefCntAutoPtrTest, GeneralUse)
 {
 	MemAllocJanitor janitor(MemAllocatorContext::DEBUG);
 
-	RefCntAutoPtr<TestStruct> myReference = Allocate<TestStruct>();
+	RefCntAutoPtr<TestStruct> myReference = RefCntAutoPtr<TestStruct>::Allocate();
 	myReference->myInt = 3;
 	EXPECT_EQ(myReference->myInt, 3);
 
@@ -42,7 +42,7 @@ TEST(RefCntAutoPtrTest, InvalidatedPtr)
 {
 	MemAllocJanitor janitor(MemAllocatorContext::DEBUG);
 
-	RefCntAutoPtr<TestStruct> myReference = Allocate<TestStruct>();
+	RefCntAutoPtr<TestStruct> myReference = RefCntAutoPtr<TestStruct>::Allocate();
 	myReference->myInt = 3;
 	EXPECT_EQ(myReference->myInt, 3);
 
@@ -59,7 +59,7 @@ TEST(RefCntAutoPtrTest, InitPtrRef)
 	MemAllocJanitor janitor(MemAllocatorContext::DEBUG);
 
 	// "Normal" allocator init
-	RefCntAutoPtr<TestStruct> myReference = Allocate<TestStruct>();
+	RefCntAutoPtr<TestStruct> myReference = RefCntAutoPtr<TestStruct>::Allocate();
 	EXPECT_EQ(myReference.UseCount(), 1);
 
 
@@ -88,10 +88,10 @@ TEST(RefCntAutoPtrTest, RefPtrEquality)
 	MemAllocJanitor janitor(MemAllocatorContext::DEBUG);
 
 	// "Normal" allocator init
-	RefCntAutoPtr<TestStruct> myRef = Allocate<TestStruct>();
+	RefCntAutoPtr<TestStruct> myRef = RefCntAutoPtr<TestStruct>::Allocate();
 	RefCntAutoPtr<TestStruct> myRefCpy = myRef;
 
-	RefCntAutoPtr<TestStruct> myRef2 = Allocate<TestStruct>();
+	RefCntAutoPtr<TestStruct> myRef2 = RefCntAutoPtr<TestStruct>::Allocate();
 	RefCntAutoPtr<TestStruct> myRef2Cpy(myRef2);
 
 
@@ -102,45 +102,31 @@ TEST(RefCntAutoPtrTest, RefPtrEquality)
 	EXPECT_NE(myRef2, myRefCpy);
 }
 
-TEST(RefCntAutoPtrTest, RefPtrRawPtr)
-{
-	MemAllocJanitor janitor(MemAllocatorContext::DEBUG);
-
-	// "Normal" allocator init
-	TestStruct* p_TestStruct = Allocate<TestStruct>();
-	RefCntAutoPtr<TestStruct> myRef = p_TestStruct;
-
-	EXPECT_EQ(p_TestStruct->myInt, myRef->myInt);
-	EXPECT_EQ(p_TestStruct, myRef.RawPtr());
-	EXPECT_EQ(p_TestStruct, &myRef);
-}
-
 TEST(RefCntAutoPtrTest, RefPtrMemberAccess)
 {
 	MemAllocJanitor janitor(MemAllocatorContext::DEBUG);
 
 	// "Normal" allocator init
-	TestStruct* p_TestStruct = Allocate<TestStruct>();
-	RefCntAutoPtr<TestStruct> myRef = p_TestStruct;
+	RefCntAutoPtr<TestStruct> testStruct = RefCntAutoPtr<TestStruct>::Allocate();
 
-	myRef->myBoolArray[0] = true;
-	myRef->myBoolArray[1] = false;
-	myRef->myBoolArray[2] = true;
-	myRef->myBoolArray[3] = false;
+	testStruct->myBoolArray[0] = true;
+	testStruct->myBoolArray[1] = false;
+	testStruct->myBoolArray[2] = true;
+	testStruct->myBoolArray[3] = false;
 
-	myRef->myFloatArray[0] = 2.718f;
-	myRef->myFloatArray[1] = 3.1415f;
+	testStruct->myFloatArray[0] = 2.718f;
+	testStruct->myFloatArray[1] = 3.1415f;
 
-	myRef->myInt = -403928;
+	testStruct->myInt = -403928;
 
 
-	EXPECT_TRUE(p_TestStruct->myBoolArray[0]);
-	EXPECT_FALSE(p_TestStruct->myBoolArray[1]);
-	EXPECT_TRUE(p_TestStruct->myBoolArray[2]);
-	EXPECT_FALSE(p_TestStruct->myBoolArray[3]);
+	EXPECT_TRUE(testStruct->myBoolArray[0]);
+	EXPECT_FALSE(testStruct->myBoolArray[1]);
+	EXPECT_TRUE(testStruct->myBoolArray[2]);
+	EXPECT_FALSE(testStruct->myBoolArray[3]);
 
-	EXPECT_FLOAT_EQ(p_TestStruct->myFloatArray[0], 2.718f);
-	EXPECT_FLOAT_EQ(p_TestStruct->myFloatArray[1], 3.1415f);
+	EXPECT_FLOAT_EQ(testStruct->myFloatArray[0], 2.718f);
+	EXPECT_FLOAT_EQ(testStruct->myFloatArray[1], 3.1415f);
 
-	EXPECT_EQ(p_TestStruct->myInt, -403928);
+	EXPECT_EQ(testStruct->myInt, -403928);
 }

@@ -1,6 +1,7 @@
 #include "stack_allocator.h"
-#include <memory>
 #include "../debug/logger.h"
+#include "./memory.h"
+#include <memory>
 
 using namespace Borealis::Types;
 
@@ -32,7 +33,7 @@ namespace Borealis::Memory
 		totalMemorySize = 0;
 	}
 
-	void* StackAllocator::Alloc(const Types::uint16 allocSize)
+	HandleInfo* StackAllocator::Alloc(const Types::uint16 allocSize)
 	{
 		Borealis::Debug::Assert(allocSize <= GetAvailableMemorySize(), "Allocator does not provide enough memory for the requested allocation process.");
 
@@ -44,10 +45,10 @@ namespace Borealis::Memory
 		usedMemorySize += static_cast<Borealis::Types::uint64>(allocSize);
 		++allocationCount;
 
-		return ptr;
+		return RegisterHandle(ptr);
 	}
 
-	void StackAllocator::FreeMemory(const void* address)
+	void StackAllocator::FreeMemory(const void* const address)
 	{
 		usedMemorySize -= static_cast<uint64>(stackTopPtr - reinterpret_cast<uint64>(address));
 
@@ -55,7 +56,7 @@ namespace Borealis::Memory
 		stackTopPtr = reinterpret_cast<uint64>(address);
 	}
 
-	void* StackAllocator::AllocAligned(const Types::uint16 allocSize)
+	HandleInfo* StackAllocator::AllocAligned(const Types::uint16 allocSize)
 	{
 		const Borealis::Types::uint16 alignedAllocSize = allocSize * 2;	// A maximum of twice the space is needed for properly aligning and storing the offset.
 
@@ -77,10 +78,10 @@ namespace Borealis::Memory
 		usedMemorySize += static_cast<Borealis::Types::uint64>(allocSize) + offset;
 		++allocationCount;
 
-		return ptr;
+		return RegisterHandle(ptr);
 	}
 
-	void StackAllocator::FreeAligned(const void* address)
+	void StackAllocator::FreeAligned(const void* const address)
 	{
 		Debug::LogError("Cannot use the generic \"FreeAlign()\" when using a stack allocator. Use \"FreeToMarker()\" instead.");
 

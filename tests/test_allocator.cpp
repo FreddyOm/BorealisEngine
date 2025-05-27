@@ -1,7 +1,9 @@
 #include <gtest/gtest.h>
+#include "../memory/memory.h"
 #include "../memory/stack_allocator.h"
 #include "../memory/pool_allocator.h"
 #include "../memory/heap_allocator.h"
+#include "../memory/ref_cnt_auto_ptr.h"
 #include "../types/types.h"
 
 using namespace Borealis::Memory;
@@ -204,19 +206,19 @@ TEST(StackAllocatorTest, Full)
 {
 	StackAllocator stackAlloc = StackAllocator(64);
 
-	TestStruct* p_testStruct = new (stackAlloc.Alloc(sizeof(TestStruct))) TestStruct();
-	TestStruct* p_testStruct1 = new (stackAlloc.Alloc(sizeof(TestStruct))) TestStruct();
-	TestStruct* p_testStruct2 = new (stackAlloc.Alloc(sizeof(TestStruct))) TestStruct();
-	TestStruct* p_testStruct3 = new (stackAlloc.Alloc(sizeof(TestStruct))) TestStruct();
+	RefCntAutoPtr<TestStruct> p_testStruct = stackAlloc.Alloc(sizeof(TestStruct));
+	RefCntAutoPtr<TestStruct> p_testStruct1 = stackAlloc.Alloc(sizeof(TestStruct));
+	RefCntAutoPtr<TestStruct> p_testStruct2 = stackAlloc.Alloc(sizeof(TestStruct));
+	RefCntAutoPtr<TestStruct> p_testStruct3 = stackAlloc.Alloc(sizeof(TestStruct));
 
 	TestStruct* p_testStructFull = nullptr;
 
-	EXPECT_DEATH(p_testStructFull = new (stackAlloc.Alloc(sizeof(TestStruct))) TestStruct(), "");
+	EXPECT_DEATH(p_testStructFull = new (AccessHandleData(stackAlloc.Alloc(sizeof(TestStruct))->HandleId)) TestStruct(), "");
 
-	EXPECT_TRUE(p_testStruct != nullptr);
-	EXPECT_TRUE(p_testStruct1 != nullptr);
-	EXPECT_TRUE(p_testStruct2 != nullptr);
-	EXPECT_TRUE(p_testStruct3 != nullptr);
+	EXPECT_TRUE(p_testStruct.RawPtr() != nullptr);
+	EXPECT_TRUE(p_testStruct1.RawPtr() != nullptr);
+	EXPECT_TRUE(p_testStruct2.RawPtr() != nullptr);
+	EXPECT_TRUE(p_testStruct3.RawPtr() != nullptr);
 
 	EXPECT_TRUE(p_testStructFull == nullptr);
 }
@@ -277,27 +279,27 @@ TEST(PoolAllocatorTest, MemFree)
 {
 	PoolAllocator poolAlloc = PoolAllocator(64, 32);
 
-	TestStruct* p_testStruct = new (poolAlloc.Alloc(sizeof(TestStruct))) TestStruct();
+	RefCntAutoPtr<TestStruct> p_testStruct = poolAlloc.Alloc(sizeof(TestStruct));
 	EXPECT_EQ(poolAlloc.GetUsedMemorySize(), 32);
 
-	int8* p_int8 = new (poolAlloc.Alloc(sizeof(int8))) int8();
+	RefCntAutoPtr<int8> p_int8 = poolAlloc.Alloc(sizeof(int8));
 	EXPECT_EQ(poolAlloc.GetUsedMemorySize(), 64);
 
-	int16* p_int16 = new (poolAlloc.Alloc(sizeof(int16))) int16();
+	RefCntAutoPtr<int16> p_int16 = poolAlloc.Alloc(sizeof(int16));
 	EXPECT_EQ(poolAlloc.GetUsedMemorySize(), 96);
 
-	int32* p_int32 = new (poolAlloc.Alloc(sizeof(int32))) int32();
+	RefCntAutoPtr<int32> p_int32 = poolAlloc.Alloc(sizeof(int32));
 	EXPECT_EQ(poolAlloc.GetUsedMemorySize(), 128);
 
-	int64* p_int64 = new (poolAlloc.Alloc(sizeof(int64))) int64();
+	RefCntAutoPtr<int64> p_int64 = poolAlloc.Alloc(sizeof(int64));
 	EXPECT_EQ(poolAlloc.GetUsedMemorySize(), 160);
 
 
-	EXPECT_TRUE(p_testStruct != nullptr);
-	EXPECT_TRUE(p_int8 != nullptr);
-	EXPECT_TRUE(p_int16 != nullptr);
-	EXPECT_TRUE(p_int32 != nullptr);
-	EXPECT_TRUE(p_int64 != nullptr);
+	EXPECT_TRUE(p_testStruct.RawPtr() != nullptr);
+	EXPECT_TRUE(p_int8.RawPtr() != nullptr);
+	EXPECT_TRUE(p_int16.RawPtr() != nullptr);
+	EXPECT_TRUE(p_int32.RawPtr() != nullptr);
+	EXPECT_TRUE(p_int64.RawPtr() != nullptr);
 
 	p_testStruct->myInt = 9;
 
@@ -317,19 +319,19 @@ TEST(PoolAllocatorTest, MemFree)
 	EXPECT_EQ(poolAlloc.GetAllocFreeRatio(), 5);
 	EXPECT_GT(poolAlloc.GetAvailableMemorySize(), 0);
 
-	poolAlloc.FreeMemory(p_testStruct);
+	poolAlloc.FreeMemory(p_testStruct.RawPtr());
 	EXPECT_EQ(poolAlloc.GetUsedMemorySize(), 128);
 
-	poolAlloc.FreeMemory(p_int8);
+	poolAlloc.FreeMemory(p_int8.RawPtr());
 	EXPECT_EQ(poolAlloc.GetUsedMemorySize(), 96);
 
-	poolAlloc.FreeMemory(p_int16);
+	poolAlloc.FreeMemory(p_int16.RawPtr());
 	EXPECT_EQ(poolAlloc.GetUsedMemorySize(), 64);
 
-	poolAlloc.FreeMemory(p_int32);
+	poolAlloc.FreeMemory(p_int32.RawPtr());
 	EXPECT_EQ(poolAlloc.GetUsedMemorySize(), 32);
 
-	poolAlloc.FreeMemory(p_int64);
+	poolAlloc.FreeMemory(p_int64.RawPtr());
 	EXPECT_EQ(poolAlloc.GetUsedMemorySize(), 0);
 
 
@@ -542,7 +544,7 @@ TEST(HeapAllocatorTest, MemFreeAligned)
 	*p_int64 = 7;
 
 	FreeAligned(p_int64);
-	FreeAligned(p_testStruct);
+	FreeAligned(p_testStruct);	// p_testStruct seems to have different mem address???
 
 	EXPECT_EQ(GetMemoryAllocator(MemAllocatorContext::RENDERING)->GetUsedMemorySize(), 0);
 	EXPECT_EQ(GetMemoryAllocator(MemAllocatorContext::RENDERING)->GetAllocFreeRatio(), 0);
@@ -556,20 +558,23 @@ TEST(HeapAllocatorTest, Defragment)
 {
 	HeapAllocator allocTest = HeapAllocator(128);
 
-	TestStruct* p_testStruct =		// 16 + 16 bytes
-		new (allocTest.Alloc(sizeof(TestStruct))) TestStruct();	// 32
-	EXPECT_NE(p_testStruct, nullptr);
+	RefCntAutoPtr<TestStruct> p_testStruct =		// 16 + 16 bytes
+		allocTest.Alloc(sizeof(TestStruct));	// 32
+	EXPECT_NE(p_testStruct.RawPtr(), nullptr);
 
-	TestStruct* p_testStruct2 =		// 16 + 16 bytes
-		new (allocTest.Alloc(sizeof(TestStruct))) TestStruct();	// 32
-	EXPECT_NE(p_testStruct2, nullptr);
+	RefCntAutoPtr<TestStruct> p_testStruct2 =		// 16 + 16 bytes
+		allocTest.Alloc(sizeof(TestStruct));	// 32
+	EXPECT_NE(p_testStruct2.RawPtr(), nullptr);
 
-	TestStruct* p_testStruct3 =		// 16 + 16 bytes
-		new (allocTest.Alloc(sizeof(TestStruct))) TestStruct();	// 32
-	EXPECT_NE(p_testStruct3, nullptr);
+	RefCntAutoPtr<TestStruct> p_testStruct3 =		// 16 + 16 bytes
+		allocTest.Alloc(sizeof(TestStruct));	// 32
+
+	p_testStruct3->myFloatArray[0] = 3.1415f;
+
+	EXPECT_NE(p_testStruct3.RawPtr(), nullptr);
 
 	// Create a hole
-	allocTest.FreeMemory(p_testStruct2);
+	allocTest.FreeMemory(p_testStruct2.RawPtr());
 	EXPECT_EQ(allocTest.GetUsedMemorySize(), 64);
 
 	// Now, although there is enough space, no allocation should be possible
@@ -579,9 +584,47 @@ TEST(HeapAllocatorTest, Defragment)
 	//Defragment
 	allocTest.Defragment();
 
-	// Noew it should work
-	//void* p_testBigStruct2 = allocTest.Alloc(sizeof(BigStruct));	// 32 + 32 = 64 bytes
-	//EXPECT_NE(p_testBigStruct2, nullptr);
+	// Now it should work
+	void* p_testBigStruct2 = allocTest.Alloc(sizeof(BigStruct));	// 32 + 32 = 64 bytes
+	EXPECT_NE(p_testBigStruct2, nullptr);
+	EXPECT_FLOAT_EQ(p_testStruct3->myFloatArray[0], 3.1415f);
+
+	FlushAllocator();
+}
+
+TEST(HeapAllocatorTest, DefragmentAligned)
+{
+	HeapAllocator allocTest = HeapAllocator(150);
+
+	RefCntAutoPtr<TestStruct> p_testStruct =		// 16 + 16 bytes
+		allocTest.Alloc(sizeof(TestStruct));	// 32
+	EXPECT_NE(p_testStruct.RawPtr(), nullptr);
+
+	RefCntAutoPtr<TestStruct> p_testStruct2 =		// 16 + 16 bytes
+		allocTest.Alloc(sizeof(TestStruct));	// 32
+	EXPECT_NE(p_testStruct2.RawPtr(), nullptr);
+
+	RefCntAutoPtr<TestStruct> p_testStruct3 =		// 16 + 16 bytes
+		allocTest.AllocAligned(sizeof(TestStruct));	// 32
+	EXPECT_NE(p_testStruct3.RawPtr(), nullptr);
+	EXPECT_EQ(reinterpret_cast<uint64Ptr>(p_testStruct3.RawPtr()) % sizeof(TestStruct), 0);
+
+
+	// Create a hole
+	allocTest.FreeMemory(p_testStruct2.RawPtr());
+	EXPECT_EQ(allocTest.GetUsedMemorySize(), 64);
+
+	// Now, although there is enough space, no allocation should be possible
+	void* p_testBigStruct = allocTest.Alloc(sizeof(BigStruct));	// 32 + 32 = 64 bytes
+	EXPECT_EQ(p_testBigStruct, nullptr);
+
+	//Defragment
+	allocTest.Defragment();
+
+	// Now it should work
+	void* p_testBigStruct2 = allocTest.Alloc(sizeof(BigStruct));	// 32 + 32 = 64 bytes
+	EXPECT_NE(p_testBigStruct2, nullptr);
+	EXPECT_EQ(reinterpret_cast<uint64Ptr>(p_testStruct3.RawPtr()) % sizeof(TestStruct), 0);
 
 	FlushAllocator();
 }

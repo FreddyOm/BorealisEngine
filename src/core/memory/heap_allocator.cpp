@@ -1,4 +1,5 @@
 #include "heap_allocator.h"
+#include "ref_cnt_auto_ptr.h"
 
 using namespace Borealis::Types;
 namespace Borealis::Memory
@@ -9,13 +10,13 @@ namespace Borealis::Memory
 		IMemoryAllocator::usedMemorySize = 0;
 		
 		// Initialize heap memory
-		heapBasePtr = reinterpret_cast<uint64Ptr>(malloc(IMemoryAllocator::totalMemorySize));
+		heapBasePtr = malloc(IMemoryAllocator::totalMemorySize);
 		p_freeMemBlockList = new std::list<HeapFreeListEntry>();
 
 		// Insert initial free memory block
 		p_freeMemBlockList->emplace_back(
 			HeapFreeListEntry(
-				reinterpret_cast<void*>(heapBasePtr), (reinterpret_cast<void*>(heapBasePtr + totalMemorySize))
+				heapBasePtr, (reinterpret_cast<void*>(reinterpret_cast<uint64Ptr>(heapBasePtr) + totalMemorySize))
 			)
 		);
 	}
@@ -25,13 +26,13 @@ namespace Borealis::Memory
 		IMemoryAllocator::totalMemorySize = size;
 		IMemoryAllocator::usedMemorySize = 0;
 		
-		heapBasePtr = reinterpret_cast<uint64Ptr>(malloc(IMemoryAllocator::totalMemorySize));
+		heapBasePtr = malloc(IMemoryAllocator::totalMemorySize);
 		p_freeMemBlockList = new std::list<HeapFreeListEntry>();
 
 		// Insert initial free memory block
 		p_freeMemBlockList->emplace_back(
 			HeapFreeListEntry(
-				reinterpret_cast<void*>(heapBasePtr), (reinterpret_cast<void*>(heapBasePtr + totalMemorySize))
+				heapBasePtr, (reinterpret_cast<void*>(reinterpret_cast<uint64Ptr>(heapBasePtr) + totalMemorySize))
 			)
 		);
 	}
@@ -54,7 +55,7 @@ namespace Borealis::Memory
 	
 	HeapAllocator::~HeapAllocator()
 	{
-		free(reinterpret_cast<void*>(heapBasePtr));
+		free(heapBasePtr);
 		delete p_freeMemBlockList;
 	}
 
@@ -77,8 +78,8 @@ namespace Borealis::Memory
 
 		return *this;
 	}
-	
-	void* HeapAllocator::Alloc(const uint16 allocSize)
+
+	HandleInfo* HeapAllocator::Alloc(const uint16 allocSize)
 	{
 		Debug::Assert(p_freeMemBlockList != nullptr && p_freeMemBlockList->size() > 0, 
 			"The heap allocator does not seem to be inititalized yet!");
@@ -95,12 +96,12 @@ namespace Borealis::Memory
 				return it->AllocMemoryFromBlock(allocSize);
 			}
 		}
-
+		
 		// Failed to obtain a valid memory block from the heap!
 		return nullptr;
 	}
 	
-	void* HeapAllocator::AllocAligned(const uint16 allocSize)
+	HandleInfo* HeapAllocator::AllocAligned(const uint16 allocSize)
 	{
 		Debug::Assert(p_freeMemBlockList != nullptr && p_freeMemBlockList->size() > 0, 
 			"The heap allocator does not seem to be inititalized yet!");
@@ -113,6 +114,7 @@ namespace Borealis::Memory
 			{
 				++allocationCount;
 				usedMemorySize += allocSize + sizeof(HeapDescription);
+
 				return it->AllocMemoryFromBlock(allocSize, true);
 			}
 		}
@@ -123,7 +125,9 @@ namespace Borealis::Memory
 
 	bool HeapAllocator::ReturnFreeBlock(std::list<HeapFreeListEntry>::iterator it, const HeapDescription* const p_returnedMemBlockDesc)
 	{
-		Debug::Assert(p_returnedMemBlockDesc->Size > 0, "Invalid heap description!");
+		Debug::Assert(p_returnedMemBlockDesc->Size > 0 && p_returnedMemBlockDesc->HandleId > 0, 
+			"Invalid heap description! Make sure, the heap description is valid and not erased before returning the mem block.");
+
 		bool merged = false;
 
 		// Merge with previous memblock
@@ -152,31 +156,31 @@ namespace Borealis::Memory
 			}
 		}
 
-		// Merge with next memblock (current memblock is this memblock!)
-		std::list<HeapFreeListEntry>::iterator currentBlockIterator = it;
-
-		if (currentBlockIterator != p_freeMemBlockList->end())
-		{
-			if (p_returnedMemBlockDesc->GetMemBlockEnd() == reinterpret_cast<uint64Ptr>(currentBlockIterator->p_BlockStart))
-			{
-				currentBlockIterator->p_BlockStart = reinterpret_cast<void*>(p_returnedMemBlockDesc->GetMemBlockStart());
-				
-				++freeCount;
-				usedMemorySize -= p_returnedMemBlockDesc->Size + sizeof(HeapDescription);
-
-#ifdef CLEAR_HEAP_ELEMENT_ON_FREE
-				memset(reinterpret_cast<void*>(p_returnedMemBlockDesc->GetMemBlockStart()), 0,
-					sizeof(HeapDescription) + p_returnedMemBlockDesc->AlignOffset + p_returnedMemBlockDesc->Size);
-#endif
-
-				merged = true;
-			}
-		}
+//		// Merge with next memblock (current memblock is this memblock!)
+//		std::list<HeapFreeListEntry>::iterator currentBlockIterator = it;
+//
+//		if (currentBlockIterator != p_freeMemBlockList->end())
+//		{
+//			if (p_returnedMemBlockDesc->GetMemBlockEnd() == reinterpret_cast<uint64Ptr>(currentBlockIterator->p_BlockStart))
+//			{
+//				currentBlockIterator->p_BlockStart = reinterpret_cast<void*>(p_returnedMemBlockDesc->GetMemBlockStart());
+//				
+//				++freeCount;
+//				usedMemorySize -= p_returnedMemBlockDesc->Size + sizeof(HeapDescription);
+//
+//#ifdef CLEAR_HEAP_ELEMENT_ON_FREE
+//				memset(reinterpret_cast<void*>(p_returnedMemBlockDesc->GetMemBlockStart()), 0,
+//					sizeof(HeapDescription) + p_returnedMemBlockDesc->AlignOffset + p_returnedMemBlockDesc->Size);
+//#endif
+//
+//				merged = true;
+//			}
+//		}
 		
 		return merged;
 	}
 
-	void HeapAllocator::FreeMemory(const void* address)
+	void HeapAllocator::FreeMemory(const void* const address)
 	{
 		Debug::Assert(p_freeMemBlockList != nullptr && p_freeMemBlockList->size() > 0,
 			"The heap allocator does not seem to be inititalized yet!");
@@ -187,11 +191,15 @@ namespace Borealis::Memory
 			{
 				if (it->p_BlockStart > address)
 				{
-					const HeapDescription* const p_returnedMemBlockDesc =
-						reinterpret_cast<HeapDescription*>(reinterpret_cast<uint64Ptr>(address) - sizeof(HeapDescription));
-
-					Debug::Assert(p_returnedMemBlockDesc != nullptr, "Couldn't read heap description!");
-
+					// Find heap desc by reading pre data align offset!
+					const uint16* p_preDataAlignOffset = 
+						reinterpret_cast<uint16*>(reinterpret_cast<uint64Ptr>(address) - sizeof(uint16));
+					const HeapDescription* const p_returnedMemBlockDesc = 
+						reinterpret_cast<HeapDescription*>(reinterpret_cast<uint64Ptr>(address) - (*p_preDataAlignOffset) - sizeof(HeapDescription));
+					
+					Debug::Assert(p_returnedMemBlockDesc != nullptr && p_returnedMemBlockDesc->Size > 0, 
+						"Couldn't read heap description!");
+					
 					const uint64Ptr memBlockBase = reinterpret_cast<uint64Ptr>(address) - p_returnedMemBlockDesc->AlignOffset - sizeof(HeapDescription);
 					
 					if (ReturnFreeBlock(it, p_returnedMemBlockDesc))
@@ -210,7 +218,7 @@ namespace Borealis::Memory
 		}
 	}
 
-	void HeapAllocator::FreeAligned(const void* address)
+	void HeapAllocator::FreeAligned(const void* const address)
 	{
 		// The heap allocator always frees with respect to alignment.
 		// No special implementation is required! See FreeMemory(const void* address) above!
@@ -223,7 +231,7 @@ namespace Borealis::Memory
 
 		p_freeMemBlockList->clear();
 		p_freeMemBlockList->emplace_back(HeapFreeListEntry(
-			reinterpret_cast<void*>(heapBasePtr), (reinterpret_cast<void*>(heapBasePtr + totalMemorySize)))
+			reinterpret_cast<void*>(heapBasePtr), (reinterpret_cast<void*>(reinterpret_cast<uint64Ptr>(heapBasePtr) + totalMemorySize)))
 		);
 
 		usedMemorySize = 0;
@@ -234,7 +242,6 @@ namespace Borealis::Memory
 	void HeapAllocator::Defragment(const Types::uint8 iterations)
 	{
 		// What if there is one big hole in the middle? -> Actually no defragmentation, but still move?
-
 		if (p_freeMemBlockList->size() < 2) 
 			return;
 
@@ -250,38 +257,42 @@ namespace Borealis::Memory
 			std::list<HeapFreeListEntry>::iterator second = first;
 			++second;
 
-			// Check for holes between free blocks of memory
+			// Check for holes between free blocks of memory and move free blocks to higher mem addresses
 			{
-				if (reinterpret_cast<uint64Ptr>(first->p_BlockEnd) != reinterpret_cast<uint64Ptr>(second->p_BlockStart))
+				if (!HeapFreeListEntry::IsAdjacent(*first, *second))
 				{
 					// Found a hole!
-					
-					// @TODO: Look at the beginning of a given used mem block (freeBlock->p_BlockEnd + 1)
-					// and read heap description to get data pointer, size and alignment offset
-
-					// Don't forget to realign data, and update HeapDescription accordingly
-					// --> To really use this, I need to use handles or always return smart pointers!
 				
-					HeapDescription* p_HeapDesc = reinterpret_cast<HeapDescription*>(reinterpret_cast<uint64Ptr>(first->p_BlockEnd) + 1);
+					HeapDescription* p_HeapDesc = reinterpret_cast<HeapDescription*>(reinterpret_cast<uint64Ptr>(first->p_BlockEnd));
 					
-					Debug::Assert(p_HeapDesc != nullptr, 
+					Debug::Assert(p_HeapDesc != nullptr && p_HeapDesc->Data() != nullptr && p_HeapDesc->Size > 0,
 						"Couldn't find heap description while defragmenting the heap memory!");
 					
-					HeapDescription memBlockHeapCpy = *p_HeapDesc;
+					const HeapDescription memBlockHeapDescCpy = *p_HeapDesc;
+					void* const p_oldMemBlockEnd = reinterpret_cast<void*>(memBlockHeapDescCpy.GetMemBlockEnd());
 					
 					// Calculate the unaligned new pointer and calculate the new alignment offset
-					const uint64Ptr movedMemBlockPtr = reinterpret_cast<uint64Ptr>(first->p_BlockStart) + sizeof(HeapDescription);
-					const int32 newAlignmentOffset = movedMemBlockPtr % p_HeapDesc->Size == 0 ? 0 : (p_HeapDesc->Size - (movedMemBlockPtr % p_HeapDesc->Size));
-
-					// Move the memory block and insert the updated HeapDescription
-					memmove(reinterpret_cast<void*>(movedMemBlockPtr), memBlockHeapCpy.p_Data, memBlockHeapCpy.Size);
-					const HeapDescription* p_newHeapDesc = new (first->p_BlockStart) HeapDescription(memBlockHeapCpy.p_Data, memBlockHeapCpy.Size, newAlignmentOffset);
+					const uint64Ptr unalignedMovedMemBlockPtr = reinterpret_cast<uint64Ptr>(first->p_BlockStart) + sizeof(HeapDescription);
+					const uint16 newAlignmentOffset = unalignedMovedMemBlockPtr % p_HeapDesc->Size == 0 ? 0 : (p_HeapDesc->Size - (unalignedMovedMemBlockPtr % p_HeapDesc->Size));
+					void* const p_targetMemBlock = reinterpret_cast<void*>(unalignedMovedMemBlockPtr + newAlignmentOffset);
+					
+					// Move the memory block & insert the updated HeapDescription + preDataAlignOffset
+					memmove(p_targetMemBlock, memBlockHeapDescCpy.Data(), memBlockHeapDescCpy.Size);
+					const HeapDescription* p_newHeapDesc = new (first->p_BlockStart) HeapDescription(memBlockHeapDescCpy.HandleId, memBlockHeapDescCpy.Size, newAlignmentOffset);
+					uint16* const p_preDataAlignOffset = new (reinterpret_cast<void*>(unalignedMovedMemBlockPtr + newAlignmentOffset - sizeof(uint16))) uint16(newAlignmentOffset);
+					
+					// Update heap decs value and handle
+					*p_preDataAlignOffset = newAlignmentOffset;
+					UpdateHandle(p_newHeapDesc->HandleId, p_targetMemBlock);
 
 					// Update the free block description
-					first->p_BlockStart = reinterpret_cast<void*>(p_newHeapDesc->GetMemBlockEnd() + 1);
-					first->p_BlockEnd = reinterpret_cast<void*>(memBlockHeapCpy.GetMemBlockEnd());
+					first->p_BlockStart = reinterpret_cast<void*>(p_newHeapDesc->GetMemBlockEnd());
+					first->p_BlockEnd = p_oldMemBlockEnd;
 
-					if (reinterpret_cast<uint64Ptr>(first->p_BlockStart) + 1 == reinterpret_cast<uint64Ptr>(first->p_BlockEnd))
+					Debug::Assert(first->p_BlockStart != first->p_BlockEnd, 
+						"Start and end pointers of free block may not point to the same address!");
+
+					if (HeapFreeListEntry::IsAdjacent(*first, *second))
 					{
 						MergeFreeBlocks(first, second);
 						p_freeMemBlockList->erase(first);
@@ -314,35 +325,43 @@ namespace Borealis::Memory
 
 	void HeapAllocator::MergeFreeBlocks(std::list<HeapFreeListEntry>::iterator const first, std::list<HeapFreeListEntry>::iterator const second)
 	{
-		Debug::Assert(reinterpret_cast<uint64Ptr>(first->p_BlockEnd) + 1 == reinterpret_cast<uint64Ptr>(second->p_BlockStart),
+		Debug::Assert(HeapFreeListEntry::IsAdjacent(*first, *second),
 			"Trying to merge two non-continuous free memory blocks!");
 
 		second->p_BlockStart = first->p_BlockStart;
 	}
 	
-	void* HeapFreeListEntry::AllocMemoryFromBlock(const Types::int32 blockSize, const bool alignToSize)
+	HandleInfo* HeapFreeListEntry::AllocMemoryFromBlock(const uint16 blockSize, const bool alignToSize)
 	{
 		Debug::Assert(alignToSize ? (blockSize * 2) + sizeof(HeapDescription) <= AvailableSize() :
 			blockSize + sizeof(HeapDescription) < AvailableSize(),
 			"Cannot split a memory block that is smaller than the requested memory block size");
 
-		const Types::uint64Ptr p_blockBase = reinterpret_cast<Types::uint64Ptr>(p_BlockStart);
-
 		// Find alignment offset if necessary
-		const Types::uint64Ptr alignOffset = alignToSize ?
+		const uint64Ptr p_blockBase = reinterpret_cast<uint64Ptr>(p_BlockStart);
+		const uint64Ptr alignOffset = alignToSize ?
 			blockSize - ((p_blockBase + sizeof(HeapDescription)) % blockSize) : 0;
 
-		// Calculate final data ptr and initialize heap description
-		uint64Ptr dataPtrAddress = p_blockBase + sizeof(HeapDescription) + alignOffset;
-		void* p_data = reinterpret_cast<void*>(dataPtrAddress);
+		Debug::Assert(alignOffset < 65.536, 
+			"Alignment offset is larger than two bytes. Cannot store this offset in front of the data!");
+		
+		// Calculate final data ptr
+		void* p_data = reinterpret_cast<void*>(p_blockBase + sizeof(HeapDescription) + alignOffset);
 
-		HeapDescription* p_desc = 
-			new (reinterpret_cast<void*>(dataPtrAddress - sizeof(HeapDescription))) HeapDescription(p_data, blockSize, alignOffset);
+		HandleInfo* p_hndlInfo = RegisterHandle(p_data);
+
+		// Store and initialize the description at the beginning of the block
+		const HeapDescription* p_desc = 
+			new (reinterpret_cast<void*>(p_blockBase)) HeapDescription(p_hndlInfo->HandleId, blockSize, alignOffset);
+
+		// Also store align offset pre data pointer! May intersect HeapDescription's padding!
+		const uint16* p_preDataAlignOffset = 
+			new (reinterpret_cast<void*>(reinterpret_cast<Types::uint64Ptr>(p_data) - sizeof(uint16))) uint16(static_cast<uint16>(alignOffset));
 
 		// Update start of this free list element
 		p_BlockStart = reinterpret_cast<void*>(
 			reinterpret_cast<Types::uint64Ptr>(p_data) + blockSize);
 
-		return p_data;
+		return p_hndlInfo;
 	}
 }

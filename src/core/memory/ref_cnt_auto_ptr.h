@@ -3,8 +3,7 @@
 #include "../../config.h"
 #include "../types/types.h"
 #include "../debug/logger.h"
-#include "pool_allocator.h"
-#include <memory>
+#include "./memory.h"
 
 #define NDEBUG
 
@@ -12,239 +11,178 @@ namespace Borealis::Memory
 {
 	class string;
 
-	extern BOREALIS_API PoolAllocator RefCntInfoAllocator;
-
-	/// <summary>
-	/// An object to describe the pointers state.
-	/// </summary>
-	enum class REF_CNT_AUTO_PTR_STATE : Types::int8
-	{
-		// The pointer is invalid
-		INVALID = -1,
-
-		// The pointer is valid
-		VALID = 0,
-
-		// The pointer's memory has been released
-		INVALID_MEM_FREE = 1,
-
-		// The pointer has been moved to another instance
-		INVALID_MOVED = 2,
-	};
-
-#ifdef NDEBUG
-	BOREALIS_API std::string GetPointerInvalidReason(const REF_CNT_AUTO_PTR_STATE _state);
-#endif
-	
-	struct RefCntAutoPtrInfo
-	{
-		Types::int64 RefCount = -1;
-		REF_CNT_AUTO_PTR_STATE State = REF_CNT_AUTO_PTR_STATE::INVALID;
-	};
-
 	template<typename T>
 	struct RefCntAutoPtr
 	{
-		RefCntAutoPtr<T>(T* other)
+		RefCntAutoPtr<T>() = delete;
+
+		RefCntAutoPtr<T>(HandleInfo* const p_hndlInfo)
 		{
-			Debug::Assert(other != nullptr, 
+			Debug::Assert(p_hndlInfo != nullptr, 
 				"Cannot assign a nullptr to a ref counted auto pointer object.");
 
-			Debug::Assert(p_refCntInfo == nullptr,
+			Debug::Assert(this->p_handleInfo == nullptr,
 				"Cannot assign a raw pointer to a RefCntAutoPtr that is already referencing some data!");
 			
-			this->p_data = other;
-
-			// Allocate new ref cnt ptr info and write to it!
-			this->p_refCntInfo = reinterpret_cast<RefCntAutoPtrInfo*>( RefCntInfoAllocator.Alloc(sizeof(RefCntAutoPtrInfo)));
-			this->p_refCntInfo->RefCount = 1;
-			this->p_refCntInfo->State = REF_CNT_AUTO_PTR_STATE::VALID;
-
-#ifdef NDEBUG
-			this->state = REF_CNT_AUTO_PTR_STATE::VALID;
-#endif
+			this->p_handleInfo = p_hndlInfo;
 		}
 
 		RefCntAutoPtr<T>(const RefCntAutoPtr<T>& other)
 		{
-			Debug::Assert(other.p_data != p_data, 
+			Debug::Assert(other.p_handleInfo != p_handleInfo, 
 				"Cannot assign a ref counted pointer to itself!");
 
 			// Assign the appropriate data
-			p_data = other.p_data;
-			p_refCntInfo = other.p_refCntInfo;
+			p_handleInfo = other.p_handleInfo;
 
 			// Increment RefCount
-			++p_refCntInfo->RefCount;
-
-#ifdef NDEBUG
-			this->state = REF_CNT_AUTO_PTR_STATE::VALID;
-#endif
+			++p_handleInfo->RefCount;
 		}
 
 		RefCntAutoPtr<T>(RefCntAutoPtr<T>&& other) noexcept
 		{
-			Debug::Assert(other.p_data != p_data && *this != other,
+			Debug::Assert(other.p_handleInfo != p_handleInfo && *this != other,
 				"Cannot assign a ref counted pointer to itself!");
 
 			// Assign the appropriate data
-			p_data = other.p_data;
-			p_refCntInfo = other.p_refCntInfo;
+			p_handleInfo = other.p_handleInfo;
 
 			// Do not increment RefCount since data is moved!
-
-			other.p_data = nullptr;
-			other.p_refCntInfo = nullptr;
-
-#ifdef NDEBUG
-			this->state = REF_CNT_AUTO_PTR_STATE::VALID;
-			other.state = REF_CNT_AUTO_PTR_STATE::INVALID_MOVED;
-#endif
+			other.p_handleInfo = nullptr;
 		}
 
 		~RefCntAutoPtr<T>()
 		{
 			// Decrease ref count if possible
-			if (p_refCntInfo != nullptr)
+			if (p_handleInfo != nullptr)
 			{
-				--p_refCntInfo->RefCount;
-			
-				if (p_refCntInfo->RefCount <= 0 && 
-					this->state != REF_CNT_AUTO_PTR_STATE::INVALID)
+				if (--p_handleInfo->RefCount <= 0)
 				{
 					// Release all memory and clean up!
-					RefCntInfoAllocator.FreeMemory(p_refCntInfo);
-#ifdef NDEBUG
-					this->state = REF_CNT_AUTO_PTR_STATE::INVALID;
-#endif
+					RemoveHandle(p_handleInfo->HandleId, p_handleInfo);
 				}
 			}
 		}
-		
-		RefCntAutoPtr<T>& operator=(const T* other)
+
+		RefCntAutoPtr<T>& operator=(HandleInfo* const p_hndlInfo)
 		{
-			Debug::Assert(p_data != nullptr,
+			Debug::Assert(p_hndlInfo != nullptr,
 				"Cannot assign a nullptr to a ref counted auto pointer object.");
 
-			Debug::Assert(p_refCntInfo == nullptr, 
+			Debug::Assert(this->p_handleInfo == nullptr, 
 				"Cannot assign a raw pointer to a RefCntAutoPtr that is already referencing some data!");
-		
-			this->p_data = other;
 
-			// Allocate new ref cnt ptr info and write to it!
-			this->p_refCntInfo = reinterpret_cast<RefCntAutoPtrInfo>(RefCntInfoAllocator.Alloc(sizeof(RefCntAutoPtrInfo)));
-			this->p_refCntInfo.RefCount = 1;
-			this->p_refCntInfo.State = REF_CNT_AUTO_PTR_STATE::VALID;
-
-#ifdef NDEBUG
-			this->state = REF_CNT_AUTO_PTR_STATE::VALID;
-#endif
+			this->p_handleInfo = p_hndlInfo;
 			return *this;
 		}
 
 		RefCntAutoPtr<T>& operator=(const RefCntAutoPtr<T>& other)
 		{
-			Debug::Assert(other.p_data != p_data,
+			Debug::Assert(other.p_handleInfo != p_handleInfo,
 				"Cannot assign a ref counted pointer to itself!");
 
 			// Assign the appropriate data
-			p_data = other.p_data;
-			p_refCntInfo = other.p_refCntInfo;
+			p_handleInfo = other.p_handleInfo;
 
 			// Increment RefCount
-			++p_refCntInfo->RefCount;
+			++p_handleInfo->RefCount;
 
-#ifdef NDEBUG
-			this->state = REF_CNT_AUTO_PTR_STATE::VALID;
-#endif
 			return *this;
 		}
 
 		RefCntAutoPtr<T>& operator=(RefCntAutoPtr<T>&& other) noexcept
 		{
-			Debug::Assert(other.p_data != p_data && *this != other,
+			Debug::Assert(other.p_handleInfo != p_handleInfo && *this != other,
 				"Cannot assign a ref counted pointer to itself!");
 
 			// Assign the appropriate data
-			p_data = other.p_data;
-			p_refCntInfo = other.p_refCntInfo;
+			p_handleInfo = other.p_handleInfo;
 
 			// Do not increment RefCount since data is moved!
 
-			other.p_data = nullptr;
-			other.p_refCntInfo = nullptr;
+			other.p_handleInfo = nullptr;
 
-#ifdef NDEBUG
-			this->state = REF_CNT_AUTO_PTR_STATE::VALID;
-			other.state = REF_CNT_AUTO_PTR_STATE::INVALID_MOVED;
-#endif
 			return *this;
+		}
+
+		static HandleInfo* Allocate()
+		{
+			if (g_memoryAllocatorContext.empty())
+			{
+				Debug::LogError("No memory allocator assigned for allocation! Use a MemAllocJanitor to push an allocator context!");
+				return nullptr;
+			}
+
+			HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->Alloc(sizeof(T));
+			if (p_hndl) 
+			{	
+				new (AccessHandleData(p_hndl->HandleId)) T();
+				return p_hndl;
+			}
+
+			Debug::LogError("Couldn't allocate memory!");
+			return nullptr;
+		}
+
+		static HandleInfo* AllocAligned()
+		{
+			if (g_memoryAllocatorContext.empty())
+			{
+				Debug::LogError("No memory allocator assigned for allocation! Use a MemAllocJanitor to push an allocator context!");
+				return nullptr;
+			}
+
+			HandleInfo* p_hdnl = GetMemoryAllocator(g_memoryAllocatorContext.top())->AllocAligned(sizeof(T));
+			if (p_hdnl)
+			{
+				new (AccessHandleData(p_hdnl->HandleId)) T();
+				return p_hdnl;
+			}
+
+			Debug::LogError("Couldn't allocate memory!");
+			return nullptr;
 		}
 
 		bool operator==(const RefCntAutoPtr<T> &other) const
 		{
-#ifdef NDEBUG
-			if (state != REF_CNT_AUTO_PTR_STATE::VALID)
-			{
-				Debug::LogError(GetPointerInvalidReason(state).c_str());
-				return false;
-			}
-			else if (other.state != REF_CNT_AUTO_PTR_STATE::VALID)
-			{
-				Debug::LogError(GetPointerInvalidReason(other.state).c_str());
-				return false;
-			}
-#endif
-			return p_data != nullptr && other.p_data != nullptr && p_data == other.p_data;
+			// Two RefCntAutoPtr instances are the same if they point to the same handle info
+			return p_handleInfo != nullptr 
+				&& other.p_handleInfo != nullptr 
+				&& p_handleInfo == other.p_handleInfo;
 		}
 		
 		T* operator->() const
 		{
-#ifdef NDEBUG
-			if (state != REF_CNT_AUTO_PTR_STATE::VALID)
-			{
-				Debug::LogError(GetPointerInvalidReason(state).c_str());
-				Debug::Assert(false, "Terminating program due to error. See the last error message for further information.");
-			}
-#endif
-			return p_data;
+			Debug::Assert(p_handleInfo != nullptr, 
+				"The RefCntAutoPtr has no handle info! Make sure the instance has been set up correctly using \"Allocate()\" or by assigning another valid instance!");
+			
+			return reinterpret_cast<T*>(AccessHandleData(p_handleInfo->HandleId));
 		}
-
-		T* operator&() const
-		{
-#ifdef NDEBUG
-			if (state != REF_CNT_AUTO_PTR_STATE::VALID)
-			{
-				Debug::LogError(GetPointerInvalidReason(state).c_str());
-			}
-#endif
-			return p_data;
-		}
-
+		
 		T* RawPtr() const
 		{
-#ifdef NDEBUG
-			if (state != REF_CNT_AUTO_PTR_STATE::VALID)
-			{
-				Debug::LogError(GetPointerInvalidReason(state).c_str());
-				return nullptr;
-			}
-#endif
-			return p_data;
+			Debug::Assert(p_handleInfo != nullptr,
+				"The RefCntAutoPtr has no handle info! Make sure the instance has been set up correctly using \"Allocate()\" or by assigning another valid instance!");
+
+			return reinterpret_cast<T*>(AccessHandleData(p_handleInfo->HandleId));
+		}
+
+		T& operator*()
+		{
+			T* p_Data = RawPtr();
+			return reinterpret_cast<T&>(*p_Data);
 		}
 
 		Types::int16 UseCount() const
 		{
-			return p_refCntInfo != nullptr ? p_refCntInfo->RefCount : -1;
-		}
+			Debug::Assert(p_handleInfo != nullptr,
+				"The RefCntAutoPtr has no handle info! Make sure the instance has been set up correctly using \"Allocate()\" or by assigning another valid instance!");
 
+			return p_handleInfo->RefCount;
+		}
+		
 	private:
 
-		T* p_data = nullptr;
-		RefCntAutoPtrInfo* p_refCntInfo = nullptr;
-
-#ifdef NDEBUG
-		REF_CNT_AUTO_PTR_STATE state = REF_CNT_AUTO_PTR_STATE::INVALID;
-#endif
+		HandleInfo* p_handleInfo = nullptr;
 	};
 }

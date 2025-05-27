@@ -50,12 +50,13 @@ set(SOURCES
     core/window/window_internal.cpp
     core/debug/logger.cpp
     core/debug/logger_internal.cpp
-    core/memory/allocator.cpp
     core/memory/stack_allocator.cpp
     core/memory/pool_allocator.cpp
     core/memory/heap_allocator.cpp
     core/memory/ref_cnt_auto_ptr.cpp
+    core/memory/memory.cpp
     core/math/math.cpp
+    core/math/random.cpp
 )
 
 # Project include files
@@ -72,7 +73,9 @@ set(HEADERS
     core/memory/pool_allocator.h
     core/memory/heap_allocator.h
     core/memory/ref_cnt_auto_ptr.h
+    core/memory/memory.h
     core/math/math.h
+    core/math/random.h
     
 )
 

@@ -3,7 +3,6 @@
 #include "../../config.h"
 #include "../types/types.h"
 #include <list>
-#include <vector>
 
 #ifndef CLEAR_HEAP_ELEMENT_ON_FREE
 #define CLEAR_HEAP_ELEMENT_ON_FREE
@@ -11,28 +10,48 @@
 
 namespace Borealis::Memory
 {
+	struct HandleInfo;
+	BOREALIS_API HandleInfo* RegisterHandle(void* const p_dataPtr);
+	extern BOREALIS_API void* const AccessHandleData(Types::uint64Ptr hndlId);
 
 	//Heap [ HeapDesc | Alignment | Alignment | 1 | 1 | 1 | 1 | 0 | 0 | 0 | .. | HeapDesc | 1 | 1 | 1 ]
 	struct HeapDescription	// 16 bytes
 	{
-		HeapDescription(void* p_data, const Types::uint16 size, const Types::uint16 alignOffset = 0)
-			: p_Data(p_data), Size(size), AlignOffset(alignOffset)
+		HeapDescription(const Types::uint64Ptr handleId, const Types::uint16 size, const Types::uint16 alignOffset = 0)
+			: HandleId(handleId), Size(size), AlignOffset(alignOffset)
 		{ }
 
-		void* p_Data = nullptr;				// 8 bytes
+		Types::uint64Ptr HandleId = 0;		// 8 bytes
 		Types::uint16 Size = 0;				// 2 bytes
 		Types::uint16 AlignOffset = 0;		// 2 bytes
 		Types::uint8 Padding[4] = {};		// 4 bytes
 		
 
-		inline Types::uint64Ptr GetMemBlockStart() const
+		void* const Data() const
 		{
-			return reinterpret_cast<Types::uint64Ptr>(p_Data) - AlignOffset - sizeof(HeapDescription);
+			return AccessHandleData(HandleId);
 		}
 
-		inline Types::uint64Ptr GetMemBlockEnd() const
+		inline const Types::uint64Ptr GetMemBlockStart() const
 		{
-			return reinterpret_cast<Types::uint64Ptr>(p_Data) + Size;
+			return reinterpret_cast<Types::uint64Ptr>(Data()) - AlignOffset - sizeof(HeapDescription);
+		}
+
+		inline const Types::uint64Ptr GetMemBlockEnd() const
+		{
+			return reinterpret_cast<Types::uint64Ptr>(Data()) + Size;
+		}
+
+		/// <summary>
+		/// Checks if two heap blocks are adjacent to each other. 
+		/// Only works if first is located at a lower mem address than second!
+		/// </summary>
+		/// <param name="p_first">The first HeapDescription to test.</param>
+		/// <param name="p_second">The second HeapDescription to test.</param>
+		/// <returns>True, if first block is in front of and directly next to the second block.</returns>
+		inline static bool IsAdjacent(HeapDescription* const p_first, HeapDescription* const p_second)
+		{
+			return p_first->GetMemBlockEnd() == p_second->GetMemBlockStart();
 		}
 	};
 	
@@ -56,12 +75,23 @@ namespace Borealis::Memory
 		}
 		
 		/// <summary>
+		/// Checks if the first HeapFreeListEntry is directly next to the second HeapFreeListEntry.
+		/// </summary>
+		/// <param name="first">The first HeapFreeListEntry.</param>
+		/// <param name="second">The second HeapFreeListEntry.</param>
+		/// <returns>True, if first block is in front of and directly next to the second block.</returns>
+		inline static bool IsAdjacent(HeapFreeListEntry& const first, HeapFreeListEntry& const second)
+		{
+			return reinterpret_cast<Types::uint64Ptr>(first.p_BlockEnd) == reinterpret_cast<Types::uint64Ptr>(second.p_BlockStart);
+		}
+
+		/// <summary>
 		/// Splits this memory block into two, and returns the first one for seperate use.
 		/// </summary>
 		/// <param name="blockSize">The requested block size.</param>
 		/// <param name="alignOffset">The alignment size if necessary.</param>
 		/// <returns>A new heap description object referencing the newly split memory block.</returns>
-		void* AllocMemoryFromBlock(const Types::int32 blockSize, const bool alignToSize = false);
+		HandleInfo* AllocMemoryFromBlock(const Types::uint16 blockSize, const bool alignToSize = false);
 	};
 
 	class BOREALIS_API HeapAllocator : public IMemoryAllocator
@@ -81,11 +111,11 @@ namespace Borealis::Memory
 	public:
 
 		// Inherited via IMemoryAllocator
-		void* Alloc(const Types::uint16 allocSize) override;
-		void* AllocAligned(const Types::uint16 allocSize) override;
+		HandleInfo* Alloc(const Types::uint16 allocSize) override;
+		HandleInfo* AllocAligned(const Types::uint16 allocSize) override;
 
-		void FreeMemory(const void* address) override;
-		void FreeAligned(const void* address) override;
+		void FreeMemory(const void* const address) override;
+		void FreeAligned(const void* const address) override;
 
 		void Clear() override;
 
@@ -108,7 +138,7 @@ namespace Borealis::Memory
 		
 	private:
 
-		Types::uint64Ptr heapBasePtr = 0;
+		void* heapBasePtr = nullptr;
 
 		// @TODO:  Keep an eye on this, this might be slow due to native mem alloc
 		std::list<HeapFreeListEntry>* p_freeMemBlockList = nullptr;
