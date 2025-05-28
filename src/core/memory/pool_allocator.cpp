@@ -50,12 +50,11 @@ namespace Borealis::Memory
 
 	void* PoolAllocator::RawAlloc(const uint16 allocSize)
 	{
-		Debug::Assert(allocSize <= poolElementSize,
-			"The size of an allocated object (%u) may not exceed the pool element size (%u)", allocSize, poolElementSize);
+		Assert(allocSize <= poolElementSize, "The size of an allocated object (%u) may not exceed the pool element size (%u)", allocSize, poolElementSize);
 
 		if (freePoolElements <= 0)
 		{
-			Debug::LogError("Pool ran out of free elements!");
+			LogError("Pool ran out of free elements!");
 			return nullptr;
 		}
 
@@ -83,12 +82,12 @@ namespace Borealis::Memory
 
 	HandleInfo* PoolAllocator::Alloc(const uint16 allocSize)
 	{
-		Debug::Assert(allocSize <= poolElementSize,
+		Assert(allocSize <= poolElementSize,
 			"The size of an allocated object (%u) may not exceed the pool element size (%u)", allocSize, poolElementSize);
 
 		if (freePoolElements <= 0)
 		{
-			Debug::LogError("Pool ran out of free elements!");
+			LogError("Pool ran out of free elements!");
 			return nullptr;
 		}
 
@@ -116,15 +115,15 @@ namespace Borealis::Memory
 
 	void PoolAllocator::FreeMemory(const void* const address)
 	{
-		Debug::Assert(reinterpret_cast<uint64Ptr>(address) >= p_poolBase &&
+		Assert(reinterpret_cast<uint64Ptr>(address) >= p_poolBase &&
 			reinterpret_cast<uint64Ptr>(address) <= p_poolBase + (poolElementCount * poolElementSize) + poolElementSize,
 			"The given memory address '0x%p' is not part of the allocator pool!", reinterpret_cast<const void*>(address));
 
 		int32 poolIndex = (reinterpret_cast<uint64Ptr>(address) - p_poolBase) / poolElementSize;
-		Debug::Assert(poolIndex >= 0 && poolIndex < poolElementCount,
+		Assert(poolIndex >= 0 && poolIndex < poolElementCount,
 			"Pool index invalid! The index %i is not within the range [0, %i]!", poolIndex, poolElementCount - 1);
 
-		Debug::Assert(p_lookupBase[poolIndex],
+		Assert(p_lookupBase[poolIndex],
 			"Pool index (%i) points to free pool element. Cannot free an already free pool element!", poolIndex);
 
 		// Check if pool element is actually used.
@@ -145,12 +144,12 @@ namespace Borealis::Memory
 
 	HandleInfo* PoolAllocator::AllocAligned(const uint16 allocSize)
 	{
-		Debug::Assert(allocSize * 2 <= poolElementSize,
+		Assert(allocSize * 2 <= poolElementSize,
 			"The size of an aligned allocated object (%u) may not exceed the pool element size (%u)", allocSize, poolElementSize);
 
 		if (freePoolElements <= 0)
 		{
-			Debug::LogError("Pool ran out of free elements!");
+			LogError("Pool ran out of free elements!");
 			return nullptr;
 		}
 
@@ -193,7 +192,7 @@ namespace Borealis::Memory
 
 	void PoolAllocator::FreeAligned(const void* const address)
 	{
-		Debug::Assert(reinterpret_cast<uint64Ptr>(address) >= p_poolBase &&
+		Assert(reinterpret_cast<uint64Ptr>(address) >= p_poolBase &&
 			reinterpret_cast<uint64Ptr>(address) <= p_poolBase + (poolElementCount * poolElementSize) + poolElementSize,
 			"The given memory address '0x%p' is not part of the allocator pool!", reinterpret_cast<const void*>(address));
 
@@ -203,11 +202,10 @@ namespace Borealis::Memory
 		uint64Ptr poolAddress = reinterpret_cast<uint64Ptr>(address) - *p_alignOffset;
 
 		int32 poolIndex = (poolAddress - p_poolBase) / poolElementSize;
-		Debug::Assert(poolIndex >= 0 && poolIndex < poolElementCount,
+		Assert(poolIndex >= 0 && poolIndex < poolElementCount, 
 			"Pool index invalid! The index %i is not within the range [0, %i]!", poolIndex, poolElementCount - 1);
 
-		Debug::Assert(p_lookupBase[poolIndex],
-			"Pool index (%i) points to free pool element. Cannot free an already free pool element!", poolIndex);
+		Assert(p_lookupBase[poolIndex], "Pool index (%i) points to free pool element. Cannot free an already free pool element!", poolIndex);
 
 		// Check if pool element is actually used.
 		if (poolIndex < poolElementCount && p_lookupBase[poolIndex])

@@ -18,10 +18,10 @@ namespace Borealis::Memory
 
 		RefCntAutoPtr<T>(HandleInfo* const p_hndlInfo)
 		{
-			Debug::Assert(p_hndlInfo != nullptr, 
+			Assert(p_hndlInfo != nullptr, 
 				"Cannot assign a nullptr to a ref counted auto pointer object.");
 
-			Debug::Assert(this->p_handleInfo == nullptr,
+			Assert(this->p_handleInfo == nullptr,
 				"Cannot assign a raw pointer to a RefCntAutoPtr that is already referencing some data!");
 			
 			this->p_handleInfo = p_hndlInfo;
@@ -29,7 +29,7 @@ namespace Borealis::Memory
 
 		RefCntAutoPtr<T>(const RefCntAutoPtr<T>& other)
 		{
-			Debug::Assert(other.p_handleInfo != p_handleInfo, 
+			Assert(other.p_handleInfo != p_handleInfo, 
 				"Cannot assign a ref counted pointer to itself!");
 
 			// Assign the appropriate data
@@ -41,7 +41,7 @@ namespace Borealis::Memory
 
 		RefCntAutoPtr<T>(RefCntAutoPtr<T>&& other) noexcept
 		{
-			Debug::Assert(other.p_handleInfo != p_handleInfo && *this != other,
+			Assert(other.p_handleInfo != p_handleInfo && *this != other,
 				"Cannot assign a ref counted pointer to itself!");
 
 			// Assign the appropriate data
@@ -66,10 +66,10 @@ namespace Borealis::Memory
 
 		RefCntAutoPtr<T>& operator=(HandleInfo* const p_hndlInfo)
 		{
-			Debug::Assert(p_hndlInfo != nullptr,
+			Assert(p_hndlInfo != nullptr,
 				"Cannot assign a nullptr to a ref counted auto pointer object.");
 
-			Debug::Assert(this->p_handleInfo == nullptr, 
+			Assert(this->p_handleInfo == nullptr, 
 				"Cannot assign a raw pointer to a RefCntAutoPtr that is already referencing some data!");
 
 			this->p_handleInfo = p_hndlInfo;
@@ -78,7 +78,7 @@ namespace Borealis::Memory
 
 		RefCntAutoPtr<T>& operator=(const RefCntAutoPtr<T>& other)
 		{
-			Debug::Assert(other.p_handleInfo != p_handleInfo,
+			Assert(other.p_handleInfo != p_handleInfo,
 				"Cannot assign a ref counted pointer to itself!");
 
 			// Assign the appropriate data
@@ -92,7 +92,7 @@ namespace Borealis::Memory
 
 		RefCntAutoPtr<T>& operator=(RefCntAutoPtr<T>&& other) noexcept
 		{
-			Debug::Assert(other.p_handleInfo != p_handleInfo && *this != other,
+			Assert(other.p_handleInfo != p_handleInfo && *this != other,
 				"Cannot assign a ref counted pointer to itself!");
 
 			// Assign the appropriate data
@@ -109,7 +109,7 @@ namespace Borealis::Memory
 		{
 			if (g_memoryAllocatorContext.empty())
 			{
-				Debug::LogError("No memory allocator assigned for allocation! Use a MemAllocJanitor to push an allocator context!");
+				LogError("No memory allocator assigned for allocation! Use a MemAllocJanitor to push an allocator context!");
 				return nullptr;
 			}
 
@@ -120,7 +120,7 @@ namespace Borealis::Memory
 				return p_hndl;
 			}
 
-			Debug::LogError("Couldn't allocate memory!");
+			LogError("Couldn't allocate memory!");
 			return nullptr;
 		}
 
@@ -128,7 +128,7 @@ namespace Borealis::Memory
 		{
 			if (g_memoryAllocatorContext.empty())
 			{
-				Debug::LogError("No memory allocator assigned for allocation! Use a MemAllocJanitor to push an allocator context!");
+				LogError("No memory allocator assigned for allocation! Use a MemAllocJanitor to push an allocator context!");
 				return nullptr;
 			}
 
@@ -139,7 +139,7 @@ namespace Borealis::Memory
 				return p_hdnl;
 			}
 
-			Debug::LogError("Couldn't allocate memory!");
+			LogError("Couldn't allocate memory!");
 			return nullptr;
 		}
 
@@ -153,7 +153,7 @@ namespace Borealis::Memory
 		
 		T* operator->() const
 		{
-			Debug::Assert(p_handleInfo != nullptr, 
+			Assert(p_handleInfo != nullptr, 
 				"The RefCntAutoPtr has no handle info! Make sure the instance has been set up correctly using \"Allocate()\" or by assigning another valid instance!");
 			
 			return reinterpret_cast<T*>(AccessHandleData(p_handleInfo->HandleId));
@@ -161,7 +161,7 @@ namespace Borealis::Memory
 		
 		T* RawPtr() const
 		{
-			Debug::Assert(p_handleInfo != nullptr,
+			Assert(p_handleInfo != nullptr,
 				"The RefCntAutoPtr has no handle info! Make sure the instance has been set up correctly using \"Allocate()\" or by assigning another valid instance!");
 
 			return reinterpret_cast<T*>(AccessHandleData(p_handleInfo->HandleId));
@@ -175,7 +175,7 @@ namespace Borealis::Memory
 
 		Types::int16 UseCount() const
 		{
-			Debug::Assert(p_handleInfo != nullptr,
+			Assert(p_handleInfo != nullptr,
 				"The RefCntAutoPtr has no handle info! Make sure the instance has been set up correctly using \"Allocate()\" or by assigning another valid instance!");
 
 			return p_handleInfo->RefCount;

@@ -69,13 +69,21 @@ namespace Borealis::Debug
         std::string msg = "";
     };
 
-    // @TODO: Add #ifndef NDEBUG and connect with CMake build target!
+#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
-    #define Log(message, ...) LogInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
-    #define LogWarning(message, ...) LogWarningInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
-    #define LogError(message, ...) LogErrorInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
-    #define Assert(message, assertion, ...) AssertInternal(__FILE__, __LINE__, message, assertion, ##__VA_ARGS__)
+    #define Log(message, ...) Borealis::Debug::LogInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
+    #define LogWarning(message, ...) Borealis::Debug::LogWarningInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
+    #define LogError(message, ...) Borealis::Debug::LogErrorInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
+    #define Assert(message, assertion, ...) Borealis::Debug::AssertInternal(__FILE__, __LINE__, message, assertion, ##__VA_ARGS__)
 
+#else
+
+    #define Log(message, ...)
+    #define LogWarning(message, ...)
+    #define LogError(message, ...)
+    #define Assert(message, assertion, ...)
+
+#endif
 
     BOREALIS_API Borealis::Types::int16 LogInternal(const char* file, const Borealis::Types::int16 line, const char* message, ...);
 

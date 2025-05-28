@@ -49,9 +49,13 @@ TEST(RefCntAutoPtrTest, InvalidatedPtr)
 	// Manually invalidate pointer
 	myReference.~RefCntAutoPtr();
 
+#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
+
 	// Invalidated pointer should not allow accessing members
 	EXPECT_DEATH(myReference->myInt, "");
 	EXPECT_DEATH(myReference->myBoolArray[0], "");
+
+#endif
 }
 
 TEST(RefCntAutoPtrTest, InitPtrRef)

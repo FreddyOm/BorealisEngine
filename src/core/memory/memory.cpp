@@ -5,6 +5,7 @@
 #include "../math/random.h"
 
 using namespace Borealis::Types;
+using namespace Borealis::Debug;
 
 namespace Borealis::Memory
 {
@@ -19,10 +20,10 @@ namespace Borealis::Memory
 	// Maybe enter the MemBlockDesc as value and when using the handle, map to its data ptr?
 	BOREALIS_API HandleInfo* RegisterHandle(void* const p_refCntPtr)
 	{
-		Debug::Assert(p_refCntPtr != nullptr, "Cannot register nullptr as handle");
+		Assert(p_refCntPtr != nullptr, "Cannot register nullptr as handle");
 
 		const uint64Ptr handleID = Math::Random::Next64();
-		Debug::Assert(g_HandleTable.find(handleID) == g_HandleTable.end(),
+		Assert(g_HandleTable.find(handleID) == g_HandleTable.end(),
 			"Generated handle is already ");
 
 		// Register the handle and the corresponding data pointer
@@ -34,7 +35,7 @@ namespace Borealis::Memory
 
 	BOREALIS_API void UpdateHandle(const uint64Ptr handleId, void* const p_newData)
 	{
-		Debug::Assert(g_HandleTable.find(handleId) != g_HandleTable.end(), 
+		Assert(g_HandleTable.find(handleId) != g_HandleTable.end(), 
 			"Handle ID [%u] could not be found in the handle table!", handleId);
 
 		g_HandleTable[handleId] = p_newData;
@@ -42,7 +43,7 @@ namespace Borealis::Memory
 
 	BOREALIS_API void RemoveHandle(const Types::uint64Ptr handleId, HandleInfo* const p_hndlInfo)
 	{
-		Debug::Assert(g_HandleTable.find(handleId) != g_HandleTable.end(),
+		Assert(g_HandleTable.find(handleId) != g_HandleTable.end(),
 			"Couldn't find handle [%u] in the table!", handleId);
 
 		// Remove handle from handle table
@@ -52,7 +53,7 @@ namespace Borealis::Memory
 
 	BOREALIS_API void* const AccessHandleData(const Types::uint64Ptr handleId)
 	{
-		Debug::Assert(g_HandleTable.find(handleId) != g_HandleTable.end(),
+		Assert(g_HandleTable.find(handleId) != g_HandleTable.end(),
 			"Handle ID [%u] could not be found in the handle table!", handleId);
 
 		return g_HandleTable[handleId];
@@ -98,7 +99,7 @@ namespace Borealis::Memory
 	{
 		if (g_memoryAllocatorContext.empty())
 		{
-			Debug::LogWarning("Cannot flush allocator because no allocator is currently assigned!");
+			LogWarning("Cannot flush allocator because no allocator is currently assigned!");
 			return;
 		}
 
@@ -117,16 +118,14 @@ namespace Borealis::Memory
 	
 	MemAllocJanitor::MemAllocJanitor(const MemAllocatorContext context)
 	{
-		Debug::Assert(context != MemAllocatorContext::NONE,
-			"Cannot push none memory allocator context!");
+		Assert(context != MemAllocatorContext::NONE, "Cannot push none memory allocator context!");
 
 		PushAllocator(context);
 	}
 
 	MemAllocJanitor::~MemAllocJanitor()
 	{
-		Debug::Assert(g_memoryAllocatorContext.empty() == false,
-			"Trying to pop an empty memory allocator context stack! Something went wrong!");
+		Assert(g_memoryAllocatorContext.empty() == false, "Trying to pop an empty memory allocator context stack! Something went wrong!");
 
 		PopAllocator();
 	}

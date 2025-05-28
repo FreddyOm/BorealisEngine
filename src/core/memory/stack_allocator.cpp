@@ -4,6 +4,7 @@
 #include <memory>
 
 using namespace Borealis::Types;
+using namespace Borealis::Debug;
 
 namespace Borealis::Memory
 {
@@ -35,7 +36,7 @@ namespace Borealis::Memory
 
 	HandleInfo* StackAllocator::Alloc(const Types::uint16 allocSize)
 	{
-		Borealis::Debug::Assert(allocSize <= GetAvailableMemorySize(), "Allocator does not provide enough memory for the requested allocation process.");
+		Assert(allocSize <= GetAvailableMemorySize(), "Allocator does not provide enough memory for the requested allocation process.");
 
 		//void* ptr = new(reinterpret_cast<void*>(stackTopPtr)) T();
 		void* ptr = reinterpret_cast<void*>(stackTopPtr);
@@ -60,11 +61,11 @@ namespace Borealis::Memory
 	{
 		const Borealis::Types::uint16 alignedAllocSize = allocSize * 2;	// A maximum of twice the space is needed for properly aligning and storing the offset.
 
-		Borealis::Debug::Assert(allocSize <= GetAvailableMemorySize(), "Allocator does not provide enough memory for the requested allocation process.");
+		Assert(allocSize <= GetAvailableMemorySize(), "Allocator does not provide enough memory for the requested allocation process.");
 
 		// Determine offset for proper alignment. Use one byte to store offset information.
 		const Borealis::Types::uint8 offset = allocSize - (stackTopPtr % allocSize);
-		Borealis::Debug::Assert(offset <= 255, "Alignment offset is greater than the available info byte.");
+		Assert(offset <= 255, "Alignment offset is greater than the available info byte.");
 
 		// Store allocation offset due to alignment in the byte before the actual data.
 		AllocationOffset* pAllocOffset = reinterpret_cast<AllocationOffset*>(stackTopPtr) + offset - 1;
@@ -83,7 +84,7 @@ namespace Borealis::Memory
 
 	void StackAllocator::FreeAligned(const void* const address)
 	{
-		Debug::LogError("Cannot use the generic \"FreeAlign()\" when using a stack allocator. Use \"FreeToMarker()\" instead.");
+		LogError("Cannot use the generic \"FreeAlign()\" when using a stack allocator. Use \"FreeToMarker()\" instead.");
 
 		/*AllocationOffset* pOffset = reinterpret_cast<AllocationOffset*>(stackTopPtr - freeSize - 1);
 		stackTopPtr -= static_cast<Borealis::Types::uint64>(freeSize + static_cast<Borealis::Types::uint8>(*pOffset));

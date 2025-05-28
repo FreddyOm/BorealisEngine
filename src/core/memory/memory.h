@@ -84,12 +84,12 @@ namespace Borealis::Memory
 	{
 		if (g_memoryAllocatorContext.empty())
 		{
-			Debug::LogError("No memory allocator assigned for allocation! Use a MemAllocJanitor to push an allocator context!");
+			LogError("No memory allocator assigned for allocation! Use a MemAllocJanitor to push an allocator context!");
 			return nullptr;
 		}
 
 		HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->Alloc(sizeof(T));
-		Debug::Assert(p_hndl != nullptr, "Failed to allocate memory!");
+		Assert(p_hndl != nullptr, "Failed to allocate memory!");
 		if (p_hndl) 
 		{
 			return new (AccessHandleData(p_hndl->HandleId)) T();
@@ -105,7 +105,7 @@ namespace Borealis::Memory
 			return nullptr;
 
 		HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->AllocAligned(sizeof(T));
-		Debug::Assert(p_hndl != nullptr, "Failed to allocate memory!");
+		Assert(p_hndl != nullptr, "Failed to allocate memory!");
 		if (p_hndl) 
 		{
 			return new (AccessHandleData(p_hndl->HandleId)) T();
@@ -119,7 +119,7 @@ namespace Borealis::Memory
 	{
 		if (g_memoryAllocatorContext.empty())
 		{
-			Debug::LogError("No memory allocator pushed to the allocator stack. Use \"PushAllocator()\" to add an allocator to the global stack.");
+			LogError("No memory allocator pushed to the allocator stack. Use \"PushAllocator()\" to add an allocator to the global stack.");
 			return;
 		}
 
@@ -131,7 +131,7 @@ namespace Borealis::Memory
 	{
 		if (g_memoryAllocatorContext.empty())
 		{
-			Debug::LogError("No memory allocator pushed to the allocator stack. Use \"PushAllocator()\" to add an allocator to the global stack.");
+			LogError("No memory allocator pushed to the allocator stack. Use \"PushAllocator()\" to add an allocator to the global stack.");
 			return;
 		}
 

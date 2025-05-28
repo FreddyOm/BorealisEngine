@@ -213,7 +213,11 @@ TEST(StackAllocatorTest, Full)
 
 	TestStruct* p_testStructFull = nullptr;
 
+#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
+	
 	EXPECT_DEATH(p_testStructFull = new (AccessHandleData(stackAlloc.Alloc(sizeof(TestStruct))->HandleId)) TestStruct(), "");
+
+#endif
 
 	EXPECT_TRUE(p_testStruct.RawPtr() != nullptr);
 	EXPECT_TRUE(p_testStruct1.RawPtr() != nullptr);
@@ -232,7 +236,11 @@ TEST(StackAllocatorTest, FullAligned)
 	TestStruct* p_testStruct = new (stackAlloc.AllocAligned(sizeof(TestStruct))) TestStruct();
 	TestStruct* p_testStructFull = nullptr;
 
+#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
+
 	EXPECT_DEATH(p_testStructFull = new (stackAlloc.Alloc(sizeof(TestStruct))) TestStruct(), "");
+	
+#endif
 
 	EXPECT_TRUE(p_testStruct != nullptr);
 	EXPECT_TRUE(reinterpret_cast<uint64Ptr>(allocBase) % sizeof(TestStruct) == 0 || p_testStructFull == nullptr);
@@ -339,9 +347,13 @@ TEST(PoolAllocatorTest, MemFree)
 	EXPECT_EQ(poolAlloc.GetAllocFreeRatio(), 0);
 	EXPECT_EQ(poolAlloc.GetAvailableMemorySize(), poolAlloc.GetTotalMemorySize());
 	
+#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
+
 	TestStruct* p_deathTest = new TestStruct();
 	EXPECT_DEATH(poolAlloc.FreeMemory(p_deathTest), "");
 	delete p_deathTest;
+
+#endif
 
 	poolAlloc.Clear();
 }
