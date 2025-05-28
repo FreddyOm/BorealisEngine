@@ -40,8 +40,10 @@ cmake -S . -B ./build
 - [ ] Custom Memory Allocators
   - [x] Stack Allocator
   - [x] Pool Allocator
-  - [ ] Frame Allocator
-  - [ ] Custom RefCnt Pointer
+  - [x] Frame Allocator
+  - [x] Custom RefCnt Pointer
+  - [x] Heap Allocator
+  - [x] Defragmentation
 - [ ] Input System
   - [ ] Mouse & Keyboard
   - [ ] Controller (XInput)
