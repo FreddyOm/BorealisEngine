@@ -588,8 +588,6 @@ TEST(HeapAllocatorTest, Defragment)
 	void* p_testBigStruct2 = allocTest.Alloc(sizeof(BigStruct));	// 32 + 32 = 64 bytes
 	EXPECT_NE(p_testBigStruct2, nullptr);
 	EXPECT_FLOAT_EQ(p_testStruct3->myFloatArray[0], 3.1415f);
-
-	FlushAllocator();
 }
 
 TEST(HeapAllocatorTest, DefragmentAligned)
@@ -625,6 +623,66 @@ TEST(HeapAllocatorTest, DefragmentAligned)
 	void* p_testBigStruct2 = allocTest.Alloc(sizeof(BigStruct));	// 32 + 32 = 64 bytes
 	EXPECT_NE(p_testBigStruct2, nullptr);
 	EXPECT_EQ(reinterpret_cast<uint64Ptr>(p_testStruct3.RawPtr()) % sizeof(TestStruct), 0);
+}
 
-	FlushAllocator();
+TEST(HeapAllocatorTest, DefragmentMultiIteration)
+{
+	HeapAllocator allocTest = HeapAllocator(4096);
+
+	HandleInfo* structArray[11];
+
+	for (int8 i = 0; i < 11; ++i)
+	{
+		structArray[i] = allocTest.Alloc(sizeof(TestStruct));
+		reinterpret_cast<TestStruct*>(AccessHandleData(structArray[i]->HandleId))->myInt = i;
+	}
+
+	allocTest.FreeMemory(AccessHandleData(structArray[1]->HandleId));
+	allocTest.FreeMemory(AccessHandleData(structArray[3]->HandleId));
+	allocTest.FreeMemory(AccessHandleData(structArray[4]->HandleId));
+	allocTest.FreeMemory(AccessHandleData(structArray[7]->HandleId));
+	allocTest.FreeMemory(AccessHandleData(structArray[9]->HandleId));
+
+	// [ 1 | 0 | 1 | 0 | 0 | 1 | 1 | 0 | 1 | 0 | 1 ]
+
+	EXPECT_NE(AccessHandleData(structArray[0]->HandleId), nullptr);
+	EXPECT_NE(AccessHandleData(structArray[2]->HandleId), nullptr);
+	EXPECT_NE(AccessHandleData(structArray[5]->HandleId), nullptr);
+	EXPECT_NE(AccessHandleData(structArray[6]->HandleId), nullptr);
+	EXPECT_NE(AccessHandleData(structArray[8]->HandleId), nullptr);
+	EXPECT_NE(AccessHandleData(structArray[10]->HandleId), nullptr);
+
+	void* oldDataPtr0 = AccessHandleData(structArray[0]->HandleId);
+	void* oldDataPtr2 = AccessHandleData(structArray[2]->HandleId);
+	void* oldDataPtr5 = AccessHandleData(structArray[5]->HandleId);
+	void* oldDataPtr6 = AccessHandleData(structArray[6]->HandleId);
+	void* oldDataPtr8 = AccessHandleData(structArray[8]->HandleId);
+	void* oldDataPtr10 = AccessHandleData(structArray[10]->HandleId);
+
+	allocTest.Defragment(10);
+
+	// Check for nullptr
+	EXPECT_NE(AccessHandleData(structArray[0]->HandleId), nullptr);
+	EXPECT_NE(AccessHandleData(structArray[2]->HandleId), nullptr);
+	EXPECT_NE(AccessHandleData(structArray[5]->HandleId), nullptr);
+	EXPECT_NE(AccessHandleData(structArray[6]->HandleId), nullptr);
+	EXPECT_NE(AccessHandleData(structArray[8]->HandleId), nullptr);
+	EXPECT_NE(AccessHandleData(structArray[10]->HandleId), nullptr);
+
+	// Check if data ptrs changed over the course of the defragmentation 
+	// First pointer will not change since it cannot be moved!
+	EXPECT_EQ(AccessHandleData(structArray[0]->HandleId), oldDataPtr0);
+	EXPECT_NE(AccessHandleData(structArray[2]->HandleId), oldDataPtr2);
+	EXPECT_NE(AccessHandleData(structArray[5]->HandleId), oldDataPtr5);
+	EXPECT_NE(AccessHandleData(structArray[6]->HandleId), oldDataPtr6);
+	EXPECT_NE(AccessHandleData(structArray[8]->HandleId), oldDataPtr8);
+	EXPECT_NE(AccessHandleData(structArray[10]->HandleId), oldDataPtr10);
+
+	// Check if data is still valid
+	EXPECT_EQ(reinterpret_cast<TestStruct*>(AccessHandleData(structArray[0]->HandleId))->myInt, 0);
+	EXPECT_EQ(reinterpret_cast<TestStruct*>(AccessHandleData(structArray[2]->HandleId))->myInt, 2);
+	EXPECT_EQ(reinterpret_cast<TestStruct*>(AccessHandleData(structArray[5]->HandleId))->myInt, 5);
+	EXPECT_EQ(reinterpret_cast<TestStruct*>(AccessHandleData(structArray[6]->HandleId))->myInt, 6);
+	EXPECT_EQ(reinterpret_cast<TestStruct*>(AccessHandleData(structArray[8]->HandleId))->myInt, 8);
+	EXPECT_EQ(reinterpret_cast<TestStruct*>(AccessHandleData(structArray[10]->HandleId))->myInt, 10);
 }
