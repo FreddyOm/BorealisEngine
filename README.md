@@ -37,7 +37,7 @@ cmake -S . -B ./build
   - [x] Assertions
 - [x] Simple Window
 - [ ] [Job System](https://github.com/FreddyOm/BorealisJobs)
-- [ ] Custom Memory Allocators
+- [x] Custom Memory Allocators
   - [x] Stack Allocator
   - [x] Pool Allocator
   - [x] Frame Allocator
