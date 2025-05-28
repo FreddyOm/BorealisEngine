@@ -238,6 +238,7 @@ TEST(StackAllocatorTest, FullAligned)
 	EXPECT_TRUE(reinterpret_cast<uint64Ptr>(allocBase) % sizeof(TestStruct) == 0 || p_testStructFull == nullptr);
 }
 
+
 TEST(PoolAllocatorTest, MemAlloc)
 {
 	MemAllocJanitor janitor(MemAllocatorContext::DEBUG);
@@ -453,6 +454,7 @@ TEST(PoolAllocatorTest, Full)
 
 	poolAlloc.Clear();
 }
+
 
 TEST(HeapAllocatorTest, MemAlloc)
 {

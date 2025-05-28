@@ -123,17 +123,17 @@ namespace Borealis::Memory
 		return nullptr;
 	}
 
-	bool HeapAllocator::ReturnFreeBlock(std::list<HeapFreeListEntry>::iterator it, const HeapDescription* const p_returnedMemBlockDesc)
+	bool HeapAllocator::ReturnFreeBlock(std::list<HeapFreeListEntry>::iterator nextFreeMemBlock, const HeapDescription* const p_returnedMemBlockDesc)
 	{
 		Debug::Assert(p_returnedMemBlockDesc->Size > 0 && p_returnedMemBlockDesc->HandleId > 0, 
 			"Invalid heap description! Make sure, the heap description is valid and not erased before returning the mem block.");
 
 		bool merged = false;
-
+		
 		// Merge with previous memblock
-		if (it != p_freeMemBlockList->begin())
+		if (nextFreeMemBlock != p_freeMemBlockList->begin())
 		{
-			std::list<HeapFreeListEntry>::iterator previousBlockIterator = it;
+			std::list<HeapFreeListEntry>::iterator previousBlockIterator = nextFreeMemBlock;
 			--previousBlockIterator;
 			
 			// This next line is only for debugging purposes and can be safely deleted!
@@ -156,26 +156,41 @@ namespace Borealis::Memory
 			}
 		}
 
-//		// Merge with next memblock (current memblock is this memblock!)
-//		std::list<HeapFreeListEntry>::iterator currentBlockIterator = it;
-//
-//		if (currentBlockIterator != p_freeMemBlockList->end())
-//		{
-//			if (p_returnedMemBlockDesc->GetMemBlockEnd() == reinterpret_cast<uint64Ptr>(currentBlockIterator->p_BlockStart))
-//			{
-//				currentBlockIterator->p_BlockStart = reinterpret_cast<void*>(p_returnedMemBlockDesc->GetMemBlockStart());
-//				
-//				++freeCount;
-//				usedMemorySize -= p_returnedMemBlockDesc->Size + sizeof(HeapDescription);
-//
-//#ifdef CLEAR_HEAP_ELEMENT_ON_FREE
-//				memset(reinterpret_cast<void*>(p_returnedMemBlockDesc->GetMemBlockStart()), 0,
-//					sizeof(HeapDescription) + p_returnedMemBlockDesc->AlignOffset + p_returnedMemBlockDesc->Size);
-//#endif
-//
-//				merged = true;
-//			}
-//		}
+		if(!merged)	// If not already merged, try to merge with next free block
+		{
+			// Merge with next memblock (current memblock is this memblock!)
+			std::list<HeapFreeListEntry>::iterator currentBlockIterator = nextFreeMemBlock;
+
+			if (currentBlockIterator != p_freeMemBlockList->end())
+			{
+				if (p_returnedMemBlockDesc->GetMemBlockEnd() == reinterpret_cast<uint64Ptr>(currentBlockIterator->p_BlockStart))
+				{
+					currentBlockIterator->p_BlockStart = reinterpret_cast<void*>(p_returnedMemBlockDesc->GetMemBlockStart());
+
+					++freeCount;
+					usedMemorySize -= p_returnedMemBlockDesc->Size + sizeof(HeapDescription);
+
+#ifdef CLEAR_HEAP_ELEMENT_ON_FREE
+					memset(reinterpret_cast<void*>(p_returnedMemBlockDesc->GetMemBlockStart()), 0,
+						sizeof(HeapDescription) + p_returnedMemBlockDesc->AlignOffset + p_returnedMemBlockDesc->Size);
+#endif
+
+					merged = true;
+				}
+			}
+		}
+		else // If previous and returned mem block have been merged, try to merge with next free memblock if possible
+		{
+			// This now includes the returned memory block
+			std::list<HeapFreeListEntry>::iterator previousBlockIterator = nextFreeMemBlock;
+			--previousBlockIterator;
+
+			if (nextFreeMemBlock != p_freeMemBlockList->end() && 
+				HeapFreeListEntry::IsAdjacent(*previousBlockIterator, *nextFreeMemBlock))
+			{
+				MergeFreeBlocks(previousBlockIterator, nextFreeMemBlock);
+			}
+		}
 		
 		return merged;
 	}
@@ -185,11 +200,12 @@ namespace Borealis::Memory
 		Debug::Assert(p_freeMemBlockList != nullptr && p_freeMemBlockList->size() > 0,
 			"The heap allocator does not seem to be inititalized yet!");
 		{
-			std::list<HeapFreeListEntry>::iterator it;
+			std::list<HeapFreeListEntry>::iterator nextFreeMemBlock;
 
-			for (it = p_freeMemBlockList->begin(); it != p_freeMemBlockList->end(); ++it)
+			for (nextFreeMemBlock = p_freeMemBlockList->begin(); 
+				nextFreeMemBlock != p_freeMemBlockList->end(); ++nextFreeMemBlock)
 			{
-				if (it->p_BlockStart > address)
+				if (nextFreeMemBlock->p_BlockStart > address)
 				{
 					// Find heap desc by reading pre data align offset!
 					const uint16* p_preDataAlignOffset = 
@@ -202,11 +218,11 @@ namespace Borealis::Memory
 					
 					const uint64Ptr memBlockBase = reinterpret_cast<uint64Ptr>(address) - p_returnedMemBlockDesc->AlignOffset - sizeof(HeapDescription);
 					
-					if (ReturnFreeBlock(it, p_returnedMemBlockDesc))
+					if (ReturnFreeBlock(nextFreeMemBlock, p_returnedMemBlockDesc))
 						return;
 
 					// Cannot merge, insert instead!
-					p_freeMemBlockList->insert(it,
+					p_freeMemBlockList->insert(nextFreeMemBlock,
 						HeapFreeListEntry(reinterpret_cast<void*>(memBlockBase),
 							reinterpret_cast<void*>(reinterpret_cast<uint64Ptr>(address) + p_returnedMemBlockDesc->Size)));
 
@@ -295,7 +311,6 @@ namespace Borealis::Memory
 					if (HeapFreeListEntry::IsAdjacent(*first, *second))
 					{
 						MergeFreeBlocks(first, second);
-						p_freeMemBlockList->erase(first);
 					}
 				}
 			}
@@ -329,6 +344,7 @@ namespace Borealis::Memory
 			"Trying to merge two non-continuous free memory blocks!");
 
 		second->p_BlockStart = first->p_BlockStart;
+		p_freeMemBlockList->erase(first);
 	}
 	
 	HandleInfo* HeapFreeListEntry::AllocMemoryFromBlock(const uint16 blockSize, const bool alignToSize)
