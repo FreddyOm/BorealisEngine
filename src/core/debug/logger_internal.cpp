@@ -37,7 +37,7 @@ namespace Borealis::Debug
         }
         #endif
 
-		const Borealis::Types::int16 result = printf(desc.msg.c_str());
+		const Borealis::Types::int16 result = printf("%s", desc.msg.c_str());
 		printf("\n%s, %u\n", desc.fileName.c_str(), desc.line);
 		
         #ifdef WIN32

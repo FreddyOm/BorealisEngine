@@ -2,6 +2,7 @@
 
 #include "../../config.h"
 #include "../types/types.h"
+#include <cstring>
 
 namespace Borealis::Memory
 {
