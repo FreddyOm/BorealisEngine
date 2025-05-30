@@ -38,7 +38,8 @@ namespace Borealis::Types
 		Assert(str != nullptr, "Cannot create string from nullptr!");
 		Assert(strlen(str) > 0, "Empty strings are not allowed!");
 
-		return Math::CompileTimeHashValue(str, strlen(str));
+		// @TODO: Non-constexpr strlen cannot produce compile-time-static value! Fix me!
+		return Math::CompileTimeHashValue(str);
 	}
 
 #endif
