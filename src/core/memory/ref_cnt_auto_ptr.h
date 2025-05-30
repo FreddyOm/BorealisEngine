@@ -5,8 +5,6 @@
 #include "../debug/logger.h"
 #include "./memory.h"
 
-#define NDEBUG
-
 namespace Borealis::Memory
 {
 	class string;
