@@ -2,9 +2,13 @@
 #include "../src/borealis_engine.h"
 #include "../src/core/window/window.h"
 
+#define VALUE(string) #string
+#define TO_LITERAL(string) VALUE(string)
+
 TEST(WindowTest, WindowOpenClose)
 {
-    Borealis::Core::Window testWindow("Test Window");
+    //Borealis::Core::Window testWindow("Test Window");
+    Borealis::Core::Window testWindow("BorealisTest - " + std::string(TO_LITERAL(BOREALIS_VERSION)));
 
     testWindow.OpenWindow();
 

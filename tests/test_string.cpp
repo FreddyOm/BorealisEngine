@@ -5,19 +5,37 @@ using namespace Borealis::Types;
 
 TEST(StringTest, DefaultInitString)
 {
-	StringId myString = String("");
+	StringId myString;
 	StringId myString2;
-	StringId myString3;
-	StringId myString4 = String("");
 
 	EXPECT_EQ(myString, myString2);
-	EXPECT_EQ(myString2, myString3);
-	EXPECT_EQ(myString3, myString4);
-	EXPECT_EQ(myString, myString4);
 }
 
 TEST(StringTest, StringEquality)
 {
 	StringId myString = String("MyFirstTestString");
 	StringId myString2 = String("MySecondTestString");
+	StringId myString3 = String("MyFirstTestString");
+	StringId myString4 = String("MySecondTestString");
+
+	EXPECT_NE(myString, myString4);
+	EXPECT_NE(myString, myString2);
+	EXPECT_EQ(myString, myString3);
+	EXPECT_EQ(myString2, myString4);
+}
+
+TEST(StringTest, StringHashCollision)
+{
+	StringId myString = String("MyFirstTestString");
+	StringId myString2 = String("MyFirstTestString ");
+	StringId myString3 = String("MyFirstTestString.");
+	StringId myString4 = String("MYFirstTestString");
+	StringId myString5 = String(" MyFirstTestString");
+	StringId myString6 = String("MYFIRSTTESTSTRING");
+
+	EXPECT_NE(myString, myString2);
+	EXPECT_NE(myString, myString3);
+	EXPECT_NE(myString, myString4);
+	EXPECT_NE(myString, myString5);
+	EXPECT_NE(myString, myString6);
 }

@@ -1,6 +1,8 @@
 #include "string_id.h"
 
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
+#include "../debug/logger.h"
+
 #include <unordered_map>
 #include "../math/crc_hash.h"
 #include <cstring>
@@ -12,8 +14,10 @@ namespace Borealis::Types
 
 	StringId InternString(const char* str)
 	{
-		__debugbreak();
-		StringId sid = Math::HashValue(str);
+		Assert(str != nullptr, "Cannot create string from nullptr!");
+		Assert(strlen(str) > 0, "Empty strings are not allowed!");
+
+		StringId sid = Math::HashValue(str, strlen(str));
 		std::unordered_map<StringId, const char*>::iterator it
 			= g_StringIdTable.find(sid);
 
@@ -25,7 +29,6 @@ namespace Borealis::Types
 
 		return sid;
 	}
-
 }
 
 #endif

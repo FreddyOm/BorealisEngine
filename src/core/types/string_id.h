@@ -1,9 +1,10 @@
 #pragma once
 #include "../../config.h"
 #include "types.h"
+#include "../debug/logger.h"
 
-#if defined(BOREALIS_RELEASE) || defined(BOREALIS_MINSIZEREL)
 #include "../math/crc_hash.h"
+#if defined(BOREALIS_RELEASE) || defined(BOREALIS_MINSIZEREL)
 #endif
 
 namespace Borealis::Types
@@ -33,7 +34,10 @@ namespace Borealis::Types
 	/// <returns>The string id.</returns>
 	BOREALIS_API constexpr StringId String(const char* str)
 	{
-		return Math::CompileTimeHashValue(str);
+		Assert(str != nullptr, "Cannot create string from nullptr!");
+		Assert(strlen(str) > 0, "Empty strings are not allowed!");
+
+		return Math::CompileTimeHashValue(str, strlen(str));
 	}
 
 #endif
