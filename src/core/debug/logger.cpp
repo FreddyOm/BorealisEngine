@@ -1,6 +1,5 @@
 #include "logger.h"
 #include <cstring>
-#include <Windows.h>
 
 namespace Borealis::Debug
 {

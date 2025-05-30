@@ -10,9 +10,6 @@ TEST(StringTest, DefaultInitString)
 	StringId myString;
 	StringId myString2;
 
-	uint64 testVal = myString;
-	uint64 testVal2 = myString2;
-
 	EXPECT_EQ(myString, myString2);
 }
 
