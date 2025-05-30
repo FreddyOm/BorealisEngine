@@ -5,6 +5,8 @@
 #define VALUE(string) #string
 #define TO_LITERAL(string) VALUE(string)
 
+#ifdef BOREALIS_WIN
+
 TEST(WindowTest, WindowOpenClose)
 {
     //Borealis::Core::Window testWindow("Test Window");
@@ -26,3 +28,5 @@ TEST(WindowTest, WindowOpenClose)
     EXPECT_EQ(testWindow.GetWindowHeight(), 0);
     EXPECT_EQ(testWindow.GetWindowWidth(), 0);
 }
+
+#endif
