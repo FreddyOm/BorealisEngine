@@ -9,13 +9,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-## Build-Configurations
-#set(CMAKE_CXX_FLAGS_DEBUG "-g")
-#set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-#set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
-#set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os")
-
-
 # Project information
 project(
     BorealisEngineLib
@@ -49,18 +42,6 @@ elseif(UNIX)
     #link_libraries(${X11_LIBRARIES})
     #include_directories(${X11_INCLUDE_DIR})
 endif()
-
-#if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-#    add_compile_definitions(BOREALIS_DEBUG)
-#elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-#    add_compile_definitions(BOREALIS_RELEASE)
-#elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-#    add_compile_definitions(BOREALIS_RELWITHDEBINFO)
-#elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
-#    add_compile_definitions(BOREALIS_MINSIZEREL)
-#endif()
-
-#set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo;MinSizeRel")
 
 message("Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
 
@@ -105,8 +86,11 @@ set(HEADERS
 # Create library
 add_library(BorealisEngineLib SHARED ${SOURCES} ${HEADERS})
 
-# Define preprocessor macros
+# Define preprocessor macros for build configurations
 target_compile_definitions(BorealisEngineLib PRIVATE
-    -DBOREALIS_DEBUG
-    -DBOREALIS_VERSION=${CMAKE_PROJECT_VERSION}
+        $<$<CONFIG:Debug>:BOREALIS_DEBUG>
+        $<$<CONFIG:Release>:BOREALIS_RELEASE>
+        $<$<CONFIG:RelWithDebInfo>:BOREALIS_RELWITHDEBINFO>
+        $<$<CONFIG:MinSizeRel>:BOREALIS_MINSIZEREL>
+        -DBOREALIS_VERSION=${CMAKE_PROJECT_VERSION}
 )

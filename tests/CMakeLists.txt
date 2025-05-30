@@ -47,25 +47,17 @@ elseif(UNIX)
     add_compile_definitions(BOREALIS_LINUX)
 endif()
 
-#if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-#    add_compile_definitions(BOREALIS_DEBUG)
-#elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-#    add_compile_definitions(BOREALIS_RELEASE)
-#elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-#    add_compile_definitions(BOREALIS_RELWITHDEBINFO)
-#elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
-#    add_compile_definitions(BOREALIS_MINSIZEREL)
-#endif()
-
-#set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo;MinSizeRel")
-
 add_executable(BorealisEngineTests ${SOURCES} "test_string.cpp")
 
-# Define preprocessor macros
+# Define preprocessor macros for build configurations
 target_compile_definitions(BorealisEngineTests PRIVATE
-    -DBOREALIS_DEBUG
-    -DBOREALIS_VERSION=${CMAKE_PROJECT_VERSION}
-)
+        $<$<CONFIG:Debug>:BOREALIS_DEBUG>
+        $<$<CONFIG:Release>:BOREALIS_RELEASE>
+        $<$<CONFIG:RelWithDebInfo>:BOREALIS_RELWITHDEBINFO>
+        $<$<CONFIG:MinSizeRel>:BOREALIS_MINSIZEREL>
+        -DBOREALIS_VERSION=${CMAKE_PROJECT_VERSION}
+    )
+
 
 if(WIN32)
 

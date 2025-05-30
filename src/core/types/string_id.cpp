@@ -2,9 +2,9 @@
 
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 #include "../debug/logger.h"
+#include "../math/crc_hash.h"
 
 #include <unordered_map>
-#include "../math/crc_hash.h"
 #include <cstring>
 
 namespace Borealis::Types
