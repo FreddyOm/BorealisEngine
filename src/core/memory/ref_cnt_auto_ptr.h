@@ -14,7 +14,7 @@ namespace Borealis::Memory
 	{
 		RefCntAutoPtr() = delete;
 
-		RefCntAutoPtr<T>(HandleInfo* const p_hndlInfo)
+		RefCntAutoPtr(HandleInfo* const p_hndlInfo)
 		{
 			Assert(p_hndlInfo != nullptr, 
 				"Cannot assign a nullptr to a ref counted auto pointer object.");
@@ -25,7 +25,7 @@ namespace Borealis::Memory
 			this->p_handleInfo = p_hndlInfo;
 		}
 
-		RefCntAutoPtr<T>(const RefCntAutoPtr<T>& other)
+		RefCntAutoPtr(const RefCntAutoPtr<T>& other)
 		{
 			Assert(other.p_handleInfo != p_handleInfo, 
 				"Cannot assign a ref counted pointer to itself!");
@@ -37,7 +37,7 @@ namespace Borealis::Memory
 			++p_handleInfo->RefCount;
 		}
 
-		RefCntAutoPtr<T>(RefCntAutoPtr<T>&& other) noexcept
+		RefCntAutoPtr(RefCntAutoPtr<T>&& other) noexcept
 		{
 			Assert(other.p_handleInfo != p_handleInfo && *this != other,
 				"Cannot assign a ref counted pointer to itself!");
@@ -62,7 +62,7 @@ namespace Borealis::Memory
 			}
 		}
 
-		RefCntAutoPtr<T>& operator=(HandleInfo* const p_hndlInfo)
+		RefCntAutoPtr& operator=(HandleInfo* const p_hndlInfo)
 		{
 			Assert(p_hndlInfo != nullptr,
 				"Cannot assign a nullptr to a ref counted auto pointer object.");
@@ -74,7 +74,7 @@ namespace Borealis::Memory
 			return *this;
 		}
 
-		RefCntAutoPtr<T>& operator=(const RefCntAutoPtr<T>& other)
+		RefCntAutoPtr& operator=(const RefCntAutoPtr<T>& other)
 		{
 			Assert(other.p_handleInfo != p_handleInfo,
 				"Cannot assign a ref counted pointer to itself!");
@@ -88,7 +88,7 @@ namespace Borealis::Memory
 			return *this;
 		}
 
-		RefCntAutoPtr<T>& operator=(RefCntAutoPtr<T>&& other) noexcept
+		RefCntAutoPtr& operator=(RefCntAutoPtr<T>&& other) noexcept
 		{
 			Assert(other.p_handleInfo != p_handleInfo && *this != other,
 				"Cannot assign a ref counted pointer to itself!");
