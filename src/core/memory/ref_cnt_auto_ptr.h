@@ -49,7 +49,7 @@ namespace Borealis::Memory
 			other.p_handleInfo = nullptr;
 		}
 
-		~RefCntAutoPtr<T>()
+		~RefCntAutoPtr()
 		{
 			// Decrease ref count if possible
 			if (p_handleInfo != nullptr)

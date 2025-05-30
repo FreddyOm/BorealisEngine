@@ -80,7 +80,7 @@ namespace Borealis::Memory
 		/// <param name="first">The first HeapFreeListEntry.</param>
 		/// <param name="second">The second HeapFreeListEntry.</param>
 		/// <returns>True, if first block is in front of and directly next to the second block.</returns>
-		inline static bool IsAdjacent(HeapFreeListEntry& const first, HeapFreeListEntry& const second)
+		inline static bool IsAdjacent(const HeapFreeListEntry& first, const HeapFreeListEntry& second)
 		{
 			return reinterpret_cast<Types::uint64Ptr>(first.p_BlockEnd) == reinterpret_cast<Types::uint64Ptr>(second.p_BlockStart);
 		}
