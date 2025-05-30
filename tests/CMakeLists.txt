@@ -1,4 +1,4 @@
-# CMake version
+    # CMake version
 cmake_minimum_required(VERSION 3.19)
 
 if(${CMAKE_VERSION} VERSION_LESS 3.19)
@@ -36,6 +36,7 @@ set(SOURCES
     test_debug.cpp
     test_math.cpp
     test_types.cpp
+    test_string.cpp
     test_window.cpp
     test_ref_cnt_auto_ptr.cpp
 )
@@ -63,7 +64,7 @@ endif()
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo;MinSizeRel")
 
-add_executable(BorealisEngineTests ${SOURCES})
+add_executable(BorealisEngineTests ${SOURCES} "test_string.cpp")
 
 if(WIN32)
 

@@ -65,6 +65,7 @@ message("Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
 
 # Project source files
 set(SOURCES 
+    core/types/string_id.cpp
     core/window/window.cpp
     core/window/window_internal.cpp
     core/debug/logger.cpp
@@ -76,6 +77,7 @@ set(SOURCES
     core/memory/memory.cpp
     core/math/math.cpp
     core/math/random.cpp
+    core/math/crc_hash.cpp
 )
 
 # Project include files
@@ -83,6 +85,7 @@ set(HEADERS
     config.h
     borealis_engine.h
     core/types/types.h
+    core/types/string_id.h
     core/window/window.h
     core/window/window_internal.h
     core/debug/logger.h
@@ -95,7 +98,7 @@ set(HEADERS
     core/memory/memory.h
     core/math/math.h
     core/math/random.h
-    
+    core/math/crc_hash.h    
 )
 
 # Create library
