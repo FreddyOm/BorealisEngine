@@ -1,8 +1,12 @@
 # Borealis Engine
 ![CMake Multi Platform Build](https://github.com/FreddyOm/BorealisEngine/actions/workflows/cmake-win-debug.yml/badge.svg)
 ![CMake Multi Platform Build](https://github.com/FreddyOm/BorealisEngine/actions/workflows/cmake-win-release.yml/badge.svg)
+![CMake Multi Platform Build](https://github.com/FreddyOm/BorealisEngine/actions/workflows/cmake-win-rel-with-deb-info.yml/badge.svg)
+![CMake Multi Platform Build](https://github.com/FreddyOm/BorealisEngine/actions/workflows/cmake-win-min-size-rel.yml/badge.svg)    
 ![CMake Multi Platform Build](https://github.com/FreddyOm/BorealisEngine/actions/workflows/cmake-linux-debug.yml/badge.svg)
 ![CMake Multi Platform Build](https://github.com/FreddyOm/BorealisEngine/actions/workflows/cmake-linux-release.yml/badge.svg)
+![CMake Multi Platform Build](https://github.com/FreddyOm/BorealisEngine/actions/workflows/cmake-linux-rel-with-deb-info.yml/badge.svg)
+![CMake Multi Platform Build](https://github.com/FreddyOm/BorealisEngine/actions/workflows/cmake-linux-min-size-rel.yml/badge.svg)
 
 **A C++ based 3D high-performance engine with aim for AAA graphics, fast iteration and great tooling.**
 
