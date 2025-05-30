@@ -3,13 +3,20 @@
 
 using namespace Borealis::Types;
 
+#ifdef BOREALIS_DEBUG	// Is being optimized away in RelWithDebInfo
+
 TEST(StringTest, DefaultInitString)
 {
 	StringId myString;
 	StringId myString2;
 
+	uint64 testVal = myString;
+	uint64 testVal2 = myString2;
+
 	EXPECT_EQ(myString, myString2);
 }
+
+#endif
 
 TEST(StringTest, StringEquality)
 {
