@@ -3,8 +3,6 @@
 
 using namespace Borealis::Types;
 
-#ifdef BOREALIS_DEBUG	// Is being optimized away in RelWithDebInfo
-
 TEST(StringTest, DefaultInitString)
 {
 	StringId myString{};
@@ -12,8 +10,6 @@ TEST(StringTest, DefaultInitString)
 
 	EXPECT_EQ(myString, myString2);
 }
-
-#endif
 
 TEST(StringTest, StringEquality)
 {

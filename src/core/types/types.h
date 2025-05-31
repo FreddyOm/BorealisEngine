@@ -5,7 +5,7 @@
 namespace Borealis::Types
 {	
 	
-#ifdef BOREALIS_WIN
+#if defined(BOREALIS_WIN)
 
 		typedef int_fast8_t		int8;
 		typedef short			int16;
@@ -19,9 +19,8 @@ namespace Borealis::Types
 		typedef intptr_t		int64Ptr;
 		typedef uintptr_t		uint64Ptr;
 		
-#elif BOREALIS_LINUX
+#elif defined(BOREALIS_LINUX)
 
-		// @TODO: Adapt for Linux
 		typedef int_fast8_t		int8;
 		typedef short			int16;
 		typedef int				int32;
@@ -35,7 +34,7 @@ namespace Borealis::Types
 		typedef intptr_t		int64Ptr;
 		typedef uintptr_t		uint64Ptr;
 
-#elif BOREALIS_OSX
+#elif defined(BOREALIS_OSX)
 
 		// @TODO: Adapt for OSX
 		typedef int_fast8_t		int8;
@@ -50,6 +49,10 @@ namespace Borealis::Types
 
 		typedef intptr_t		int64Ptr;
 		typedef uintptr_t		uint64Ptr;
+
+#else
+
+#error No valid build platform detected!
 
 #endif
 }

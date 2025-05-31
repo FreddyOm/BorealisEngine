@@ -21,3 +21,7 @@ CMakeUserPresets.json
 
 .vs/
 /CMakeSettings.json
+
+
+# VSCode files
+.vscode/
