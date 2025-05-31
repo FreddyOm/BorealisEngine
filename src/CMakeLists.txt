@@ -60,6 +60,9 @@ set(SOURCES
     core/math/math.cpp
     core/math/random.cpp
     core/math/crc_hash.cpp
+    core/graphics/d3d11/d3d11.cpp
+    core/graphics/d3d12/d3d12.cpp
+    core/graphics/vulkan/vulkan.cpp
 )
 
 # Project include files
@@ -80,7 +83,12 @@ set(HEADERS
     core/memory/memory.h
     core/math/math.h
     core/math/random.h
-    core/math/crc_hash.h    
+    core/math/crc_hash.h   
+    core/graphics/graphics.h
+    core/graphics/d3d11/d3d11.h
+    core/graphics/d3d12/d3d12.h
+    core/graphics/vulkan/vulkan.h
+    core/graphics/helpers/gbuffer.h
 )
 
 # Create library
