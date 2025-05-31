@@ -63,7 +63,7 @@ cmake -S . -B ./build
   - [ ] Nvidia PhysX
 - [ ] Entity Component System
   - [ ] Jobified updating of ECS data buffers (see JobSystem above)
-- [ ] String Class
+- [x] String Class
 - [ ] Runtime Debugging Toolkit
   - [ ] Dear ImGui Interface
   - [ ] Console Implementation
