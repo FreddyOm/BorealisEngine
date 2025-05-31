@@ -7,8 +7,8 @@ using namespace Borealis::Types;
 
 TEST(StringTest, DefaultInitString)
 {
-	StringId myString;
-	StringId myString2;
+	StringId myString{};
+	StringId myString2{};
 
 	EXPECT_EQ(myString, myString2);
 }
