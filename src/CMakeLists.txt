@@ -17,30 +17,23 @@ project(
 )
 
 if(WIN32)
+
     message("Configuring engine lib for Windows platform")
     add_compile_definitions(BOREALIS_WIN)
     add_compile_definitions(BOREALIS_BUILD_DLL)
+
 elseif(APPLE)
+
     message("Configuring engine lib for MacOS platform")
     add_compile_definitions(BOREALIS_OSX)
     add_compile_definitions(BOREALIS_BUILD_DLL)
+
 elseif(UNIX)
+
     message("Configuring engine lib for Linux platform")
     add_compile_definitions(BOREALIS_LINUX)
     add_compile_definitions(BOREALIS_BUILD_DLL)
 
-    #include(FetchContent)
-    #FetchContent_Declare(
-    #    libX11
-    #    GIT_REPOSITORY https://github.com/mirror/libX11.git
-    #    GIT_TAG libX11-1.8.4
-    #    GIT_SHALLOW TRUE
-    #)
-    #FetchContent_MakeAvailable(libX11)
-    #
-    #find_package(X11 REQUIRED)
-    #link_libraries(${X11_LIBRARIES})
-    #include_directories(${X11_INCLUDE_DIR})
 endif()
 
 message("Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
