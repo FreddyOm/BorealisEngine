@@ -7,6 +7,7 @@
 #include "../../config.h"
 #include "../types/types.h"
 #include "logger_internal.h"
+#include <comdef.h>
 
 #ifndef THROW_ON_ASSERT
 #define THROW_ON_ASSERT
@@ -71,6 +72,8 @@ namespace Borealis::Debug
 
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
+    #define StrFromHResult(hr) _com_error(hr).ErrorMessage()
+    
     #define Log(message, ...) Borealis::Debug::LogInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
     #define LogWarning(message, ...) Borealis::Debug::LogWarningInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
     #define LogError(message, ...) Borealis::Debug::LogErrorInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
@@ -78,6 +81,8 @@ namespace Borealis::Debug
 
 #else
 
+    #define StrFromHResult(hr)
+    
     #define Log(message, ...)
     #define LogWarning(message, ...)
     #define LogError(message, ...)

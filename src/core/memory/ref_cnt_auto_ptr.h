@@ -165,7 +165,7 @@ namespace Borealis::Memory
 			return reinterpret_cast<T*>(AccessHandleData(p_handleInfo->HandleId));
 		}
 
-		T& operator*()
+		T& operator*() const
 		{
 			T* p_Data = RawPtr();
 			return reinterpret_cast<T&>(*p_Data);
