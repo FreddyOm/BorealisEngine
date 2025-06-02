@@ -11,6 +11,8 @@
 #define D3DCOMPILE_DEBUG 1
 #endif
 
+
+
 namespace Borealis::Graphics
 {
 	

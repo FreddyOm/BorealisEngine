@@ -20,6 +20,8 @@ TEST(WindowTest, WindowOpenClose)
     EXPECT_GT(testWindow.GetWindowHeight(), 0);
     EXPECT_GT(testWindow.GetWindowWidth(), 0);
     
+    EXPECT_NE(testWindow.GetWindowHandle(), 0);
+
     testWindow.CloseWindow();
 
     EXPECT_FALSE(testWindow.IsRunning());

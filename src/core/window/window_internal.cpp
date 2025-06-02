@@ -158,6 +158,11 @@ namespace Borealis::Core
 		}
 	}
 
+	Types::int64 GetWindowHandleInternal()
+	{
+		return reinterpret_cast<Types::int64>(windowHandle);
+	}
+
 #elif BOREALIS_LINUX
 
 	/*pDisplay = nullptr;
