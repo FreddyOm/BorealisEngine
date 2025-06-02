@@ -29,6 +29,7 @@ FetchContent_MakeAvailable(googletest)
 set(SOURCES 
     test_allocator.cpp
     test_debug.cpp
+    test_graphics.cpp
     test_math.cpp
     test_types.cpp
     test_string.cpp

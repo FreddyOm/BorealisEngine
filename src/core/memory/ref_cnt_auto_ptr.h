@@ -7,13 +7,12 @@
 
 namespace Borealis::Memory
 {
-	class string;
-
 	template<typename T>
 	struct RefCntAutoPtr
 	{
-		RefCntAutoPtr() = delete;
-
+		RefCntAutoPtr()
+		{ }
+		
 		RefCntAutoPtr(HandleInfo* const p_hndlInfo)
 		{
 			Assert(p_hndlInfo != nullptr, 

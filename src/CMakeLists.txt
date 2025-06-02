@@ -105,6 +105,7 @@ set(HEADERS
     core/math/random.h
     core/math/crc_hash.h   
     core/graphics/graphics.h
+    core/graphics/pipeline_config.h
     core/graphics/d3d11/borealis_d3d11.h
     core/graphics/d3d12/borealis_d3d12.h
     core/graphics/vulkan/borealis_vulkan.h
@@ -114,7 +115,7 @@ set(HEADERS
 )
 
 # Create library
-add_library(BorealisEngineLib SHARED ${SOURCES} ${HEADERS})
+add_library(BorealisEngineLib SHARED ${SOURCES} ${HEADERS} "core/graphics/pipeline_config.h")
 
 # Define preprocessor macros for build configurations
 target_compile_definitions(BorealisEngineLib PRIVATE
@@ -131,6 +132,6 @@ if(WIN32)
         d3d12
         dxgi
         d3dcompiler
-        d3d12t
+        #d3d12t
     )
 endif()
