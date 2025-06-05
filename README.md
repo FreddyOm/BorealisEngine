@@ -71,6 +71,8 @@ cmake -S . -B ./build
   - [ ] Memory Usage
 - [ ] Custom Profiler / Profiler integration
   - [ ] Correct representation of jobs
+- [ ] CEF Editor and Tools
+  - [ ] Runtime Editor System powerded by gRPC
 
 ## Dependencies
 
