@@ -74,4 +74,6 @@ cmake -S . -B ./build
 
 ## Dependencies
 
+- CMake
+
 ## Sources
