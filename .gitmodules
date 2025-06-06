@@ -1,0 +1,3 @@
+[submodule "src/core/graphics/d3d12/DirectX-Headers"]
+	path = src/core/graphics/d3d12/DirectX-Headers
+	url = https://github.com/microsoft/DirectX-Headers.git

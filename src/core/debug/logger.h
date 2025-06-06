@@ -77,7 +77,7 @@ namespace Borealis::Debug
     #define Log(message, ...) Borealis::Debug::LogInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
     #define LogWarning(message, ...) Borealis::Debug::LogWarningInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
     #define LogError(message, ...) Borealis::Debug::LogErrorInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
-    #define Assert(message, assertion, ...) Borealis::Debug::AssertInternal(__FILE__, __LINE__, message, assertion, ##__VA_ARGS__)
+    #define Assert(assertion, message, ...) Borealis::Debug::AssertInternal(__FILE__, __LINE__, assertion, message, ##__VA_ARGS__)
 
 #else
 

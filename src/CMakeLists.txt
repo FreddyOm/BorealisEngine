@@ -20,6 +20,11 @@ if(WIN32)
     message("Configuring engine lib for Windows platform")
     add_compile_definitions(BOREALIS_WIN)
     add_compile_definitions(BOREALIS_BUILD_DLL)
+
+    message("Building D3DX12...")
+    add_subdirectory(core/graphics/d3d12/DirectX-Headers)
+    include_directories(core/graphics/d3d12/DirectX-Headers/include)
+
 elseif(APPLE)
     message("Configuring engine lib for MacOS platform")
     add_compile_definitions(BOREALIS_OSX)
@@ -115,7 +120,7 @@ set(HEADERS
 )
 
 # Create library
-add_library(BorealisEngineLib SHARED ${SOURCES} ${HEADERS} "core/graphics/pipeline_config.h")
+add_library(BorealisEngineLib SHARED ${SOURCES} ${HEADERS} ${CMAKE_CURRENT_SOURCE_DIR}/core/graphics/d3d12/DirectX-Headers/include)
 
 # Define preprocessor macros for build configurations
 target_compile_definitions(BorealisEngineLib PRIVATE
@@ -132,6 +137,5 @@ if(WIN32)
         d3d12
         dxgi
         d3dcompiler
-        #d3d12t
     )
 endif()

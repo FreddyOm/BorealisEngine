@@ -8,6 +8,7 @@ using namespace Borealis::Memory;
 
 #if defined(BOREALIS_WIN)	// D3D12 only available for Windows OS
 
+#include "DirectX-Headers/include/directx/d3dx12.h"
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <dxgiformat.h>
@@ -29,10 +30,14 @@ namespace Borealis::Graphics
 #endif
 
 	ComPtr<ID3D12Device> gDevice;
-	ComPtr<ID3D12CommandQueue> gCommandQueue;
 	ComPtr<IDXGISwapChain4> gSwapChain;
+	ComPtr<ID3D12DescriptorHeap> gRTVHeap;
+	ComPtr<ID3D12CommandQueue> gCommandQueue;
+	std::vector<ComPtr<ID3D12Resource>> gRenderTargets = std::vector<ComPtr<ID3D12Resource>>();
+	ComPtr<ID3D12CommandAllocator> gCommandAllocator;
 	
 	Types::uint64 gFrameIndex = 0;
+	Types::uint64 gRTVDescriptorSize;
 
 
 	HRESULT InitializeD3D12Pipeline(const PipelineDesc& pipelineConfig)
@@ -40,12 +45,11 @@ namespace Borealis::Graphics
 		Assert(pipelineConfig.SwapChain.WindowHandle != 0,
 			"Invalid window handle! Make sure to create and initialize the window before initializing the pipeline!");
 
-#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
-		
-		// Enable the debug layer.
-
 		HRESULT hResult{};
+		
+#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
+		// Enable the debug layer.
 		hResult = D3D12GetDebugInterface(IID_PPV_ARGS(&gDebugController));
 		if (SUCCEEDED(hResult)) 
 		{
@@ -75,7 +79,7 @@ namespace Borealis::Graphics
 		ComPtr<IDXGIAdapter4> hardwareAdapter;
 
 		for (Types::int32 adapterIndex = 0; DXGI_ERROR_NOT_FOUND !=
-			dxgiFactory->EnumAdapterByGpuPreference(adapterIndex, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(& hardwareAdapter));
+			dxgiFactory->EnumAdapterByGpuPreference(adapterIndex, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&hardwareAdapter));
 			++adapterIndex)
 		{
 			DXGI_ADAPTER_DESC3 desc;
@@ -86,7 +90,7 @@ namespace Borealis::Graphics
 
 			if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
 			{
-				// Don't select the Basic Render Driver adapter.
+				// Don't select the basic render driver adapter.
 				continue;
 			}
 
@@ -182,10 +186,40 @@ namespace Borealis::Graphics
 
 
 		// Create a render target view(RTV) descriptor heap.
+
+		{
+			D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
+			rtvHeapDesc.NumDescriptors = pipelineConfig.SwapChain.BufferCount;
+			rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+			rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+			hResult = gDevice->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&gRTVHeap));
+
+			Assert(SUCCEEDED(hResult), "Failed to create the descriptor heap: \n(%s)", StrFromHResult(hResult));
+
+			gRTVDescriptorSize = gDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		}
 		
 		// Create frame resources (a render target view for each frame).
 
+		{
+			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(gRTVHeap->GetCPUDescriptorHandleForHeapStart());
+
+			gRenderTargets.resize(pipelineConfig.SwapChain.BufferCount);
+
+			// Create a RTV for each frame.
+			for (UINT n = 0; n < pipelineConfig.SwapChain.BufferCount; n++)
+			{
+				hResult = gSwapChain->GetBuffer(n, IID_PPV_ARGS(&gRenderTargets[n]));
+				Assert(SUCCEEDED(hResult), "Failed to get the render target view with index [%i]: \n(%s)", n, StrFromHResult(hResult));
+				gDevice->CreateRenderTargetView(gRenderTargets[n].Get(), nullptr, rtvHandle);
+				rtvHandle.Offset(1, gRTVDescriptorSize);
+			}
+		}
+
 		// Create a command allocator.
+
+		hResult = gDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&gCommandAllocator));
+		Assert(SUCCEEDED(hResult), "Failed to create the command allocator: \n(%s)", StrFromHResult(hResult));
 
 		return 0;
 	}
@@ -235,7 +269,28 @@ namespace Borealis::Graphics
 
 	BOREALIS_API HRESULT DeinitializeD3D12()
 	{
-		
+		/*gCommandAllocator->Release();
+
+		for (auto& rtv : gRenderTargets)
+		{
+			if (rtv != NULL)
+			{
+				rtv->Release();
+			}
+		}
+
+		gRTVHeap->Release();
+
+		gSwapChain->Release();
+
+		gCommandQueue->Release();
+
+		gDevice->Release();*/
+
+#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
+		gDebugController->Release();
+#endif
+
 		return 0;
 	}
 }

@@ -15,9 +15,14 @@ TEST(D3D12GraphicsTest, InitPipeline)
 	PipelineDesc pipelineConfig{};
 	pipelineConfig.SwapChain.WindowHandle = reinterpret_cast<HWND>(testWindow.GetWindowHandle());
 
+	// D3D12
+#ifdef BOREALIS_WIN
+
 	EXPECT_TRUE(SUCCEEDED(InitializeD3D12(pipelineConfig)));
+
+	DeinitializeD3D12();
+#endif
 
 	// Close window
 	testWindow.CloseWindow();
-
 }
