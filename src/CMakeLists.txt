@@ -120,7 +120,11 @@ set(HEADERS
 )
 
 # Create library
+if(WIN_32)
 add_library(BorealisEngineLib SHARED ${SOURCES} ${HEADERS} ${CMAKE_CURRENT_SOURCE_DIR}/core/graphics/d3d12/DirectX-Headers/include)
+else()
+add_library(BorealisEngineLib SHARED ${SOURCES} ${HEADERS})
+endif(WIN_32)
 
 # Define preprocessor macros for build configurations
 target_compile_definitions(BorealisEngineLib PRIVATE

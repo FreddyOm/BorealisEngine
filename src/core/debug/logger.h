@@ -9,7 +9,7 @@
 #include "logger_internal.h"
 
 #ifdef BOREALIS_WIN
-#include <comdef.h>
+    #include <comdef.h>
 #endif
 
 #ifndef THROW_ON_ASSERT

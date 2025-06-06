@@ -4,6 +4,8 @@
 
 using namespace Borealis::Graphics;
 
+#ifdef BOREALIS_WIN
+
 TEST(D3D12GraphicsTest, InitPipeline)
 {
 	// Create window
@@ -26,3 +28,5 @@ TEST(D3D12GraphicsTest, InitPipeline)
 	// Close window
 	testWindow.CloseWindow();
 }
+
+#endif

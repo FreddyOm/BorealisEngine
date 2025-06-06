@@ -12,8 +12,8 @@
 #include "vulkan/borealis_vulkan.h"
 
 #elif defined(BOREALIS_LINUX) || defined(BOREALIS_OSX)
-
-#include "vulkan/vulkan.h"
+// @TODO: Implement
+#include "vulkan/borealis_vulkan.h"
 
 #endif
 

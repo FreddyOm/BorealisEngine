@@ -255,6 +255,11 @@ namespace Borealis::Core
 		//}
 	}
 
+	Types::int64 GetWindowHandleInternal()
+	{
+		return -1;
+	}
+	
 #elif BOREALIS_OSX
 
 	void OpenWindowInternal(std::string windowName)
