@@ -44,6 +44,7 @@ cmake -S . -B ./build
 - [x] Custom Memory Allocators
   - [x] Stack Allocator
   - [x] Pool Allocator
+    - [ ] Add Stack with empty pool element addresses for faster allocation of free pool elements
   - [x] Frame Allocator
   - [x] Custom RefCnt Pointer
   - [x] Heap Allocator
