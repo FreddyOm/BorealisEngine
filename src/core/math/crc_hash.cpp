@@ -25,7 +25,7 @@ namespace Borealis::Math
 	{
 		uint64 rBits = 0;
 
-		// @TODO: Check if anything right here can be processed in parallel using SSE
+		// TODO: Check if anything right here can be processed in parallel using SSE
 		for (short i = 0; i < size; i++)
 		{
 			if ((bits & (1 << i)) != 0)

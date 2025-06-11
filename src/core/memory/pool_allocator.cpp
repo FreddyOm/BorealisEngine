@@ -17,8 +17,8 @@ namespace Borealis::Memory
 		totalMemorySize = poolElementCount * elementSize;
 		usedMemorySize = 0;
 
-		// @TODO: Align memory to 16 / 32 / 64 (?) bytes
-		// @TODO: Replace the byte-sized lookup base for a bitmask buffer which is more memory efficient. 
+		// TODO: Align memory to 16 / 32 / 64 (?) bytes
+		// TODO: Replace the byte-sized lookup base for a bitmask buffer which is more memory efficient. 
 		//	-> This would mean, that the element count needs to be aligned (64 byte) to fit the bitmasks, though.
 
 		// To quickly find available pool elements, a bitmask is used to represent the pools.
