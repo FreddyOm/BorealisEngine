@@ -4,6 +4,8 @@
 #include "allocator.h"
 #include "../types/types.h"
 
+#include <stack>
+
 #ifndef CLEAR_POOL_ELEMENTS_ON_FREE	// Resets the memory whenever Free() is called.
 //#define CLEAR_POOL_ELEMENTS_ON_FREE
 #endif
@@ -42,15 +44,19 @@ namespace Borealis::Memory
 		Borealis::Types::uint64 GetAvailableMemorySize() const override;
 		Borealis::Types::int8 GetAllocFreeRatio() const override;	
 
+	protected:
+
+		void* const GetFreePoolElement();		
+
 	private:
 
 		Borealis::Types::uint32 poolElementCount = 0;
 		Borealis::Types::uint64 poolElementSize = 0;
 
-		Borealis::Types::uint32 freePoolElements = 0;
-
-		Borealis::Types::uint64Ptr p_allocatorBase = 0;
 		Borealis::Types::uint64Ptr p_poolBase = 0;
-		bool* p_lookupBase = nullptr;
+		//Borealis::Types::uint64Ptr p_allocatorBase = 0;
+		// bool* p_lookupBase = nullptr;
+
+		std::stack<Borealis::Types::uint64Ptr> p_freePoolElementList;
 	};
 }
