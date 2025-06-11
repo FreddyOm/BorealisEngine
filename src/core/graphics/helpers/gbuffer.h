@@ -5,7 +5,7 @@
 namespace Borealis::Graphics::Helpers
 {
 
-	// @TODO: Create GBuffer class for all/each platform inmplementations
+	// TODO: Create GBuffer class for all/each platform inmplementations
 
 #if defined(BOREALIS_WIN)
 

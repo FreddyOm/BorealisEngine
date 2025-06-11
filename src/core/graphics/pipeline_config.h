@@ -50,7 +50,7 @@ namespace Borealis::Graphics
 
 #else
 
-	// @TODO: Implement Vulkan Pipeline Desc
+	// TODO: Implement Vulkan Pipeline Desc
 	struct PipelineDesc
 	{
 
