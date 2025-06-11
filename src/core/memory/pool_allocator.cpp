@@ -27,9 +27,9 @@ namespace Borealis::Memory
 		// Calculate the size of the lookup segment and allocate the complete memory for the allocator.
 		p_poolBase = reinterpret_cast<uint64Ptr>(malloc(totalMemorySize));
 		
-		for(int elementIndex = 0; elementIndex < poolElementCount; ++elementIndex)
+		for(int32 elementIndex = 0; elementIndex < poolElementCount; ++elementIndex)
 		{
-			p_freePoolElementList.emplace(reinterpret_cast<uint64Ptr>(p_poolBase + (elementIndex * elementSize) ));
+			p_freePoolElementList.emplace(p_poolBase + (elementIndex * elementSize));
 		}
 		
 		// Initialize and reset the lookup segment.
@@ -175,7 +175,7 @@ namespace Borealis::Memory
 
 		for(int elementIndex = 0; elementIndex < poolElementCount; ++elementIndex)
 		{
-			p_freePoolElementList.emplace(reinterpret_cast<uint64Ptr>(p_poolBase + (elementIndex * poolElementSize) ));
+			p_freePoolElementList.emplace(p_poolBase + (elementIndex * poolElementSize));
 		}
 
 		usedMemorySize = 0;

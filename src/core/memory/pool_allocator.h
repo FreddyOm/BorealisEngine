@@ -11,6 +11,7 @@
 #endif
 
 // TODO: Provide both memory efficient pool alloc (using bitmask for empty pool elements) and fast pool alloc (using stack)
+// 		 bitmask means small memory footprint, stack means 8-64x size per pool element.
 
 namespace Borealis::Memory
 {
