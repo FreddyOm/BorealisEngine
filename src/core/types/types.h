@@ -36,7 +36,7 @@ namespace Borealis::Types
 
 #elif defined(BOREALIS_OSX)
 
-		// @TODO: Adapt for OSX
+		// TODO: Adapt for OSX
 		typedef int_fast8_t		int8;
 		typedef int_fast16_t	int16;
 		typedef int_fast32_t	int32;

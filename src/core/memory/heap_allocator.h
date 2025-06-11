@@ -140,7 +140,7 @@ namespace Borealis::Memory
 
 		void* heapBasePtr = nullptr;
 
-		// @TODO:  Keep an eye on this, this might be slow due to native mem alloc
+		// TODO:  Keep an eye on this, this might be slow due to native mem alloc
 		std::list<HeapFreeListEntry>* p_freeMemBlockList = nullptr;
 	};
 }

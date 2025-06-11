@@ -69,7 +69,7 @@ namespace Borealis::Core
 
 	LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		// @TODO: Enable hooking into the callback for handling of input!
+		// TODO: Enable hooking into the callback for handling of input!
 
 		switch (uMsg)
 		{
@@ -131,7 +131,7 @@ namespace Borealis::Core
 			NULL					// Additional application data
 		);
 
-		// @TODO: Assert windowHandle != null!
+		// TODO: Assert windowHandle != null!
 		ShowWindow(windowHandle, SW_NORMAL);
 		isRunning = true;
 	}

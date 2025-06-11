@@ -9,7 +9,7 @@
 
 namespace Borealis::Types
 {
-	// @TODO: Implement custom hash table that allocates memory from pool allocator!
+	// TODO: Implement custom hash table that allocates memory from pool allocator!
 	std::unordered_map<StringId, const char*> g_StringIdTable;
 
 	StringId InternString(const char* str)
