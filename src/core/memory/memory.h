@@ -29,12 +29,15 @@ namespace Borealis::Memory
 		// Memory dedicated to rendering
 		RENDERING = 1,
 
+		// Memory dedicated to rendering
+		RENDERING_DEBUG = 2,
+
 		// Memory dedicated to per-frame allocations
-		FRAME = 2,
+		FRAME = 3,
 
 		// Static and persistent data that reside in 
 		// memory and don't need to be deallocated
-		STATIC = 3,
+		STATIC = 4,
 
 	};
 	extern BOREALIS_API std::stack<MemAllocatorContext> g_memoryAllocatorContext;

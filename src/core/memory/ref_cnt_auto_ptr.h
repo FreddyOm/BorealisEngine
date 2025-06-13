@@ -7,13 +7,12 @@
 
 namespace Borealis::Memory
 {
-	class string;
-
 	template<typename T>
 	struct RefCntAutoPtr
 	{
-		RefCntAutoPtr() = delete;
-
+		RefCntAutoPtr()
+		{ }
+		
 		RefCntAutoPtr(HandleInfo* const p_hndlInfo)
 		{
 			Assert(p_hndlInfo != nullptr, 
@@ -165,7 +164,7 @@ namespace Borealis::Memory
 			return reinterpret_cast<T*>(AccessHandleData(p_handleInfo->HandleId));
 		}
 
-		T& operator*()
+		T& operator*() const
 		{
 			T* p_Data = RawPtr();
 			return reinterpret_cast<T&>(*p_Data);

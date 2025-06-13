@@ -38,6 +38,11 @@ TEST(RefCntAutoPtrTest, GeneralUse)
 	EXPECT_EQ(myReference.UseCount(), 1);
 }
 
+TEST(RefCntAutoPtrTest, DefaultInit)
+{
+
+}
+
 TEST(RefCntAutoPtrTest, InvalidatedPtr)
 {
 	MemAllocJanitor janitor(MemAllocatorContext::DEBUG);

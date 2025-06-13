@@ -70,6 +70,7 @@ namespace Borealis::Memory
 	StackAllocator g_staticAllocator(134217728);			// 128 MiB
 	PoolAllocator g_debugAllocator(4096, 65536);			// 256 MiB
 	HeapAllocator g_renderingAllocator(134217728 * 8);		// 1 GiB 
+	HeapAllocator g_renderingDebugAllocator(134217728 * 4);	// 512 MiB 
 
 	BOREALIS_API IMemoryAllocator* GetMemoryAllocator(const MemAllocatorContext context)
 	{
@@ -82,6 +83,10 @@ namespace Borealis::Memory
 		case MemAllocatorContext::RENDERING:
 		{
 			return dynamic_cast<IMemoryAllocator*>(&g_renderingAllocator);
+		}
+		case MemAllocatorContext::RENDERING_DEBUG:
+		{
+			return dynamic_cast<IMemoryAllocator*>(&g_renderingDebugAllocator);
 		}
 		case MemAllocatorContext::FRAME:
 		{

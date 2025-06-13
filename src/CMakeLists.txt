@@ -20,6 +20,11 @@ if(WIN32)
     message("Configuring engine lib for Windows platform")
     add_compile_definitions(BOREALIS_WIN)
     add_compile_definitions(BOREALIS_BUILD_DLL)
+
+    message("Building D3DX12...")
+    add_subdirectory(core/graphics/d3d12/DirectX-Headers)
+    include_directories(core/graphics/d3d12/DirectX-Headers/include)
+
 elseif(APPLE)
     message("Configuring engine lib for MacOS platform")
     add_compile_definitions(BOREALIS_OSX)
@@ -52,6 +57,16 @@ set(SOURCES
     core/window/window_internal.cpp
     core/debug/logger.cpp
     core/debug/logger_internal.cpp
+    core/debug/runtime-debug/runtime-debug.cpp
+    core/debug/runtime-debug/imgui/imgui.cpp
+    core/debug/runtime-debug/imgui/imgui_demo.cpp
+    core/debug/runtime-debug/imgui/imgui_draw.cpp
+    core/debug/runtime-debug/imgui/imgui_impl_dx11.cpp
+    core/debug/runtime-debug/imgui/imgui_impl_dx12.cpp
+    core/debug/runtime-debug/imgui/imgui_impl_vulkan.cpp
+    core/debug/runtime-debug/imgui/imgui_impl_win32.cpp
+    core/debug/runtime-debug/imgui/imgui_tables.cpp
+    core/debug/runtime-debug/imgui/imgui_widgets.cpp
     core/memory/stack_allocator.cpp
     core/memory/pool_allocator.cpp
     core/memory/heap_allocator.cpp
@@ -60,6 +75,9 @@ set(SOURCES
     core/math/math.cpp
     core/math/random.cpp
     core/math/crc_hash.cpp
+    core/graphics/d3d11/borealis_d3d11.cpp
+    core/graphics/d3d12/borealis_d3d12.cpp
+    core/graphics/vulkan/borealis_vulkan.cpp
 )
 
 # Project include files
@@ -72,6 +90,16 @@ set(HEADERS
     core/window/window_internal.h
     core/debug/logger.h
     core/debug/logger_internal.h
+    core/debug/runtime-debug/runtime-debug.h
+    core/debug/runtime-debug/imgui/imconfig.h
+    core/debug/runtime-debug/imgui/imgui.h
+    core/debug/runtime-debug/imgui/imgui_impl_dx11.h
+    core/debug/runtime-debug/imgui/imgui_impl_dx12.h
+    core/debug/runtime-debug/imgui/imgui_impl_vulkan.h
+    core/debug/runtime-debug/imgui/imgui_impl_win32.h
+    core/debug/runtime-debug/imgui/imgui_internal.h
+    core/debug/runtime-debug/imgui/imstb_textedit.h
+    core/debug/runtime-debug/imgui/imstb_truetype.h
     core/memory/allocator.h
     core/memory/stack_allocator.h
     core/memory/pool_allocator.h
@@ -80,11 +108,23 @@ set(HEADERS
     core/memory/memory.h
     core/math/math.h
     core/math/random.h
-    core/math/crc_hash.h    
+    core/math/crc_hash.h   
+    core/graphics/graphics.h
+    core/graphics/pipeline_config.h
+    core/graphics/d3d11/borealis_d3d11.h
+    core/graphics/d3d12/borealis_d3d12.h
+    core/graphics/vulkan/borealis_vulkan.h
+    core/graphics/helpers/helpers.h
+    core/graphics/helpers/d3d12_helpers.h
+    core/graphics/helpers/gbuffer.h
 )
 
 # Create library
+if(WIN_32)
+add_library(BorealisEngineLib SHARED ${SOURCES} ${HEADERS} ${CMAKE_CURRENT_SOURCE_DIR}/core/graphics/d3d12/DirectX-Headers/include)
+else()
 add_library(BorealisEngineLib SHARED ${SOURCES} ${HEADERS})
+endif(WIN_32)
 
 # Define preprocessor macros for build configurations
 target_compile_definitions(BorealisEngineLib PRIVATE
@@ -94,3 +134,12 @@ target_compile_definitions(BorealisEngineLib PRIVATE
         $<$<CONFIG:MinSizeRel>:BOREALIS_MINSIZEREL>
         -DBOREALIS_VERSION=${CMAKE_PROJECT_VERSION}
 )
+
+
+if(WIN32)
+    target_link_libraries(BorealisEngineLib PRIVATE 
+        d3d12
+        dxgi
+        d3dcompiler
+    )
+endif()
