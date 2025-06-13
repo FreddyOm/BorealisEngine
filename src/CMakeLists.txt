@@ -140,6 +140,7 @@ if(WIN32)
     target_link_libraries(BorealisEngineLib PRIVATE 
         d3d12
         dxgi
+        dxguid
         d3dcompiler
     )
 endif()

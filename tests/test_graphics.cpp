@@ -20,9 +20,12 @@ TEST(D3D12GraphicsTest, InitPipeline)
 	// D3D12
 #ifdef BOREALIS_WIN
 
-	EXPECT_TRUE(SUCCEEDED(InitializeD3D12(pipelineConfig)));
-
-	DeinitializeD3D12();
+	EXPECT_NO_FATAL_FAILURE(
+		{
+			BorealisD3D12Renderer renderer(pipelineConfig);
+		}
+	);
+	
 #endif
 
 	// Close window

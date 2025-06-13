@@ -1,10 +1,7 @@
 #include "borealis_d3d12.h"
 #include "../../debug/logger.h"
-#include "../pipeline_config.h"
-#include "../../memory/ref_cnt_auto_ptr.h"
 
 using namespace Borealis::Types;
-using namespace Borealis::Memory;
 
 #if defined(BOREALIS_WIN)	// D3D12 only available for Windows OS
 
@@ -20,27 +17,63 @@ using namespace Microsoft::WRL;
 
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 #include <d3d12sdklayers.h>	// Debug Layer
+#include <dxgidebug.h>
 #endif
 
 namespace Borealis::Graphics
 {
+	BorealisD3D12Renderer::BorealisD3D12Renderer(const PipelineDesc& pipelineConfig)
+	{
+		HRESULT hResult{};
+
+		hResult = InitializeD3D12Pipeline(pipelineConfig);
+		Assert(SUCCEEDED(hResult),
+			"Failed to initialize the D3D12 rendering pipeline: \n(%s)", StrFromHResult(hResult));
+
+		hResult = InitializeAssets();
+		Assert(SUCCEEDED(hResult),
+			"Failed to initialize the D3D12 assets: \n(%s)", StrFromHResult(hResult));
+
+	}
+
+	BorealisD3D12Renderer::~BorealisD3D12Renderer()
+	{
+		if (m_CommandAllocator)
+			m_CommandAllocator->Release();
+
+		for (auto& rtv : m_RenderTargets)
+		{
+			if (rtv)
+				rtv->Release();
+
+		}
+
+		if (m_RTVHeap)
+			m_RTVHeap->Release();
+
+		if (m_SwapChain)
+			m_SwapChain->Release();
+
+		if (m_CommandQueue)
+			m_CommandQueue->Release();
+
+		if (m_Device)
+			m_Device->Release();
 
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
-	ComPtr<ID3D12Debug> gDebugController;
+
+		if (m_DXGIDebug)
+		{
+			m_DXGIDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_IGNORE_INTERNAL);
+			m_DXGIDebug->Release();
+		}
+
+		if (m_DebugController)
+			m_DebugController->Release();
 #endif
+	}
 
-	ComPtr<ID3D12Device> gDevice;
-	ComPtr<IDXGISwapChain4> gSwapChain;
-	ComPtr<ID3D12DescriptorHeap> gRTVHeap;
-	ComPtr<ID3D12CommandQueue> gCommandQueue;
-	std::vector<ComPtr<ID3D12Resource>> gRenderTargets = std::vector<ComPtr<ID3D12Resource>>();
-	ComPtr<ID3D12CommandAllocator> gCommandAllocator;
-	
-	Types::uint64 gFrameIndex = 0;
-	Types::uint64 gRTVDescriptorSize;
-
-
-	HRESULT InitializeD3D12Pipeline(const PipelineDesc& pipelineConfig)
+	HRESULT BorealisD3D12Renderer::InitializeD3D12Pipeline(const PipelineDesc& pipelineConfig)
 	{
 		Assert(pipelineConfig.SwapChain.WindowHandle != 0,
 			"Invalid window handle! Make sure to create and initialize the window before initializing the pipeline!");
@@ -50,10 +83,10 @@ namespace Borealis::Graphics
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
 		// Enable the debug layer.
-		hResult = D3D12GetDebugInterface(IID_PPV_ARGS(&gDebugController));
+		hResult = D3D12GetDebugInterface(IID_PPV_ARGS(&m_DebugController));
 		if (SUCCEEDED(hResult)) 
 		{
-			gDebugController->EnableDebugLayer();
+			m_DebugController->EnableDebugLayer();
 		}
 		else 
 		{
@@ -95,7 +128,7 @@ namespace Borealis::Graphics
 			}
 
 			// Create device
-			hResult = D3D12CreateDevice(hardwareAdapter.Get(), pipelineConfig.MinimumFeatureLevel, IID_PPV_ARGS(&gDevice));
+			hResult = D3D12CreateDevice(hardwareAdapter.Get(), pipelineConfig.MinimumFeatureLevel, IID_PPV_ARGS(&m_Device));
 			Assert(SUCCEEDED(hResult), "Failed to create the device: \n(%s)", StrFromHResult(hResult));
 
 			if (SUCCEEDED(hResult))
@@ -112,7 +145,7 @@ namespace Borealis::Graphics
 		queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-		hResult = gDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&gCommandQueue));
+		hResult = m_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_CommandQueue));
 		Assert(SUCCEEDED(hResult), "Failed to create the command queue: \n(%s)", StrFromHResult(hResult));
 
 
@@ -171,15 +204,15 @@ namespace Borealis::Graphics
 		hResult = dxgiFactory->CreateSwapChain(gCommandQueue.Get(), pipelineConfig.SwapChain.WindowHandle, &swapChainDesc, &swapChain);
 		Assert(SUCCEEDED(hResult), "Failed to create the swap chain: \n(%s)", StrFromHResult(hResult));
 #else
-		hResult = dxgiFactory->CreateSwapChainForHwnd(gCommandQueue.Get(), pipelineConfig.SwapChain.WindowHandle, &swapChainDesc, &swapChainFSDesc, NULL, &swapChain);
+		hResult = dxgiFactory->CreateSwapChainForHwnd(m_CommandQueue.Get(), pipelineConfig.SwapChain.WindowHandle, &swapChainDesc, &swapChainFSDesc, NULL, &swapChain);
 		Assert(SUCCEEDED(hResult), "Failed to create the swap chain: \n(%s)", StrFromHResult(hResult));
 #endif
 
-		hResult = swapChain.As(&gSwapChain);
+		hResult = swapChain.As(&m_SwapChain);
 		Assert(SUCCEEDED(hResult), "Failed to cast swap chain: \n(%s)", StrFromHResult(hResult));
 
 		// Init frame index
-		gFrameIndex = gSwapChain->GetCurrentBackBufferIndex(); 
+		m_FrameIndex = m_SwapChain->GetCurrentBackBufferIndex(); 
 		
 		hResult = dxgiFactory->MakeWindowAssociation(pipelineConfig.SwapChain.WindowHandle, 0);
 		Assert(SUCCEEDED(hResult), "Failed to make the window association: \n(%s)", StrFromHResult(hResult));
@@ -192,39 +225,39 @@ namespace Borealis::Graphics
 			rtvHeapDesc.NumDescriptors = pipelineConfig.SwapChain.BufferCount;
 			rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 			rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-			hResult = gDevice->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&gRTVHeap));
+			hResult = m_Device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_RTVHeap));
 
 			Assert(SUCCEEDED(hResult), "Failed to create the descriptor heap: \n(%s)", StrFromHResult(hResult));
 
-			gRTVDescriptorSize = gDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+			m_RTVDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		}
 		
 		// Create frame resources (a render target view for each frame).
 
 		{
-			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(gRTVHeap->GetCPUDescriptorHandleForHeapStart());
+			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_RTVHeap->GetCPUDescriptorHandleForHeapStart());
 
-			gRenderTargets.resize(pipelineConfig.SwapChain.BufferCount);
+			m_RenderTargets.resize(pipelineConfig.SwapChain.BufferCount);
 
 			// Create a RTV for each frame.
 			for (UINT n = 0; n < pipelineConfig.SwapChain.BufferCount; n++)
 			{
-				hResult = gSwapChain->GetBuffer(n, IID_PPV_ARGS(&gRenderTargets[n]));
+				hResult = m_SwapChain->GetBuffer(n, IID_PPV_ARGS(&m_RenderTargets[n]));
 				Assert(SUCCEEDED(hResult), "Failed to get the render target view with index [%i]: \n(%s)", n, StrFromHResult(hResult));
-				gDevice->CreateRenderTargetView(gRenderTargets[n].Get(), nullptr, rtvHandle);
-				rtvHandle.Offset(1, gRTVDescriptorSize);
+				m_Device->CreateRenderTargetView(m_RenderTargets[n].Get(), nullptr, rtvHandle);
+				rtvHandle.Offset(1, m_RTVDescriptorSize);
 			}
 		}
 
 		// Create a command allocator.
 
-		hResult = gDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&gCommandAllocator));
+		hResult = m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_CommandAllocator));
 		Assert(SUCCEEDED(hResult), "Failed to create the command allocator: \n(%s)", StrFromHResult(hResult));
 
 		return 0;
 	}
 
-	HRESULT InitializeAssets()
+	HRESULT BorealisD3D12Renderer::InitializeAssets()
 	{
 		// Create an empty root signature.
 
@@ -247,49 +280,6 @@ namespace Borealis::Graphics
 		// Create an event handle.
 
 		// Wait for the GPU to finish.
-
-		return 0;
-	}
-
-
-	BOREALIS_API HRESULT InitializeD3D12(const PipelineDesc& pipelineConfig)
-	{
-		HRESULT hResult{};
-
-		hResult = InitializeD3D12Pipeline(pipelineConfig);
-		Assert(SUCCEEDED(hResult),
-			"Failed to initialize the D3D12 rendering pipeline: \n(%s)", StrFromHResult(hResult));
-
-		hResult = InitializeAssets();
-		Assert(SUCCEEDED(hResult),
-			"Failed to initialize the D3D12 assets: \n(%s)", StrFromHResult(hResult));
-
-		return 0;
-	}
-
-	BOREALIS_API HRESULT DeinitializeD3D12()
-	{
-		/*gCommandAllocator->Release();
-
-		for (auto& rtv : gRenderTargets)
-		{
-			if (rtv != NULL)
-			{
-				rtv->Release();
-			}
-		}
-
-		gRTVHeap->Release();
-
-		gSwapChain->Release();
-
-		gCommandQueue->Release();
-
-		gDevice->Release();*/
-
-#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
-		gDebugController->Release();
-#endif
 
 		return 0;
 	}
