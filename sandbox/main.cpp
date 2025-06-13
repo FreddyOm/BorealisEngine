@@ -1,7 +1,8 @@
 #include <core/window/window.h>
+#include <core/graphics/graphics.h>
 
 using namespace Borealis::Core;
-
+using namespace Borealis::Graphics;
 
 int main()
 {
