@@ -1,4 +1,5 @@
 #include "window_internal.h"
+#include "../debug/logger.h"
 
 #ifdef BOREALIS_WIN
 
@@ -132,6 +133,7 @@ namespace Borealis::Core
 		);
 
 		// TODO: Assert windowHandle != null!
+		Assert(windowHandle != NULL, "Invalid window handle!");
 		ShowWindow(windowHandle, SW_NORMAL);
 		isRunning = true;
 	}
