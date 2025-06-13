@@ -5,20 +5,20 @@ using namespace Borealis::Types;
 
 #if defined(BOREALIS_WIN)	// D3D12 only available for Windows OS
 
-#include "DirectX-Headers/include/directx/d3dx12.h"
-#include <d3d12.h>
-#include <dxgi1_6.h>
-#include <dxgiformat.h>
-#include <wrl.h>
-#include "../helpers/d3d12_helpers.h"
+//#include "DirectX-Headers/include/directx/d3dx12.h"
+//#include <d3d12.h>
+//#include <dxgi1_6.h>
+//#include <dxgiformat.h>
+//#include <wrl.h>
+//#include "../helpers/d3d12_helpers.h"
 
 
 using namespace Microsoft::WRL;
 
-#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
-#include <d3d12sdklayers.h>	// Debug Layer
-#include <dxgidebug.h>
-#endif
+//#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
+//#include <d3d12sdklayers.h>	// Debug Layer
+//#include <dxgidebug.h>
+//#endif
 
 namespace Borealis::Graphics
 {
@@ -38,7 +38,7 @@ namespace Borealis::Graphics
 
 	BorealisD3D12Renderer::~BorealisD3D12Renderer()
 	{
-		if (m_CommandAllocator)
+		/*if (m_CommandAllocator)
 			m_CommandAllocator->Release();
 
 		for (auto& rtv : m_RenderTargets)
@@ -55,7 +55,7 @@ namespace Borealis::Graphics
 			m_SwapChain->Release();
 
 		if (m_CommandQueue)
-			m_CommandQueue->Release();
+			m_CommandQueue->Release();*/
 
 		if (m_Device)
 			m_Device->Release();
@@ -64,7 +64,8 @@ namespace Borealis::Graphics
 
 		if (m_DXGIDebug)
 		{
-			m_DXGIDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_IGNORE_INTERNAL);
+			// TODO: Why are there still refs to IDXGIFactory and ID3D12Device?
+			m_DXGIDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
 			m_DXGIDebug->Release();
 		}
 
@@ -93,6 +94,8 @@ namespace Borealis::Graphics
 			LogWarning("Could not enable debug layer in D3D12 backend: \n(%s)", StrFromHResult(hResult));
 		}
 			
+		hResult = DXGIGetDebugInterface1(0, IID_PPV_ARGS(&m_DXGIDebug));
+		Assert(SUCCEEDED(hResult), "Failed to query DXGI debug interface: \n%s", StrFromHResult(hResult));
 
 #endif
 		
