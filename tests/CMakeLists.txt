@@ -47,7 +47,7 @@ elseif(UNIX)
     add_compile_definitions(BOREALIS_LINUX)
 endif()
 
-add_executable(BorealisEngineTests ${SOURCES} "test_string.cpp")
+add_executable(BorealisEngineTests ${SOURCES})
 
 # Define preprocessor macros for build configurations
 target_compile_definitions(BorealisEngineTests PRIVATE
