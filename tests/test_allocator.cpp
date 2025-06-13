@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
-#include "../memory/memory.h"
-#include "../memory/stack_allocator.h"
-#include "../memory/pool_allocator.h"
-#include "../memory/heap_allocator.h"
-#include "../memory/ref_cnt_auto_ptr.h"
-#include "../types/types.h"
+#include <core/memory/memory.h>
+#include <core/memory/stack_allocator.h>
+#include <core/memory/pool_allocator.h>
+#include <core/memory/heap_allocator.h>
+#include <core/memory/ref_cnt_auto_ptr.h>
+#include <core/types/types.h>
 
 using namespace Borealis::Memory;
 using namespace Borealis::Types;

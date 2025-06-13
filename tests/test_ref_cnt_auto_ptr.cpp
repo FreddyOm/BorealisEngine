@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include "../memory/ref_cnt_auto_ptr.h"
-#include "../types/types.h"
-#include "../src/core/memory/memory.h"
+#include <core/memory/ref_cnt_auto_ptr.h>
+#include <core/types/types.h>
+#include <core/memory/memory.h>
 
 using namespace Borealis::Memory;
 using namespace Borealis::Types;

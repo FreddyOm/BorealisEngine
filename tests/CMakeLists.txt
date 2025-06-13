@@ -90,8 +90,7 @@ target_link_libraries(BorealisEngineTests
 
 # Include directories
 target_include_directories(BorealisEngineTests PRIVATE 
-    ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/src/core/types
+    ${CMAKE_SOURCE_DIR}/src/
 )
 
 # Tests
