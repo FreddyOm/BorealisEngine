@@ -40,20 +40,23 @@ namespace Borealis::Graphics
 
 	protected:
 
+		Microsoft::WRL::ComPtr<ID3D12Device> m_Device;
+		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue;
+		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_CommandAllocator;
+		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RTVHeap;
+		::std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_RenderTargets = 
+			::std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>>();
+		
+		Microsoft::WRL::ComPtr<IDXGIFactory7> m_DXGIFactory;
+		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_SwapChain;
+
+		Types::uint64 m_FrameIndex = 0;
+		Types::uint64 m_RTVDescriptorSize = 0;
+
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 		Microsoft::WRL::ComPtr<ID3D12Debug> m_DebugController;
 		Microsoft::WRL::ComPtr<IDXGIDebug1> m_DXGIDebug;
 #endif
-
-		Microsoft::WRL::ComPtr<ID3D12Device> m_Device;
-		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_SwapChain;
-		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RTVHeap;
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue;
-		::std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_RenderTargets = ::std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_CommandAllocator;
-
-		Types::uint64 m_FrameIndex = 0;
-		Types::uint64 m_RTVDescriptorSize = 0;
 	};
 }
 

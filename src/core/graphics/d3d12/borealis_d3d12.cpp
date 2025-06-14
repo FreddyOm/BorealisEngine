@@ -57,8 +57,11 @@ namespace Borealis::Graphics
 		if (m_CommandQueue)
 			m_CommandQueue->Release();*/
 
+		/*if (m_DXGIFactory)
+			m_DXGIFactory->Release();
+
 		if (m_Device)
-			m_Device->Release();
+			m_Device->Release();*/
 
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
@@ -66,11 +69,11 @@ namespace Borealis::Graphics
 		{
 			// TODO: Why are there still refs to IDXGIFactory and ID3D12Device?
 			m_DXGIDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
-			m_DXGIDebug->Release();
+			//m_DXGIDebug->Release();
 		}
 
-		if (m_DebugController)
-			m_DebugController->Release();
+		/*if (m_DebugController)
+			m_DebugController->Release();*/
 #endif
 	}
 
@@ -100,12 +103,10 @@ namespace Borealis::Graphics
 #endif
 		
 		// Create factory to define how objects are created
-		ComPtr<IDXGIFactory7> dxgiFactory;
-
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
-		hResult = CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, __uuidof(IDXGIFactory7), (void**)(dxgiFactory.GetAddressOf()));
+		hResult = CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, __uuidof(IDXGIFactory7), (void**)(m_DXGIFactory.GetAddressOf()));
 #else
-		hResult = CreateDXGIFactory2(0, __uuidof(IDXGIFactory7), (void**)(dxgiFactory.GetAddressOf()));
+		hResult = CreateDXGIFactory2(0, __uuidof(IDXGIFactory7), (void**)(m_DXGIFactory.GetAddressOf()));
 #endif
 
 		Assert(SUCCEEDED(hResult), "Failed to create the dxgi factory: \n(%s)", StrFromHResult(hResult));
@@ -115,7 +116,7 @@ namespace Borealis::Graphics
 		ComPtr<IDXGIAdapter4> hardwareAdapter;
 
 		for (Types::int32 adapterIndex = 0; DXGI_ERROR_NOT_FOUND !=
-			dxgiFactory->EnumAdapterByGpuPreference(adapterIndex, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&hardwareAdapter));
+			m_DXGIFactory->EnumAdapterByGpuPreference(adapterIndex, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&hardwareAdapter));
 			++adapterIndex)
 		{
 			DXGI_ADAPTER_DESC3 desc;
@@ -141,7 +142,6 @@ namespace Borealis::Graphics
 		}
 
 		Assert(SUCCEEDED(hResult), "Failed to create the hardware adapter: \n(%s)", StrFromHResult(hResult));
-
 
 		// Create the command queue.
 		D3D12_COMMAND_QUEUE_DESC queueDesc = {};
@@ -207,7 +207,7 @@ namespace Borealis::Graphics
 		hResult = dxgiFactory->CreateSwapChain(gCommandQueue.Get(), pipelineConfig.SwapChain.WindowHandle, &swapChainDesc, &swapChain);
 		Assert(SUCCEEDED(hResult), "Failed to create the swap chain: \n(%s)", StrFromHResult(hResult));
 #else
-		hResult = dxgiFactory->CreateSwapChainForHwnd(m_CommandQueue.Get(), pipelineConfig.SwapChain.WindowHandle, &swapChainDesc, &swapChainFSDesc, NULL, &swapChain);
+		hResult = m_DXGIFactory->CreateSwapChainForHwnd(m_CommandQueue.Get(), pipelineConfig.SwapChain.WindowHandle, &swapChainDesc, &swapChainFSDesc, NULL, &swapChain);
 		Assert(SUCCEEDED(hResult), "Failed to create the swap chain: \n(%s)", StrFromHResult(hResult));
 #endif
 
@@ -217,7 +217,7 @@ namespace Borealis::Graphics
 		// Init frame index
 		m_FrameIndex = m_SwapChain->GetCurrentBackBufferIndex(); 
 		
-		hResult = dxgiFactory->MakeWindowAssociation(pipelineConfig.SwapChain.WindowHandle, 0);
+		hResult = m_DXGIFactory->MakeWindowAssociation(pipelineConfig.SwapChain.WindowHandle, 0);
 		Assert(SUCCEEDED(hResult), "Failed to make the window association: \n(%s)", StrFromHResult(hResult));
 
 
