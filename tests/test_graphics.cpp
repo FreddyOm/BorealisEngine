@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
-#include "../src/core/graphics/graphics.h"
-#include "../src/core/window/window.h"
+#include <core/graphics/graphics.h>
+#include <core/window/window.h>
 
 using namespace Borealis::Graphics;
 
 #ifdef BOREALIS_WIN
 
-TEST(D3D12GraphicsTest, InitPipeline)
+TEST(D3D12GraphicsTest, InitAndDeinitPipeline)
 {
 	// Create window
 	Borealis::Core::Window testWindow = Borealis::Core::Window("Graphics Test Window");
