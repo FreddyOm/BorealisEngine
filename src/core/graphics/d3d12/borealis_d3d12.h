@@ -9,6 +9,7 @@
 #include <Windows.h>
 #include "DirectX-Headers/include/directx/d3dx12.h"
 #include <d3d12.h>
+#include "../helpers/helpers.h"
 #include <wrl.h>
 #include <vector>
 #include <dxgi1_6.h>
@@ -23,23 +24,25 @@
 #include <dxgidebug.h>
 #endif
 
-
-
 namespace Borealis::Graphics
 {
-	struct BOREALIS_API BorealisD3D12Renderer
+	struct BOREALIS_API BorealisD3D12Renderer : Helpers::IBorealisRenderer
 	{
-		BorealisD3D12Renderer(const PipelineDesc& pipelineConfig);
+		BorealisD3D12Renderer() = default;
 		~BorealisD3D12Renderer();
 
 		BorealisD3D12Renderer(const BorealisD3D12Renderer& other) = delete;
 		BorealisD3D12Renderer(BorealisD3D12Renderer&& other) noexcept = delete;
 		BorealisD3D12Renderer& operator=(const BorealisD3D12Renderer& other) = delete;
 		BorealisD3D12Renderer& operator=(BorealisD3D12Renderer&& other) noexcept = delete;
-	
+		
+		virtual Borealis::Types::int64 InitializePipeline(const PipelineDesc& pipelineConfig) override;
+		virtual Borealis::Types::int64 DeinitializePipeline() override;
+
 	private:
-		HRESULT InitializeD3D12Pipeline(const PipelineDesc& pipelineConfig);
-		HRESULT InitializeAssets();
+
+		Borealis::Types::int64 SetupPipeline(const PipelineDesc& pipelineConfig);
+		Borealis::Types::int64 SetupAssets();
 
 	protected:
 
@@ -59,6 +62,8 @@ namespace Borealis::Graphics
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 		Microsoft::WRL::ComPtr<ID3D12Debug> m_DebugController;
 		Microsoft::WRL::ComPtr<IDXGIDebug1> m_DXGIDebug;
+
+		bool m_isInitialized = false;
 #endif
 	};
 }

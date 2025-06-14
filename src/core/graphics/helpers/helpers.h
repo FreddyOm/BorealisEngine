@@ -1,22 +1,13 @@
 #pragma once
 #include "../../../config.h"
 #include "../../types/types.h"
-#include "../../types/string_id.h"
+#include "../pipeline_config.h"
 
 namespace Borealis::Graphics::Helpers
 {
-	struct BOREALIS_API IDevice
+	struct BOREALIS_API IBorealisRenderer
 	{
-			
-	};
-
-	struct BOREALIS_API IDeviceContext
-	{
-		
-
-	private:
-
-		Types::StringId desc{};
-
+		virtual Borealis::Types::int64 InitializePipeline(const PipelineDesc& pipelineConfig) = 0;
+		virtual Borealis::Types::int64 DeinitializePipeline() = 0;
 	};
 }

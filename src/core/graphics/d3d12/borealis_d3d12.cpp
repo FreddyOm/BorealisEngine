@@ -22,86 +22,72 @@ using namespace Microsoft::WRL;
 
 namespace Borealis::Graphics
 {
-	BorealisD3D12Renderer::BorealisD3D12Renderer(const PipelineDesc& pipelineConfig)
-	{
-		HRESULT hResult{};
-
-		hResult = InitializeD3D12Pipeline(pipelineConfig);
-		Assert(SUCCEEDED(hResult),
-			"Failed to initialize the D3D12 rendering pipeline: \n(%s)", StrFromHResult(hResult));
-
-		hResult = InitializeAssets();
-		Assert(SUCCEEDED(hResult),
-			"Failed to initialize the D3D12 assets: \n(%s)", StrFromHResult(hResult));
-
-	}
 
 	BorealisD3D12Renderer::~BorealisD3D12Renderer()
 	{
-		/*if (m_CommandAllocator)
-			m_CommandAllocator->Release();
+#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
+		Assert(!m_isInitialized, 
+			"Pipeline is not deinitialized! Make sure to call IBorealisRenderer::DeinitializePipeline() before destroying the renderer.");
+#endif
+	}
 
-		for (auto& rtv : m_RenderTargets)
-		{
-			if (rtv)
-				rtv->Release();
+	int64 BorealisD3D12Renderer::InitializePipeline(const PipelineDesc& pipelineConfig)
+	{
+		HRESULT hResult{};
 
-		}
+		hResult = SetupPipeline(pipelineConfig);
+		Assert(SUCCEEDED(hResult),
+			"Failed to setup the D3D12 rendering pipeline: \n(%s)", StrFromHResult(hResult));
 
-		if (m_RTVHeap)
-			m_RTVHeap->Release();
+		hResult = SetupAssets();
+		Assert(SUCCEEDED(hResult),
+			"Failed to setup the D3D12 assets: \n(%s)", StrFromHResult(hResult));
+		
+#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
+		m_isInitialized = true;
+#endif
+		return hResult;
+	}
 
-		if (m_SwapChain)
-			m_SwapChain->Release();
-
-		if (m_CommandQueue)
-			m_CommandQueue->Release();*/
-
-		/*if (m_DXGIFactory)
-			m_DXGIFactory->Release();
-
-		if (m_Device)
-			m_Device->Release();*/
-
+	int64 BorealisD3D12Renderer::DeinitializePipeline()
+	{
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
 		if (m_DXGIDebug)
 		{
-			// TODO: Why are there still refs to IDXGIFactory and ID3D12Device?
 			m_DXGIDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
-			//m_DXGIDebug->Release();
 		}
 
-		/*if (m_DebugController)
-			m_DebugController->Release();*/
+		m_isInitialized = false;
 #endif
+		return 0;
 	}
 
-	HRESULT BorealisD3D12Renderer::InitializeD3D12Pipeline(const PipelineDesc& pipelineConfig)
+	int64 BorealisD3D12Renderer::SetupPipeline(const PipelineDesc& pipelineConfig)
 	{
 		Assert(pipelineConfig.SwapChain.WindowHandle != 0,
 			"Invalid window handle! Make sure to create and initialize the window before initializing the pipeline!");
 
 		HRESULT hResult{};
-		
+
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
 		// Enable the debug layer.
 		hResult = D3D12GetDebugInterface(IID_PPV_ARGS(&m_DebugController));
-		if (SUCCEEDED(hResult)) 
+		if (SUCCEEDED(hResult))
 		{
 			m_DebugController->EnableDebugLayer();
 		}
-		else 
+		else
 		{
 			LogWarning("Could not enable debug layer in D3D12 backend: \n(%s)", StrFromHResult(hResult));
 		}
-			
+
 		hResult = DXGIGetDebugInterface1(0, IID_PPV_ARGS(&m_DXGIDebug));
 		Assert(SUCCEEDED(hResult), "Failed to query DXGI debug interface: \n%s", StrFromHResult(hResult));
 
 #endif
-		
+
 		// Create factory to define how objects are created
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 		hResult = CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, __uuidof(IDXGIFactory7), (void**)(m_DXGIFactory.GetAddressOf()));
@@ -121,7 +107,7 @@ namespace Borealis::Graphics
 		{
 			DXGI_ADAPTER_DESC3 desc;
 			hResult = hardwareAdapter->GetDesc3(&desc);
-			
+
 			if (FAILED(hResult))
 				continue;
 
@@ -185,10 +171,10 @@ namespace Borealis::Graphics
 			|| pipelineConfig.SwapChain.BufferFormat == DXGI_FORMAT_R8G8B8A8_UNORM
 			|| pipelineConfig.SwapChain.BufferFormat == DXGI_FORMAT_R10G10B10A2_UINT
 			: true, "For the current swap effect, swap chain buffer-format must be set to %i, %i, %i or %i. However it is set to %i instead!",
-			DXGI_FORMAT_R16G16B16A16_FLOAT, 
-			DXGI_FORMAT_B8G8R8A8_UNORM, 
-			DXGI_FORMAT_R8G8B8A8_UNORM, 
-			DXGI_FORMAT_R10G10B10A2_UINT, 
+			DXGI_FORMAT_R16G16B16A16_FLOAT,
+			DXGI_FORMAT_B8G8R8A8_UNORM,
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			DXGI_FORMAT_R10G10B10A2_UINT,
 			pipelineConfig.SwapChain.BufferFormat);
 
 		Assert((swapChainDesc.SwapEffect == DXGI_SWAP_EFFECT_FLIP_DISCARD || swapChainDesc.SwapEffect == DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL) ?
@@ -215,8 +201,8 @@ namespace Borealis::Graphics
 		Assert(SUCCEEDED(hResult), "Failed to cast swap chain: \n(%s)", StrFromHResult(hResult));
 
 		// Init frame index
-		m_FrameIndex = m_SwapChain->GetCurrentBackBufferIndex(); 
-		
+		m_FrameIndex = m_SwapChain->GetCurrentBackBufferIndex();
+
 		hResult = m_DXGIFactory->MakeWindowAssociation(pipelineConfig.SwapChain.WindowHandle, 0);
 		Assert(SUCCEEDED(hResult), "Failed to make the window association: \n(%s)", StrFromHResult(hResult));
 
@@ -234,7 +220,7 @@ namespace Borealis::Graphics
 
 			m_RTVDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		}
-		
+
 		// Create frame resources (a render target view for each frame).
 
 		{
@@ -260,7 +246,7 @@ namespace Borealis::Graphics
 		return 0;
 	}
 
-	HRESULT BorealisD3D12Renderer::InitializeAssets()
+	int64 BorealisD3D12Renderer::SetupAssets()
 	{
 		// Create an empty root signature.
 
@@ -286,6 +272,7 @@ namespace Borealis::Graphics
 
 		return 0;
 	}
+
 }
 
 #endif

@@ -1,5 +1,4 @@
 #pragma once
-#include "../../config.h"
 #include "types.h"
 #include "../debug/logger.h"
 
@@ -20,7 +19,7 @@ namespace Borealis::Types
 	/// </summary>
 	/// <param name="str">The native string to store.</param>
 	/// <returns>The string id.</returns>
-	StringId String(const char* str)
+	Types::StringId String(const char* str)
 	{
 		return InternString(str);
 	}

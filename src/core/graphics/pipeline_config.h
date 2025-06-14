@@ -3,7 +3,6 @@
 
 namespace Borealis::Graphics
 {
-
 #ifdef BOREALIS_WIN
 
 #include <d3d12.h>

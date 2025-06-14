@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include "../../borealis_engine.h"
+#include "../../config.h"
 
 namespace Borealis::Types
 {	
