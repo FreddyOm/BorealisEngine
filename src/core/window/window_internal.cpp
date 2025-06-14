@@ -3,6 +3,8 @@
 
 #ifdef BOREALIS_WIN
 
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include "Windows.h"
 
 #elif BOREALIS_LINUX

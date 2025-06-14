@@ -43,6 +43,11 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Ensure Windows 10 SDK 19041 is installed
+      run: |
+        choco install windows-sdk-10-version-19041-all -y
+        echo "Windows 10 SDK 19041 installation complete."
+
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
@@ -58,6 +63,7 @@ jobs:
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DCMAKE_SYSTEM_VERSION=10.0.19041.0
         -S ${{ github.workspace }}
 
     - name: Build
