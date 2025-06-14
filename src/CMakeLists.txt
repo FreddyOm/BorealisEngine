@@ -22,7 +22,7 @@ if(WIN32)
     add_compile_definitions(BOREALIS_BUILD_DLL)
 
     message("Building D3DX12...")
-    add_subdirectory(core/graphics/d3d12/DirectX-Headers)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core/graphics/d3d12/DirectX-Headers)
     include_directories(core/graphics/d3d12/DirectX-Headers/include)
 
 elseif(APPLE)
