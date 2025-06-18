@@ -1,14 +1,25 @@
 #pragma once
 #include "../../config.h"
+#include "../types/types.h"
 
 namespace Borealis::Graphics
 {
+
 #ifdef BOREALIS_WIN
 
-#include <d3d12.h>
 #include <dxgi1_6.h>
 #include <windef.h>
 
+	/// <summary>
+	/// Defines the used graphics backend.
+	/// </summary>
+	enum class BOREALIS_API GraphicsBackend
+	{
+		UNDEFINED = 0,
+		D3D11 = 1,
+		D3D12 = 2,
+		VULKAN = 3
+	};
 
 	struct BOREALIS_API SwapChainConfig
 	{
@@ -56,5 +67,4 @@ namespace Borealis::Graphics
 	};
 
 #endif
-
 }
