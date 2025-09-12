@@ -1,19 +1,27 @@
 #include "EditorWindow.h"
-#include <CCEngine.h>
+#include "imgui/imgui.h"
 
-// @TODO: Check if the update can be called collectively by using an event
 
-void EditorWindow::UpdateDrawable(ImFont* font = inter_light)
+namespace Borealis::Runtime::Debug
 {
-	if (initialized)
+	void EditorWindow::UpdateDrawable(ImFont* font = inter_light)
 	{
-		if (isOpen) 
+		if (initialized)
 		{
-			ImGui::PushFont(font);
-			ImGui::Begin(windowName.Value(), &isOpen, ImGuiWindowFlags_NoCollapse);
-			OnGui();
-			ImGui::End();
-			ImGui::PopFont();
-		}		
+			if (isOpen)
+			{
+				ImGui::PushFont(font);
+				ImGui::Begin(windowName.c_str(), &isOpen, ImGuiWindowFlags_NoCollapse);
+				OnGui();
+				ImGui::End();
+				ImGui::PopFont();
+			}
+		}
 	}
+
+	void EditorWindow::OnGui()
+	{
+		ImGui::Text("Test Text");
+	}
+
 }

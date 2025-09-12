@@ -13,10 +13,8 @@ namespace Borealis::Graphics
 #endif
     }
 
-    Borealis::Types::int64 BorealisD3D11Renderer::InitializePipeline(const PipelineDesc& pipelineConfig)
+    Borealis::Types::int64 BorealisD3D11Renderer::InitializePipeline()
     {
-        m_PipelineConfiguration = pipelineConfig;
-
         return 0;
     }
 
@@ -37,11 +35,6 @@ namespace Borealis::Graphics
     ID3D11Device* const BorealisD3D11Renderer::GetDevice() const
     {
         return m_Device.Get();
-    }
-    
-    const PipelineDesc& const BorealisD3D11Renderer::GetPipelineDesc() const
-    {
-        return m_PipelineConfiguration;
     }
 }
 

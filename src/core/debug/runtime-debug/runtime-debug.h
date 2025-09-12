@@ -1,65 +1,78 @@
 #pragma once
 #include "../../../config.h"
+#include "../../graphics/pipeline_config.h"
+#include "debug_category_button.h"
+#include "IGUIDrawable.h"
+
+#include <vector>
 
 #define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
-#include "imgui/imgui.h"
-#include <vector>
-
 namespace Borealis::Runtime::Debug
 {
-	struct IGUIDrawable
+	struct RuntimeDebugger : private IGUIDrawable
 	{
-	public:
-		IGUIDrawable(bool isOpen = false)
-			: isOpen(isOpen)
-		{
-			if (!initialized)
+		RuntimeDebugger(Graphics::PipelineDesc* const pPipelineDesc)
+			: pPipelineDesc(pPipelineDesc), IGUIDrawable(pPipelineDesc, true)
+		{ 
+			/*categoryButtons =
 			{
-				initialized = true;
-				InitializeGUI();
-			}
+				DebugCategoryButton(ImVec2(40,40), GetGUIDrawablePtrs(), ICON_FK_VIDEO_CAMERA),
+				DebugCategoryButton(ImVec2(40,40), GetGUIDrawablePtrs(), ICON_FK_CHECK_CIRCLE_O),
+				DebugCategoryButton(ImVec2(40,40), GetGUIDrawablePtrs(), ICON_FK_KEYBOARD_O),
+				DebugCategoryButton(ImVec2(40,40), GetGUIDrawablePtrs(), ICON_FK_TASKS),
+			};*/
 
-			guiDrawables.emplace_back(this);
+			//// Add more individual metrics here (e.g. GPU time, vertex count, mesh count, ...)
+			//debugLabels =
+			//{
+			//	new RuntimePauseLabel("Runtime Pause Label", inter_bold, ImVec2(labelHeight, labelHeight)),
+			//	new FrameTimeDebugInfoLabel("Game Update Time", inter_bold, ImVec2(130, labelHeight)),
+			//	new ImGuiDebugInfoLabel("ImGui Update Time", inter_bold, pImgui_process_time_ms, ImVec2(115, labelHeight)),
+			//	new PhysicsTimeDebugInfoLabel("Physics Update Time", inter_bold, ImVec2(115, labelHeight)),
+			//	new ConsoleDebugInfoLabel("Console Info", inter_bold, GetGUIDrawablePtrs(), ImVec2(130, labelHeight)),
+
+			//	// The filter is always the last one
+			//	new DebugLabelFilter("Filter", inter_bold, &labels, ImVec2(20, labelHeight)),
+			//};
+
+			InitializeGUI();
 		}
-
-		~IGUIDrawable()
+		
+		~RuntimeDebugger()
 		{
-			UnInitializeGUI();
+			UninitializeGUI();
+
+			/*for (auto* label : debugLabels)
+			{
+				delete label;
+			}*/
 		}
 
-		/// <summary>
-		/// Method called when updating the editor window.
-		/// </summary>
-		virtual void OnGui() = 0;
-
-		/// <summary>
-		/// Method that specifies how the OnGui is called.
-		/// </summary>
-		virtual void UpdateDrawable(ImFont* font = inter_bold) = 0;
-
-		static void PreGUIUpdate();
-		static void PostGUIUpdate();
-		static std::vector<IGUIDrawable*>* GetGUIDrawablePtrs();
-
-		void ToggleWindow();
-		bool IsOpen();
-
-	private:
-		void UnInitializeGUI() const;
+	public:
 		void InitializeGUI();
+		void UninitializeGUI();
 
-	protected:
-		bool isOpen = false;
-		static bool initialized;
-
-		static ImFont* inter_light;
-		static ImFont* inter_bold;
+		void UpdateDrawable(ImFont* font) override;
 
 	private:
-		static std::vector<IGUIDrawable*> guiDrawables;
+		void OnGui();
+		void DrawCategoryButtons();
+		void DrawDebugInfoLabels();
+		
+	private:
+		bool initialized = false;
+		Graphics::PipelineDesc* const pPipelineDesc = nullptr;
+
+		ImGuiWindowFlags flags = ImGuiWindowFlags_NoResize
+			| ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove;
+
+		//std::vector<DebugCategoryButton> categoryButtons = { };
+		//std::vector<DebugInfoLabel*> debugLabels = { };
+
+		float labelHeight = 18.f;
 		static ImDrawData* p_drawData;
 	};
 }

@@ -1,15 +1,11 @@
 #pragma once
 #include "../../../config.h"
+#include "../../types/string_id.h"
 #include "IGUIDrawable.h"
-#include <string>
-
-
-struct ImFont;
 
 namespace Borealis::Runtime::Debug
 {
-	
-	class EditorWindow : protected IGUIDrawable
+	/*class RuntimeDebugWindow : protected IGUIDrawable
 	{
 	public:
 
@@ -17,25 +13,22 @@ namespace Borealis::Runtime::Debug
 		/// Constructor of the editor window.
 		/// </summary>
 		/// <param name="windowName">The name of the window.</param>
-		EditorWindow(std::string winName) :
+		RuntimeDebugWindow(Types::StringId winName) :
 			windowName(winName)
 		{ }
 
 		/// <summary>
 		/// The destructor of the editor window.
 		/// </summary>
-		~EditorWindow()
-		{
-		}
+		~RuntimeDebugWindow()
+		{ }
 
 		void UpdateDrawable(ImFont* font) override;
 
 	protected:
-		std::string windowName = "";
+		Types::StringId windowName = Types::String("");
 
-
-		// Inherited via IGUIDrawable
-		void OnGui() override;
-
-	};
+	};*/
 }
+
+

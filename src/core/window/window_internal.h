@@ -14,5 +14,5 @@ namespace Borealis::Core
 	
 	Types::uint8 GetWindowWidthInternal();
 	Types::uint8 GetWindowHeightInternal();
-	Types::int64 GetWindowHandleInternal();
+	Types::uint64 GetWindowHandleInternal();
 }

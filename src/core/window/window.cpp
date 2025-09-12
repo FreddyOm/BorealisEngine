@@ -40,7 +40,7 @@ namespace Borealis::Core
 		return GetWindowHeightInternal();
 	}
 
-	Types::int64 Window::GetWindowHandle() const
+	Types::uint64 Window::GetWindowHandle() const
 	{
 		return GetWindowHandleInternal();
 	}

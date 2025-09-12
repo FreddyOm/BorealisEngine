@@ -20,11 +20,6 @@ if(WIN32)
     message("Configuring engine lib for Windows platform")
     add_compile_definitions(BOREALIS_WIN)
     add_compile_definitions(BOREALIS_BUILD_DLL)
-
-    message("Building D3DX12...")
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core/graphics/d3d12/DirectX-Headers)
-    include_directories(core/graphics/d3d12/DirectX-Headers/include)
-
 elseif(APPLE)
     message("Configuring engine lib for MacOS platform")
     add_compile_definitions(BOREALIS_OSX)
@@ -57,7 +52,7 @@ set(SOURCES
     core/window/window_internal.cpp
     core/debug/logger.cpp
     core/debug/logger_internal.cpp
-    core/debug/runtime-debug/runtime-debug.cpp
+    #core/debug/runtime-debug/runtime-debug.cpp
     core/debug/runtime-debug/imgui/imgui.cpp
     core/debug/runtime-debug/imgui/imgui_demo.cpp
     core/debug/runtime-debug/imgui/imgui_draw.cpp
@@ -90,7 +85,7 @@ set(HEADERS
     core/window/window_internal.h
     core/debug/logger.h
     core/debug/logger_internal.h
-    core/debug/runtime-debug/runtime-debug.h
+    #core/debug/runtime-debug/runtime-debug.h
     core/debug/runtime-debug/imgui/imconfig.h
     core/debug/runtime-debug/imgui/imgui.h
     core/debug/runtime-debug/imgui/imgui_impl_dx11.h

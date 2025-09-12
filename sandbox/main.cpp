@@ -12,15 +12,25 @@ int main()
 		Window sandboxWindow = Window("Borealis Sandbox");
 		sandboxWindow.OpenWindow();
 
-		PipelineDesc config{};
-		config.SwapChain.WindowHandle = reinterpret_cast<HWND>(sandboxWindow.GetWindowHandle());
+		PipelineDesc desc{};
+		desc.SwapChain.WindowHandle = sandboxWindow.GetWindowHandle();
 
-		BorealisD3D12Renderer renderer = BorealisD3D12Renderer();
-		renderer.InitializePipeline(config);
+		BorealisD3D12Renderer renderer = BorealisD3D12Renderer(desc);
+		renderer.InitializePipeline();
 
+#if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
+		//Runtime::RuntimeDebugger runtimeDebugger = Runtime::RuntimeDebugger(dynamic_cast<Helpers::IBorealisRenderer& const>(renderer));
+#endif
+
+		
 		while (sandboxWindow.IsRunning())
 		{
 			sandboxWindow.UpdateWindow();
+
+#if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
+			//runtimeDebugger.Update();
+#endif
+			
 		}
 
 		renderer.DeinitializePipeline();

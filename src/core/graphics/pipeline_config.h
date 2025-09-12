@@ -4,14 +4,20 @@
 
 namespace Borealis::Graphics
 {
-
 #ifdef BOREALIS_WIN
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <Windows.h>
 #include <dxgi1_6.h>
-#include <windef.h>
+#include <d3dcommon.h>
 
 	/// <summary>
-	/// Defines the used graphics backend.
+	/// Defines the possible graphics backends used with this pipeline.
 	/// </summary>
 	enum class BOREALIS_API GraphicsBackend
 	{
@@ -21,6 +27,9 @@ namespace Borealis::Graphics
 		VULKAN = 3
 	};
 
+	/// <summary>
+	/// Defines some higher-level options for configuring the rendering pipelines swapchain.
+	/// </summary>
 	struct BOREALIS_API SwapChainConfig
 	{
 		// Refresh rate
@@ -41,7 +50,7 @@ namespace Borealis::Graphics
 		DXGI_ALPHA_MODE AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 			
 		// Window
-		HWND WindowHandle = 0;
+		Types::uint64 WindowHandle = 0;
 		bool Windowed = true;
 
 		// Scaling
@@ -49,11 +58,14 @@ namespace Borealis::Graphics
 		DXGI_MODE_SCANLINE_ORDER ScaleOrdering = DXGI_MODE_SCANLINE_ORDER_PROGRESSIVE;
 	};
 
+	/// <summary>
+	/// Defines some higher-level configuration for the rendering pipeline.
+	/// </summary>
 	struct BOREALIS_API PipelineDesc
 	{
 		D3D_FEATURE_LEVEL MinimumFeatureLevel = D3D_FEATURE_LEVEL_11_0;
 		D3D_FEATURE_LEVEL TargetFeatureLevel = D3D_FEATURE_LEVEL_12_2;
-
+		
 		SwapChainConfig SwapChain;
 	};
 

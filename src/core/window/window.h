@@ -30,7 +30,7 @@ namespace Borealis::Core
 			Types::uint8 GetWindowWidth() const;
 			Types::uint8 GetWindowHeight() const;
 
-			Types::int64 GetWindowHandle() const;
+			Types::uint64 GetWindowHandle() const;
 
 		private:
 			

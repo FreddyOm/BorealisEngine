@@ -162,9 +162,9 @@ namespace Borealis::Core
 		}
 	}
 
-	Types::int64 GetWindowHandleInternal()
+	Types::uint64 GetWindowHandleInternal()
 	{
-		return reinterpret_cast<Types::int64>(windowHandle);
+		return reinterpret_cast<Types::uint64>(windowHandle);
 	}
 
 #elif BOREALIS_LINUX
@@ -259,9 +259,9 @@ namespace Borealis::Core
 		//}
 	}
 
-	Types::int64 GetWindowHandleInternal()
+	Types::uint64 GetWindowHandleInternal()
 	{
-		return -1;
+		return 0;
 	}
 	
 #elif BOREALIS_OSX

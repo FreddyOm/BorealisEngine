@@ -4,16 +4,22 @@
 
 #if defined(BOREALIS_WIN)
 
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
+
 #include <Windows.h>
-#include "DirectX-Headers/include/directx/d3dx12.h"
-#include "../helpers/helpers.h"
+#include <dxgi1_6.h>
 #include <d3d12.h>
+//#include "DirectX-Headers/include/directx/d3dx12.h"
+#include "../helpers/helpers.h"
+#include <dxgiformat.h>
+//#include <d3dcommon.h>
 #include <wrl.h>
 #include <vector>
-#include <dxgi1_6.h>
-#include <dxgiformat.h>
 #include "../pipeline_config.h"
 
 
@@ -25,10 +31,10 @@
 
 namespace Borealis::Graphics
 {
-	struct BOREALIS_API BorealisD3D12Renderer : protected Helpers::IBorealisRenderer
+	struct BOREALIS_API BorealisD3D12Renderer : public Helpers::IBorealisRenderer
 	{
-		BorealisD3D12Renderer()
-			: IBorealisRenderer(GraphicsBackend::D3D12)
+		BorealisD3D12Renderer(PipelineDesc& pipelineDesc)
+			: IBorealisRenderer(GraphicsBackend::D3D12, pipelineDesc)
 		{ }
 		~BorealisD3D12Renderer();
 
@@ -37,12 +43,12 @@ namespace Borealis::Graphics
 		BorealisD3D12Renderer& operator=(const BorealisD3D12Renderer& other) = delete;
 		BorealisD3D12Renderer& operator=(BorealisD3D12Renderer&& other) noexcept = delete;
 		
-		Borealis::Types::int64 InitializePipeline(const PipelineDesc& pipelineConfig) override;
+		Borealis::Types::int64 InitializePipeline() override;
 		Borealis::Types::int64 DeinitializePipeline() override;
-		const PipelineDesc& const GetPipelineDesc() const override;
 
 		ID3D12Device* const GetDevice() const;
 		ID3D12CommandQueue* const GetCommandQueue() const;
+		ID3D12GraphicsCommandList* const GetCommandList() const;
 		IDXGISwapChain4* const GetSwapChain() const;
 
 	private:
@@ -76,10 +82,6 @@ namespace Borealis::Graphics
 		
 		bool m_isInitialized = false;
 #endif
-
-	private:
-		
-		PipelineDesc m_PipelineConfiguration{};
 	};
 }
 

@@ -1,3 +1,5 @@
+#pragma once
+
 #ifdef BOREALIS_BUILD_DLL
 	#if defined(_WIN32) || defined(_WIN64)
 		#define BOREALIS_API __declspec(dllexport)

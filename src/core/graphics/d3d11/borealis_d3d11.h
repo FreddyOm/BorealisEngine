@@ -4,9 +4,15 @@
 
 #if defined(BOREALIS_WIN)
 
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 
+#include <Windows.h>
+#include <dxgi1_6.h>
 #include <d3d11.h>
 #include <wrl.h>
 #include "../helpers/helpers.h"
@@ -21,8 +27,8 @@ namespace Borealis::Graphics
 {
 	struct BOREALIS_API BorealisD3D11Renderer : protected Helpers::IBorealisRenderer
 	{
-		BorealisD3D11Renderer()
-			: IBorealisRenderer(GraphicsBackend::D3D11)
+		BorealisD3D11Renderer(PipelineDesc& const pipelineDesc)
+			: IBorealisRenderer(GraphicsBackend::D3D11, pipelineDesc)
 		{ }
 		~BorealisD3D11Renderer();
 
@@ -32,9 +38,8 @@ namespace Borealis::Graphics
 		BorealisD3D11Renderer& operator=(BorealisD3D11Renderer&& other) noexcept = delete;
 
 
-		Borealis::Types::int64 InitializePipeline(const PipelineDesc& pipelineConfig) override;
+		Borealis::Types::int64 InitializePipeline() override;
 		Borealis::Types::int64 DeinitializePipeline() override;
-		const PipelineDesc& const GetPipelineDesc() const override;
 
 		ID3D11Device* const GetDevice() const;
 		IDXGISwapChain4* const GetSwapChain() const;
@@ -54,11 +59,6 @@ namespace Borealis::Graphics
 
 		bool m_isInitialized = false;
 #endif
-
-	private:
-
-		PipelineDesc m_PipelineConfiguration{};
-
 	};
 }
 

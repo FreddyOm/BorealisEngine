@@ -28,6 +28,11 @@ namespace Borealis::Types
 
 		return sid;
 	}
+
+	Types::StringId String(const char* str)
+	{
+		return InternString(str);
+	}
 }
 
 #endif

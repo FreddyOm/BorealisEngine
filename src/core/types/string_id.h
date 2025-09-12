@@ -12,17 +12,15 @@ namespace Borealis::Types
 	typedef uint64Ptr StringId;
 
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
-	BOREALIS_API extern StringId InternString(const char* str);
 
 	/// <summary>
 	/// Evaluates to a hash value and stores the native string internally.
 	/// </summary>
 	/// <param name="str">The native string to store.</param>
 	/// <returns>The string id.</returns>
-	Types::StringId String(const char* str)
-	{
-		return InternString(str);
-	}
+	BOREALIS_API extern StringId String(const char* str);
+
+	// TODO: Add macro that reads string value from StringId in debug configs
 
 #else
 
