@@ -1,21 +1,13 @@
 #include "borealis_d3d12.h"
 #include "../../debug/logger.h"
 #include "../../memory/memory.h"
-#include "../../debug/runtime-debug/EditorWindow.h"
+//#include "../../debug/runtime-debug/EditorWindow.h"
 
 using namespace Borealis::Types;
 
 #if defined(BOREALIS_WIN)	// D3D12 only available for Windows OS
-#include "../helpers/d3d12_helpers.h"
-#include <dxgiformat.h>
-
 
 using namespace Microsoft::WRL;
-
-#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
-#include <d3d12sdklayers.h>	// Debug Layer
-#include <dxgidebug.h>
-#endif
 
 namespace Borealis::Graphics
 {

@@ -4,24 +4,8 @@
 
 #if defined(BOREALIS_WIN)
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-
-#include <Windows.h>
-#include <dxgi1_6.h>
-#include <d3d11.h>
-#include <wrl.h>
+#include "d3d11_common.h"
 #include "../helpers/helpers.h"
-
-#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
-#define D3DCOMPILE_DEBUG 1
-#include <d3d11sdklayers.h>	// Debug Layer
-#include <dxgidebug.h>
-#endif
 
 namespace Borealis::Graphics
 {

@@ -6,15 +6,7 @@ namespace Borealis::Graphics
 {
 #ifdef BOREALIS_WIN
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#include <Windows.h>
-#include <dxgi1_6.h>
-#include <d3dcommon.h>
+#include "d3d12/d3d12_common.h"
 
 	/// <summary>
 	/// Defines the possible graphics backends used with this pipeline.

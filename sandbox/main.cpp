@@ -30,6 +30,7 @@ int main()
 #if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
 			//runtimeDebugger.Update();
 #endif
+
 			
 		}
 

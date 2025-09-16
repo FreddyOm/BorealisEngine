@@ -107,7 +107,9 @@ set(HEADERS
     core/graphics/graphics.h
     core/graphics/pipeline_config.h
     core/graphics/d3d11/borealis_d3d11.h
+    core/graphics/d3d11/d3d11_common.h
     core/graphics/d3d12/borealis_d3d12.h
+    core/graphics/d3d12/d3d12_common.h
     core/graphics/vulkan/borealis_vulkan.h
     core/graphics/helpers/helpers.h
     core/graphics/helpers/d3d12_helpers.h
@@ -116,7 +118,7 @@ set(HEADERS
 
 # Create library
 if(WIN_32)
-add_library(BorealisEngineLib SHARED ${SOURCES} ${HEADERS} ${CMAKE_CURRENT_SOURCE_DIR}/core/graphics/d3d12/DirectX-Headers/include)
+add_library(BorealisEngineLib SHARED ${SOURCES} ${HEADERS}) #${CMAKE_CURRENT_SOURCE_DIR}/core/graphics/d3d12/DirectX-Headers/include)
 else()
 add_library(BorealisEngineLib SHARED ${SOURCES} ${HEADERS})
 endif(WIN_32)

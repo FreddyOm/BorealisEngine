@@ -3,31 +3,9 @@
 #include "../../types/types.h"
 
 #if defined(BOREALIS_WIN)
-
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-
-#include <Windows.h>
-#include <dxgi1_6.h>
-#include <d3d12.h>
-//#include "DirectX-Headers/include/directx/d3dx12.h"
-#include "../helpers/helpers.h"
-#include <dxgiformat.h>
-//#include <d3dcommon.h>
-#include <wrl.h>
+#include "d3d12_common.h"
 #include <vector>
 #include "../pipeline_config.h"
-
-
-#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
-#define D3DCOMPILE_DEBUG 1
-#include <d3d12sdklayers.h>	// Debug Layer
-#include <dxgidebug.h>
-#endif
 
 namespace Borealis::Graphics
 {
