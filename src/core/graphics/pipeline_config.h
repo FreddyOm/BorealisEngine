@@ -2,16 +2,20 @@
 #include "../../config.h"
 #include "../types/types.h"
 
+#ifdef BOREALIS_WIN
+#include <d3d12.h>
+#include <dxgi1_6.h>
+#endif
+
+
 namespace Borealis::Graphics
 {
 #ifdef BOREALIS_WIN
 
-#include "d3d12/d3d12_common.h"
-
 	/// <summary>
 	/// Defines the possible graphics backends used with this pipeline.
 	/// </summary>
-	enum class BOREALIS_API GraphicsBackend
+	enum BOREALIS_API GraphicsBackend
 	{
 		UNDEFINED = 0,
 		D3D11 = 1,
@@ -25,16 +29,16 @@ namespace Borealis::Graphics
 	struct BOREALIS_API SwapChainConfig
 	{
 		// Refresh rate
-		Types::uint8 TargetRefreshRate = 0;
+		Borealis::Types::uint8 TargetRefreshRate = 0;
 
 		// Buffers
-		Types::uint8 BufferCount = 2;
+		Borealis::Types::uint8 BufferCount = 2;
 
-		Types::uint8 SampleCount = 1;
-		Types::uint8 SampleQuality = 0;
+		Borealis::Types::uint8 SampleCount = 1;
+		Borealis::Types::uint8 SampleQuality = 0;
 		
-		Types::uint16 BufferWidth = 100;
-		Types::uint16 BufferHeight = 100;
+		Borealis::Types::uint16 BufferWidth = 100;
+		Borealis::Types::uint16 BufferHeight = 100;
 
 		DXGI_FORMAT BufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 		DXGI_USAGE BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -42,7 +46,7 @@ namespace Borealis::Graphics
 		DXGI_ALPHA_MODE AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 			
 		// Window
-		Types::uint64 WindowHandle = 0;
+		Borealis::Types::uint64 WindowHandle = 0;
 		bool Windowed = true;
 
 		// Scaling
