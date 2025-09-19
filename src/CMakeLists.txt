@@ -52,7 +52,8 @@ set(SOURCES
     core/window/window_internal.cpp
     core/debug/logger.cpp
     core/debug/logger_internal.cpp
-    #core/debug/runtime-debug/runtime-debug.cpp
+    core/debug/runtime-debug/runtime-debug.cpp
+    core/debug/runtime-debug/IGUIDrawable.cpp
     core/debug/runtime-debug/imgui/imgui.cpp
     core/debug/runtime-debug/imgui/imgui_demo.cpp
     core/debug/runtime-debug/imgui/imgui_draw.cpp
@@ -85,7 +86,8 @@ set(HEADERS
     core/window/window_internal.h
     core/debug/logger.h
     core/debug/logger_internal.h
-    #core/debug/runtime-debug/runtime-debug.h
+    core/debug/runtime-debug/runtime-debug.h
+    core/debug/runtime-debug/IGUIDrawable.h
     core/debug/runtime-debug/imgui/imconfig.h
     core/debug/runtime-debug/imgui/imgui.h
     core/debug/runtime-debug/imgui/imgui_impl_dx11.h

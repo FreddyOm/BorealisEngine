@@ -1,9 +1,11 @@
 #pragma once
 #include "../../../config.h"
 #include "../../graphics/pipeline_config.h"
-#include "debug_category_button.h"
+//#include "debug_category_button.h"
 #include "IGUIDrawable.h"
+#include "../../graphics/helpers/helpers.h"
 
+#include "imgui/imgui.h"
 #include <vector>
 
 #define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
@@ -12,10 +14,11 @@
 
 namespace Borealis::Runtime::Debug
 {
-	struct RuntimeDebugger : private IGUIDrawable
+
+	struct BOREALIS_API RuntimeDebugger : protected IGUIDrawable
 	{
-		RuntimeDebugger(Graphics::PipelineDesc* const pPipelineDesc)
-			: pPipelineDesc(pPipelineDesc), IGUIDrawable(pPipelineDesc, true)
+		RuntimeDebugger(Graphics::Helpers::IBorealisRenderer& const renderer)
+			: m_Renderer(renderer), IGUIDrawable(true)
 		{ 
 			/*categoryButtons =
 			{
@@ -64,10 +67,11 @@ namespace Borealis::Runtime::Debug
 		
 	private:
 		bool initialized = false;
-		Graphics::PipelineDesc* const pPipelineDesc = nullptr;
+		//Borealis::Graphics::PipelineDesc* const pPipelineDesc = nullptr;
 
-		ImGuiWindowFlags flags = ImGuiWindowFlags_NoResize
-			| ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove;
+		Borealis::Graphics::Helpers::IBorealisRenderer& m_Renderer;
+
+		ImGuiWindowFlags flags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove;
 
 		//std::vector<DebugCategoryButton> categoryButtons = { };
 		//std::vector<DebugInfoLabel*> debugLabels = { };

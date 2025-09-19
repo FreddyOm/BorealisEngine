@@ -1,8 +1,10 @@
 #include <core/window/window.h>
 #include <core/graphics/graphics.h>
+#include <core/debug/runtime-debug/runtime-debug.h>
 
 using namespace Borealis::Core;
 using namespace Borealis::Graphics;
+using namespace Borealis::Runtime::Debug;
 
 int main()
 {
@@ -19,7 +21,9 @@ int main()
 		renderer.InitializePipeline();
 
 #if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
-		//Runtime::RuntimeDebugger runtimeDebugger = Runtime::RuntimeDebugger(dynamic_cast<Helpers::IBorealisRenderer& const>(renderer));
+
+		Helpers::IBorealisRenderer& const baseRend = dynamic_cast<Helpers::IBorealisRenderer& const>(renderer);
+		RuntimeDebugger runtimeDebugger = RuntimeDebugger(baseRend);
 #endif
 
 		
@@ -33,6 +37,10 @@ int main()
 
 			
 		}
+
+#if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
+		runtimeDebugger.UninitializeGUI();
+#endif
 
 		renderer.DeinitializePipeline();
 	}

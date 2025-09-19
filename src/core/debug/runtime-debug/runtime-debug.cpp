@@ -3,6 +3,7 @@
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
 #include "../logger.h"
+#include "imgui/imgui.h"
 
 #ifdef BOREALIS_WIN
 
@@ -15,6 +16,7 @@
 //#include "imgui/imgui_impl_vulkan.h"
 
 #include "../../graphics/helpers/helpers.h"
+#include "../../graphics/pipeline_config.h"
 #else
 
 //#include "imgui/imgui_impl_vulkan.h"
@@ -37,7 +39,7 @@ namespace Borealis::Runtime::Debug
 			initialized = false;
 
 			ImGui_ImplDX12_Shutdown();
-			ImGui_ImplDX11_Shutdown();
+			//ImGui_ImplDX11_Shutdown();
 			ImGui_ImplWin32_Shutdown();
 
 			//guiDrawables.clear();
@@ -58,19 +60,15 @@ namespace Borealis::Runtime::Debug
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
 		//lexend_light = io.Fonts->AddFontFromFileTTF("./resources/fonts/Lexend-Light.ttf", 14);
-		inter_light = io.Fonts->AddFontFromFileTTF("./resources/fonts/Inter-Light.ttf", 14);
+		
+		inter_bold = io.Fonts->AddFontFromFileTTF("D:/02_Repositories/BorealisEngine/out/build/x64-Debug/sandbox/resources/fonts/Inter-Bold.ttf", 14.0f);
+		inter_light = io.Fonts->AddFontFromFileTTF("D:/02_Repositories/BorealisEngine/out/build/x64-Debug/sandbox/resources/fonts/Inter-Light.ttf", 14.0f);
 
 		ImFontConfig config;
 		config.MergeMode = true;
 		config.GlyphMinAdvanceX = 14.0f; // Use if you want to make the icon monospaced
 		static const ImWchar icon_ranges[] = { 0xf000, 0xf372, 0 };
-		io.Fonts->AddFontFromFileTTF("./resources/fonts/IconFont.ttf", 14.0f, &config, icon_ranges);
-
-		config.MergeMode = false;
-		inter_bold = io.Fonts->AddFontFromFileTTF("./resources/fonts/Inter-Bold.ttf", 11);
-
-		config.MergeMode = true;
-		io.Fonts->AddFontFromFileTTF("./resources/fonts/IconFont.ttf", 14.0f, &config, icon_ranges);
+		io.Fonts->AddFontFromFileTTF("D:/02_Repositories/BorealisEngine/out/build/x64-Debug/sandbox/resources/fonts/IconFont.ttf", 14.0f, &config, icon_ranges);
 
 		io.Fonts->Build();
 
@@ -90,16 +88,14 @@ namespace Borealis::Runtime::Debug
 
 		// TODO: Make sure the correct graphics backend is used
 
-		Assert(pPipelineDesc->GraphicsBackend == GraphicsBackend::UNDEFINED,
+		Assert(m_Renderer.m_GraphicsBackend != GraphicsBackend::UNDEFINED,
 			"Cannot initialize Dear Imgui for undefined graphics backend!");
 
-		Assert(ImGui_ImplWin32_Init(GetActiveWindow()), "Failed to initialize the runtime debugger GUI with Win32.");
+		Assert(ImGui_ImplWin32_Init(reinterpret_cast<void*>(m_Renderer.m_PipelineDesc.SwapChain.WindowHandle)), 
+			"Failed to initialize the runtime debugger GUI with Win32.");
 		// For now, fall-through because windows impl is always reliant on win32
 		
-
-		IBorealisRenderer* renderer = (IBorealisRenderer*) new BorealisD3D12Renderer();	// TODO: Temp solution for fixing compiler errors
-
-		switch (pPipelineDesc->GraphicsBackend)
+		switch (m_Renderer.m_GraphicsBackend)
 		{
 			case GraphicsBackend::D3D11:
 			{
@@ -109,15 +105,13 @@ namespace Borealis::Runtime::Debug
 			}
 			case GraphicsBackend::D3D12:
 			{
-				BorealisD3D12Renderer* const pD3D12Renderer = dynamic_cast<BorealisD3D12Renderer* const>(renderer);
+				BorealisD3D12Renderer* const pD3D12Renderer = dynamic_cast<BorealisD3D12Renderer* const>(&m_Renderer);
 				Assert(pD3D12Renderer != nullptr, "Failed to cast generic IBorealisRenderer to BorealisD3D12Renderer renderer!");
-				
-				Assert(ImGui_ImplWin32_Init(pD3D12Renderer->GetPipelineDesc().SwapChain.WindowHandle), "Failed to initialize the runtime debugger GUI with Win32.");
 
 				ImGui_ImplDX12_InitInfo d3d12InitInfo{};
 				d3d12InitInfo.Device = pD3D12Renderer->GetDevice();
 				d3d12InitInfo.CommandQueue = pD3D12Renderer->GetCommandQueue();
-				d3d12InitInfo.NumFramesInFlight = 0;	// TODO: Fix me!
+				d3d12InitInfo.NumFramesInFlight = 2;	// TODO: Fix me!
 				//d3d12InitInfo.SrvDescriptorAllocFn = ;
 				//d3d12InitInfo.SrvDescriptorFreeFn = ;
 				//d3d12InitInfo.SrvDescriptorHeap = ;
@@ -164,15 +158,15 @@ namespace Borealis::Runtime::Debug
 	{
 		Assert(initialized, "Cannot draw GUI when not initialized.");
 
-		static GraphicsBackend graphicsBackend = pPipelineDesc->GraphicsBackend;
+		static Graphics::GraphicsBackend graphicsBackend = m_Renderer.m_GraphicsBackend;
 		//static BorealisD3D12Renderer* pRenderer = dynamic_cast renderer;
 
 		switch (graphicsBackend)
 		{
-		case GraphicsBackend::D3D11:
+		case D3D11:
 			ImGui_ImplDX11_NewFrame();
 			break;
-		case GraphicsBackend::D3D12:
+		case D3D12:
 			ImGui_ImplDX12_NewFrame();
 			break;
 		default:
@@ -191,10 +185,10 @@ namespace Borealis::Runtime::Debug
 
 		switch (graphicsBackend)
 		{
-		case GraphicsBackend::D3D11:
+		case D3D11:
 			ImGui_ImplDX11_RenderDrawData(p_drawData);
 			break;
-		case GraphicsBackend::D3D12:
+		case D3D12:
 			//ImGui_ImplDX12_RenderDrawData(p_drawData, );
 			break;
 		}

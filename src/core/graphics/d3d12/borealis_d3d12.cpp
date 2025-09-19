@@ -80,7 +80,7 @@ namespace Borealis::Graphics
 
 	int64 BorealisD3D12Renderer::SetupPipeline()
 	{
-		Assert(PipelineDescription.SwapChain.WindowHandle != 0,
+		Assert(m_PipelineDesc.SwapChain.WindowHandle != 0,
 			"Invalid window handle! Make sure to create and initialize the window before initializing the pipeline!");
 
 		HRESULT hResult{};
@@ -133,7 +133,7 @@ namespace Borealis::Graphics
 			}
 
 			// Create device
-			hResult = D3D12CreateDevice(hardwareAdapter.Get(), PipelineDescription.MinimumFeatureLevel, IID_PPV_ARGS(&m_Device));
+			hResult = D3D12CreateDevice(hardwareAdapter.Get(), m_PipelineDesc.MinimumFeatureLevel, IID_PPV_ARGS(&m_Device));
 			Assert(SUCCEEDED(hResult), "Failed to create the device: \n(%u)", hResult);
 
 			if (SUCCEEDED(hResult))
@@ -157,49 +157,49 @@ namespace Borealis::Graphics
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
 
 		// Common desc
-		swapChainDesc.AlphaMode = PipelineDescription.SwapChain.AlphaMode;
-		swapChainDesc.BufferCount = PipelineDescription.SwapChain.BufferCount;
-		swapChainDesc.BufferUsage = PipelineDescription.SwapChain.BufferUsage;
+		swapChainDesc.AlphaMode = m_PipelineDesc.SwapChain.AlphaMode;
+		swapChainDesc.BufferCount = m_PipelineDesc.SwapChain.BufferCount;
+		swapChainDesc.BufferUsage = m_PipelineDesc.SwapChain.BufferUsage;
 		swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
-		swapChainDesc.Format = PipelineDescription.SwapChain.BufferFormat;
-		swapChainDesc.Height = PipelineDescription.SwapChain.BufferHeight;
-		swapChainDesc.SampleDesc.Count = PipelineDescription.SwapChain.SampleCount;
-		swapChainDesc.SampleDesc.Quality = PipelineDescription.SwapChain.SampleQuality;
+		swapChainDesc.Format = m_PipelineDesc.SwapChain.BufferFormat;
+		swapChainDesc.Height = m_PipelineDesc.SwapChain.BufferHeight;
+		swapChainDesc.SampleDesc.Count = m_PipelineDesc.SwapChain.SampleCount;
+		swapChainDesc.SampleDesc.Quality = m_PipelineDesc.SwapChain.SampleQuality;
 		swapChainDesc.Scaling = DXGI_SCALING_NONE;
 		swapChainDesc.Stereo = false;;
-		swapChainDesc.SwapEffect = PipelineDescription.SwapChain.SwapEffect;
-		swapChainDesc.Width = PipelineDescription.SwapChain.BufferWidth;
+		swapChainDesc.SwapEffect = m_PipelineDesc.SwapChain.SwapEffect;
+		swapChainDesc.Width = m_PipelineDesc.SwapChain.BufferWidth;
 
 		// Swap chain full screen desc
 		DXGI_SWAP_CHAIN_FULLSCREEN_DESC swapChainFSDesc = {};
-		swapChainFSDesc.RefreshRate = { PipelineDescription.SwapChain.TargetRefreshRate, 1 };
-		swapChainFSDesc.Scaling = PipelineDescription.SwapChain.ScaleMode;
-		swapChainFSDesc.ScanlineOrdering = PipelineDescription.SwapChain.ScaleOrdering;
-		swapChainFSDesc.Windowed = PipelineDescription.SwapChain.Windowed;
+		swapChainFSDesc.RefreshRate = { m_PipelineDesc.SwapChain.TargetRefreshRate, 1 };
+		swapChainFSDesc.Scaling = m_PipelineDesc.SwapChain.ScaleMode;
+		swapChainFSDesc.ScanlineOrdering = m_PipelineDesc.SwapChain.ScaleOrdering;
+		swapChainFSDesc.Windowed = m_PipelineDesc.SwapChain.Windowed;
 
 
 		// DXGI_FORMAT_R10G10B10A10_UNORM -> HDR 10 bit --> Not available?? Why?
 
 		Assert((swapChainDesc.SwapEffect == DXGI_SWAP_EFFECT_FLIP_DISCARD || swapChainDesc.SwapEffect == DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL) ?
-			PipelineDescription.SwapChain.BufferFormat == DXGI_FORMAT_R16G16B16A16_FLOAT
-			|| PipelineDescription.SwapChain.BufferFormat == DXGI_FORMAT_B8G8R8A8_UNORM
-			|| PipelineDescription.SwapChain.BufferFormat == DXGI_FORMAT_R8G8B8A8_UNORM
-			|| PipelineDescription.SwapChain.BufferFormat == DXGI_FORMAT_R10G10B10A2_UINT
+			m_PipelineDesc.SwapChain.BufferFormat == DXGI_FORMAT_R16G16B16A16_FLOAT
+			|| m_PipelineDesc.SwapChain.BufferFormat == DXGI_FORMAT_B8G8R8A8_UNORM
+			|| m_PipelineDesc.SwapChain.BufferFormat == DXGI_FORMAT_R8G8B8A8_UNORM
+			|| m_PipelineDesc.SwapChain.BufferFormat == DXGI_FORMAT_R10G10B10A2_UINT
 			: true, "For the current swap effect, swap chain buffer-format must be set to %i, %i, %i or %i. However it is set to %i instead!",
 			DXGI_FORMAT_R16G16B16A16_FLOAT,
 			DXGI_FORMAT_B8G8R8A8_UNORM,
 			DXGI_FORMAT_R8G8B8A8_UNORM,
 			DXGI_FORMAT_R10G10B10A2_UINT,
-			PipelineDescription.SwapChain.BufferFormat);
+			m_PipelineDesc.SwapChain.BufferFormat);
 
 		Assert((swapChainDesc.SwapEffect == DXGI_SWAP_EFFECT_FLIP_DISCARD || swapChainDesc.SwapEffect == DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL) ?
-			PipelineDescription.SwapChain.SampleCount == 1
-			|| PipelineDescription.SwapChain.SampleQuality == 0
+			m_PipelineDesc.SwapChain.SampleCount == 1
+			|| m_PipelineDesc.SwapChain.SampleQuality == 0
 			: true, "For the current swap effect, sample count and quality must be set to SampleCount = 1 and SampleQuality = 0!");
 
 		Assert((swapChainDesc.SwapEffect == DXGI_SWAP_EFFECT_FLIP_DISCARD || swapChainDesc.SwapEffect == DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL) ?
-			PipelineDescription.SwapChain.BufferCount >= 2
-			&& PipelineDescription.SwapChain.BufferCount < 16
+			m_PipelineDesc.SwapChain.BufferCount >= 2
+			&& m_PipelineDesc.SwapChain.BufferCount < 16
 			: true, "For the current swap effect, the buffer count must be set between 2 and 16!");
 
 		ComPtr<IDXGISwapChain1> swapChain;
@@ -208,7 +208,7 @@ namespace Borealis::Graphics
 		hResult = dxgiFactory->CreateSwapChain(gCommandQueue.Get(), (HWND) m_PipelineConfiguration.SwapChain.WindowHandle, &swapChainDesc, &swapChain);
 		Assert(SUCCEEDED(hResult), "Failed to create the swap chain: \n(%u)", hResult);
 #else
-		hResult = m_DXGIFactory->CreateSwapChainForHwnd(m_CommandQueue.Get(), (HWND) PipelineDescription.SwapChain.WindowHandle, &swapChainDesc, &swapChainFSDesc, NULL, &swapChain);
+		hResult = m_DXGIFactory->CreateSwapChainForHwnd(m_CommandQueue.Get(), (HWND) m_PipelineDesc.SwapChain.WindowHandle, &swapChainDesc, &swapChainFSDesc, NULL, &swapChain);
 		Assert(SUCCEEDED(hResult), "Failed to create the swap chain: \n(%u)", hResult);
 #endif
 
@@ -218,7 +218,7 @@ namespace Borealis::Graphics
 		// Init frame index
 		m_FrameIndex = m_SwapChain->GetCurrentBackBufferIndex();
 
-		hResult = m_DXGIFactory->MakeWindowAssociation((HWND) PipelineDescription.SwapChain.WindowHandle, 0);
+		hResult = m_DXGIFactory->MakeWindowAssociation((HWND) m_PipelineDesc.SwapChain.WindowHandle, 0);
 		Assert(SUCCEEDED(hResult), "Failed to make the window association: \n(%u)", hResult);
 
 
@@ -226,7 +226,7 @@ namespace Borealis::Graphics
 
 		{
 			D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-			rtvHeapDesc.NumDescriptors = PipelineDescription.SwapChain.BufferCount;
+			rtvHeapDesc.NumDescriptors = m_PipelineDesc.SwapChain.BufferCount;
 			rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 			rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 			hResult = m_Device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_RTVHeap));
@@ -241,10 +241,10 @@ namespace Borealis::Graphics
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_RTVHeap->GetCPUDescriptorHandleForHeapStart());
 
-			m_RenderTargets.resize(PipelineDescription.SwapChain.BufferCount);
+			m_RenderTargets.resize(m_PipelineDesc.SwapChain.BufferCount);
 
 			// Create a RTV for each frame.
-			for (UINT n = 0; n < PipelineDescription.SwapChain.BufferCount; n++)
+			for (UINT n = 0; n < m_PipelineDesc.SwapChain.BufferCount; n++)
 			{
 				hResult = m_SwapChain->GetBuffer(n, IID_PPV_ARGS(&m_RenderTargets[n]));
 				Assert(SUCCEEDED(hResult), "Failed to get the render target view with index [%i]: \n(%u)", n, hResult);

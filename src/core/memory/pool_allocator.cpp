@@ -2,11 +2,11 @@
 #include "../debug/logger.h"
 #include "memory.h"
 
+using namespace Borealis::Types;
+using namespace Borealis::Debug;
 
 namespace Borealis::Memory
 {
-	using namespace Borealis::Types;
-	using namespace Borealis::Debug;
 	
 	PoolAllocator::PoolAllocator(uint32 poolElementCount, uint64 elementSize)
 		: poolElementCount(poolElementCount), poolElementSize(elementSize)
