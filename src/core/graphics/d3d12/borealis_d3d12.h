@@ -36,13 +36,16 @@ namespace Borealis::Graphics
 		IDXGISwapChain4* const GetSwapChain() const;
 		ID3D12DescriptorHeap* const GetDescriptorHeap() const;
 
-		HRESULT RegisterDescriptorHeapAllocator(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& const descHeap, const Types::uint16 numDescriptors,
-			const D3D12_DESCRIPTOR_HEAP_TYPE heapType, const Types::uint8 NodeMask = 0) const;
+		bool ToggleFullscreen();
 
 	private:
 
 		Borealis::Types::int64 SetupPipeline();
 		Borealis::Types::int64 SetupAssets();
+		void WaitForPendingOperations();
+		HRESULT RegisterDescriptorHeapAllocator(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& const descHeap, const Types::uint16 numDescriptors,
+			const D3D12_DESCRIPTOR_HEAP_TYPE heapType, const Types::uint8 NodeMask = 0) const;
+		
 
 	protected:
 
@@ -50,6 +53,7 @@ namespace Borealis::Graphics
 		Microsoft::WRL::ComPtr<IDXGIFactory7> m_DXGIFactory;
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_SwapChain;
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue;
+		Microsoft::WRL::ComPtr<ID3D12CommandList> m_CommandList;
 
 		std::vector<Helpers::FrameContext> m_FrameContexts = {};
 
@@ -62,10 +66,15 @@ namespace Borealis::Graphics
 		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_RTV_DescriptorHandles = 
 			std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>();
 
-		Types::uint64 m_FrameIndex = 0;
-		//Types::uint64 m_RTVDescriptorSize = 0;
+		// Synchronization objects
+		Microsoft::WRL::ComPtr<ID3D12Fence> m_CommandQueueFence;
+		HANDLE m_FenceEvent = nullptr;
+		Types::uint64 m_LastSignaledFenceValue = 0;
+
+		bool m_Fullscreen = false;
 		
 		// Evaluate if necessary
+		Types::uint64 m_FrameIndex = 0;
 		Types::uint16 m_CurrentFrameContextIdx = 0;
 
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)

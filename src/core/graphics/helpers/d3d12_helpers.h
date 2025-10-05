@@ -29,9 +29,14 @@ namespace Borealis::Graphics::Helpers
             D3D12_DESCRIPTOR_HEAP_DESC desc = heap->GetDesc();
             HeapType = desc.Type;
             HeapStartCpu = Heap->GetCPUDescriptorHandleForHeapStart();
-            HeapStartGpu = Heap->GetGPUDescriptorHandleForHeapStart();
             HeapHandleIncrement = device->GetDescriptorHandleIncrementSize(HeapType);
             
+			// GPU handle is only valid for CBV_SRV_UAV descriptor heaps
+            if (HeapType == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
+            {
+                HeapStartGpu = Heap->GetGPUDescriptorHandleForHeapStart();
+            }
+
             FreeIndices.reserve((int)desc.NumDescriptors);
             
             for (Types::int32 n = desc.NumDescriptors; n > 0; n--)

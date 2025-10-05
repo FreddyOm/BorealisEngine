@@ -20,10 +20,7 @@ namespace Borealis::Graphics
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 		Assert(!m_isInitialized, 
 			"Pipeline is not deinitialized! Make sure to call IBorealisRenderer::DeinitializePipeline() before destroying the renderer.");
-#endif
-
-		g_SRVDescHeapAllocator.Destroy();
-
+#endif		
 	}
 
 	int64 BorealisD3D12Renderer::InitializePipeline()
@@ -51,6 +48,61 @@ namespace Borealis::Graphics
 
 	int64 BorealisD3D12Renderer::DeinitializePipeline()
 	{
+		// Wait for all pending operations to finish before destroying resources
+		WaitForPendingOperations();
+
+		// Release all allocated resources
+		for (auto& renderTarget : m_RenderTargets)
+		{
+			renderTarget->Release();
+			renderTarget.Reset();
+		}
+
+		// Release swap chain
+		if (m_SwapChain)
+		{
+			m_SwapChain->SetFullscreenState(false, nullptr);
+			m_SwapChain->Release();
+		}
+		
+
+		// Release frame contexts
+		for (auto& frameCntx : m_FrameContexts)
+		{
+			frameCntx.CommandAllocator->Release();
+
+			frameCntx.FenceValue = 0;
+		}
+
+		// Release command queue
+		if (m_CommandQueue)
+			m_CommandQueue->Release();
+		
+		// Release command list
+		if(m_CommandList)
+			m_CommandList->Release();
+
+		// Release descriptor heaps
+		if(m_SRV_DescriptorHeap)
+			m_SRV_DescriptorHeap->Release();
+
+		if(m_DSV_DescriptorHeap)
+			m_DSV_DescriptorHeap->Release();
+
+		if(m_RTV_DescriptorHeap)
+			m_RTV_DescriptorHeap->Release();
+
+		// Release fence
+		if(m_CommandQueueFence)
+			m_CommandQueueFence->Release();
+
+		if (m_FenceEvent)
+			CloseHandle(m_FenceEvent);
+
+		g_SRVDescHeapAllocator.Destroy();
+		g_DSVDescHeapAllocator.Destroy();
+		g_RTVDescHeapAllocator.Destroy();
+
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
 		if (m_DXGIDebug)
@@ -87,6 +139,19 @@ namespace Borealis::Graphics
 	ID3D12DescriptorHeap* const BorealisD3D12Renderer::GetDescriptorHeap() const
 	{
 		return m_RTV_DescriptorHeap.Get();
+	}
+
+	bool BorealisD3D12Renderer::ToggleFullscreen()
+	{
+		m_Fullscreen = !m_Fullscreen;
+		
+		{
+			m_SwapChain->SetFullscreenState(m_Fullscreen, nullptr);
+
+			// TODO: Resize the buffers if necessary
+		}
+
+		return m_Fullscreen;
 	}
 
 	/// <summary>
@@ -289,14 +354,14 @@ namespace Borealis::Graphics
 		hResult = m_DXGIFactory->MakeWindowAssociation((HWND) m_PipelineDesc.SwapChain.WindowHandle, 0);
 		Assert(SUCCEEDED(hResult), "Failed to make the window association: \n(%u)", hResult);
 
-		// TODO: Create a function to allocate descriptor heaps and create heap allocators 
-		// Input should be the number of descriptors and potentially the type, as well as the variable to save it into!
-		// Make sure to accomodate for specific RTV functionality like storing RTVDescriptorHandles seperately!
+		// TODO: Check if I need to create RTV and DSV descriptor heaps for the swap chain buffers
+		// In ImGui example they are not created because RTV only uses the back buffers and therefore doesn't need to rely on more allocs
 
 		// Create the render target view(RTV) descriptor heap.
 		{
 
-			RegisterDescriptorHeapAllocator(m_RTV_DescriptorHeap, 4, D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+			hResult = RegisterDescriptorHeapAllocator(m_RTV_DescriptorHeap, 4, D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+			Assert(SUCCEEDED(hResult), "Failed to register RTV deschriptor heap allocator!");
 
 			//D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
 			//rtvHeapDesc.NumDescriptors = m_PipelineDesc.SwapChain.BufferCount;
@@ -321,8 +386,11 @@ namespace Borealis::Graphics
 		}
 		
 		RegisterDescriptorHeapAllocator(m_SRV_DescriptorHeap, 128, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		Assert(SUCCEEDED(hResult), "Failed to register SRV deschriptor heap allocator!");
+
 		RegisterDescriptorHeapAllocator(m_DSV_DescriptorHeap, 8, D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-		
+		Assert(SUCCEEDED(hResult), "Failed to register DSV deschriptor heap allocator!");
+
 		
 		// Create command queue
 		{
@@ -334,9 +402,8 @@ namespace Borealis::Graphics
 				return false;
 		}
 
-
 		m_FrameContexts.resize(m_PipelineDesc.SwapChain.BufferCount);
-
+		
 		// Create a command allocator.
 		for (int8 frameCntxIdx = 0; frameCntxIdx < m_PipelineDesc.SwapChain.BufferCount; ++frameCntxIdx)
 		{
@@ -344,19 +411,18 @@ namespace Borealis::Graphics
 			hResult = m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_FrameContexts[frameCntxIdx].CommandAllocator));
 			Assert(SUCCEEDED(hResult), "Failed to create the command allocator: \n(%u)", hResult);
 		}
-
-
-		// Create command list
-		for (int8 frameCntxIdx = 0; frameCntxIdx < m_PipelineDesc.SwapChain.BufferCount; ++frameCntxIdx)
-		{
-			
-		}
 		
-		// Initialize frame contexts
-		for (int8 bufferIndex = 0; bufferIndex < m_PipelineDesc.SwapChain.BufferCount; ++bufferIndex)
-		{
-			
-		}
+		// Create command list
+		hResult = m_Device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_FrameContexts[m_FrameIndex].CommandAllocator.Get(), nullptr, IID_PPV_ARGS(&m_CommandList));
+		Assert(SUCCEEDED(hResult), "Failed to create the command list: \n(%u)", hResult);
+
+		// Initialize fence value
+		hResult = m_Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_CommandQueueFence));
+		Assert(SUCCEEDED(hResult), "Failed to create a fence: \n(%u)", hResult);
+
+		// Create fence event
+		m_FenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+		Assert(m_FenceEvent != nullptr, "Failed to create fence events: \n(%u)", hResult);
 
 		return 0;
 	}
@@ -386,6 +452,17 @@ namespace Borealis::Graphics
 		// Wait for the GPU to finish.
 
 		return 0;
+	}
+
+	/// <summary>
+	/// Waits for all pending operations to finish.
+	/// </summary>
+	void BorealisD3D12Renderer::WaitForPendingOperations()
+	{
+		m_CommandQueue->Signal(m_CommandQueueFence.Get(), ++m_LastSignaledFenceValue);
+
+		m_CommandQueueFence->SetEventOnCompletion(m_LastSignaledFenceValue, m_FenceEvent);
+		::WaitForSingleObject(m_FenceEvent, INFINITE);
 	}
 
 }
