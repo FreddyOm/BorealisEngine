@@ -112,9 +112,9 @@ namespace Borealis::Runtime::Debug
 				d3d12InitInfo.Device = pD3D12Renderer->GetDevice();
 				d3d12InitInfo.CommandQueue = pD3D12Renderer->GetCommandQueue();
 				d3d12InitInfo.NumFramesInFlight = 2;	// TODO: Fix me!
-				//d3d12InitInfo.SrvDescriptorAllocFn = ;
-				//d3d12InitInfo.SrvDescriptorFreeFn = ;
-				//d3d12InitInfo.SrvDescriptorHeap = ;
+				d3d12InitInfo.SrvDescriptorHeap = pD3D12Renderer->GetDescriptorHeap();
+				d3d12InitInfo.SrvDescriptorAllocFn = [](ImGui_ImplDX12_InitInfo*, D3D12_CPU_DESCRIPTOR_HANDLE* out_cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE* out_gpu_handle) { return g_SRVDescHeapAllocator.Alloc(out_cpu_handle, out_gpu_handle); };
+				d3d12InitInfo.SrvDescriptorFreeFn = [](ImGui_ImplDX12_InitInfo*, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle) { return g_SRVDescHeapAllocator.Free(cpu_handle, gpu_handle); };
 
 				Assert(ImGui_ImplDX12_Init(&d3d12InitInfo), "Failed to initialize the runtime debugger GUI with D3D12.");
 				break;

@@ -1,14 +1,20 @@
 #pragma once
 #include "../../../config.h"
 #include "../../types/types.h"
+#include "../../memory/memory.h"
 
 #if defined(BOREALIS_WIN)
 #include "d3d12_common.h"
 #include <vector>
 #include "../pipeline_config.h"
+#include "../helpers/d3d12_helpers.h"
 
 namespace Borealis::Graphics
 {
+	extern Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_RTVDescHeapAllocator;
+	extern Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_SRVDescHeapAllocator;
+	extern Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_DSVDescHeapAllocator;
+
 	struct BOREALIS_API BorealisD3D12Renderer : public Helpers::IBorealisRenderer
 	{
 		BorealisD3D12Renderer(PipelineDesc& pipelineDesc)
@@ -28,6 +34,10 @@ namespace Borealis::Graphics
 		ID3D12CommandQueue* const GetCommandQueue() const;
 		ID3D12GraphicsCommandList* const GetCommandList() const;
 		IDXGISwapChain4* const GetSwapChain() const;
+		ID3D12DescriptorHeap* const GetDescriptorHeap() const;
+
+		HRESULT RegisterDescriptorHeapAllocator(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& const descHeap, const Types::uint16 numDescriptors,
+			const D3D12_DESCRIPTOR_HEAP_TYPE heapType, const Types::uint8 NodeMask = 0) const;
 
 	private:
 
@@ -37,17 +47,26 @@ namespace Borealis::Graphics
 	protected:
 
 		Microsoft::WRL::ComPtr<ID3D12Device> m_Device;
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue;
-		Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_CommandAllocator;
-		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RTVHeap;
-		::std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_RenderTargets = 
-			::std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-		
 		Microsoft::WRL::ComPtr<IDXGIFactory7> m_DXGIFactory;
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_SwapChain;
+		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue;
+
+		std::vector<Helpers::FrameContext> m_FrameContexts = {};
+
+		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RTV_DescriptorHeap;
+		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_SRV_DescriptorHeap;
+		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DSV_DescriptorHeap;
+		
+		std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_RenderTargets = 
+			::std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>>();
+		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_RTV_DescriptorHandles = 
+			std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>();
 
 		Types::uint64 m_FrameIndex = 0;
-		Types::uint64 m_RTVDescriptorSize = 0;
+		//Types::uint64 m_RTVDescriptorSize = 0;
+		
+		// Evaluate if necessary
+		Types::uint16 m_CurrentFrameContextIdx = 0;
 
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 		

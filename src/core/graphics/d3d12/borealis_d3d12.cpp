@@ -11,6 +11,9 @@ using namespace Microsoft::WRL;
 
 namespace Borealis::Graphics
 {
+	Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_RTVDescHeapAllocator{};
+	Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_SRVDescHeapAllocator{};
+	Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_DSVDescHeapAllocator{};
 
 	BorealisD3D12Renderer::~BorealisD3D12Renderer()
 	{
@@ -18,6 +21,9 @@ namespace Borealis::Graphics
 		Assert(!m_isInitialized, 
 			"Pipeline is not deinitialized! Make sure to call IBorealisRenderer::DeinitializePipeline() before destroying the renderer.");
 #endif
+
+		g_SRVDescHeapAllocator.Destroy();
+
 	}
 
 	int64 BorealisD3D12Renderer::InitializePipeline()
@@ -78,6 +84,69 @@ namespace Borealis::Graphics
 		return m_SwapChain.Get();
 	}
 
+	ID3D12DescriptorHeap* const BorealisD3D12Renderer::GetDescriptorHeap() const
+	{
+		return m_RTV_DescriptorHeap.Get();
+	}
+
+	/// <summary>
+	/// Registers a descriptor heap allocator for the specified descriptor heap type.
+	/// </summary>
+	/// <param name="descHeap">The native descriptor heap to take ownership of.</param>
+	/// <param name="numDescriptors">The amount of descriptor "slots" that can be stored in the heap.</param>
+	/// <param name="heapType">The heap type, that defines to which allocator the heap is added!</param>
+	/// <param name="NodeMask">The adapter, the resource is associated  with.</param>
+	HRESULT BorealisD3D12Renderer::RegisterDescriptorHeapAllocator(ComPtr<ID3D12DescriptorHeap>& const descHeap, 
+		const Types::uint16 numDescriptors, const D3D12_DESCRIPTOR_HEAP_TYPE heapType, const Types::uint8 nodeMask) const
+	{
+		HRESULT hResult = S_OK;
+
+		Assert(m_Device.Get() != nullptr, "Cannot register descriptor heap allocator when device is null!");
+		Assert(numDescriptors > 0, "Number of descriptors must be greater than zero!");
+		Assert(descHeap.Get() == nullptr, "Descriptor heap is already registered!");
+
+		D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc = {};
+		descriptorHeapDesc.Type = heapType;
+		descriptorHeapDesc.NumDescriptors = numDescriptors;
+		descriptorHeapDesc.Flags = 
+			heapType == D3D12_DESCRIPTOR_HEAP_TYPE_DSV || heapType == D3D12_DESCRIPTOR_HEAP_TYPE_RTV ? 
+			D3D12_DESCRIPTOR_HEAP_FLAG_NONE : D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		descriptorHeapDesc.NodeMask = nodeMask;
+
+		hResult = m_Device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(descHeap.GetAddressOf()));
+		Assert(SUCCEEDED(hResult), "Failed to create the descriptor heap: \n(%u)", hResult);
+		
+		if (!SUCCEEDED(hResult))
+			return hResult;
+
+		// Store the descriptor heap in the appropriate allocator
+		switch (heapType)
+		{
+			case D3D12_DESCRIPTOR_HEAP_TYPE_RTV:
+			{
+				g_RTVDescHeapAllocator.Create(m_Device.Get(), descHeap.Get());
+				break;
+			}
+			case D3D12_DESCRIPTOR_HEAP_TYPE_DSV:
+			{
+				g_DSVDescHeapAllocator.Create(m_Device.Get(), descHeap.Get());
+				break;
+			}
+			case D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV:
+			{
+				g_SRVDescHeapAllocator.Create(m_Device.Get(), descHeap.Get());
+				break;
+			}
+			case D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER:
+			{
+				Assert(false, "Sampler descriptor heap allocator not implemented yet!");
+				break;
+			}
+		}
+
+		return hResult;
+	}
+
 	int64 BorealisD3D12Renderer::SetupPipeline()
 	{
 		Assert(m_PipelineDesc.SwapChain.WindowHandle != 0,
@@ -111,7 +180,6 @@ namespace Borealis::Graphics
 #endif
 
 		Assert(SUCCEEDED(hResult), "Failed to create the dxgi factory: \n(%u)", hResult);
-
 
 		// Create the hardware adapter object
 		ComPtr<IDXGIAdapter4> hardwareAdapter;
@@ -221,42 +289,74 @@ namespace Borealis::Graphics
 		hResult = m_DXGIFactory->MakeWindowAssociation((HWND) m_PipelineDesc.SwapChain.WindowHandle, 0);
 		Assert(SUCCEEDED(hResult), "Failed to make the window association: \n(%u)", hResult);
 
+		// TODO: Create a function to allocate descriptor heaps and create heap allocators 
+		// Input should be the number of descriptors and potentially the type, as well as the variable to save it into!
+		// Make sure to accomodate for specific RTV functionality like storing RTVDescriptorHandles seperately!
 
-		// Create a render target view(RTV) descriptor heap.
-
+		// Create the render target view(RTV) descriptor heap.
 		{
-			D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-			rtvHeapDesc.NumDescriptors = m_PipelineDesc.SwapChain.BufferCount;
-			rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-			rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-			hResult = m_Device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_RTVHeap));
 
-			Assert(SUCCEEDED(hResult), "Failed to create the descriptor heap: \n(%u)", hResult);
+			RegisterDescriptorHeapAllocator(m_RTV_DescriptorHeap, 4, D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
-			m_RTVDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+			//D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
+			//rtvHeapDesc.NumDescriptors = m_PipelineDesc.SwapChain.BufferCount;
+			//rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+			//rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+			//rtvHeapDesc.NodeMask = 0;
+			//
+			//hResult = m_Device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_RTV_DescriptorHeap));
+			//Assert(SUCCEEDED(hResult), "Failed to create the RTV descriptor heap: \n(%u)", hResult);
+
+			//Types::uint64 rtvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+			//D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_RTV_DescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+
+			//// Init descriptor handles for render targets
+			//m_RTV_DescriptorHandles.resize(m_PipelineDesc.SwapChain.BufferCount);
+
+			//for (Types::uint64 bufferIdx = 0; bufferIdx < m_PipelineDesc.SwapChain.BufferCount; ++bufferIdx)
+			//{
+			//	m_RTV_DescriptorHandles[bufferIdx] = rtvHandle;
+			//	rtvHandle.ptr += rtvDescriptorSize;
+			//}
+		}
+		
+		RegisterDescriptorHeapAllocator(m_SRV_DescriptorHeap, 128, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		RegisterDescriptorHeapAllocator(m_DSV_DescriptorHeap, 8, D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+		
+		
+		// Create command queue
+		{
+			D3D12_COMMAND_QUEUE_DESC desc = {};
+			desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+			desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+			desc.NodeMask = 1;
+			if (m_Device->CreateCommandQueue(&desc, IID_PPV_ARGS(&m_CommandQueue)) != S_OK)
+				return false;
 		}
 
-		// Create frame resources (a render target view for each frame).
 
-		{
-			D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_RTVHeap->GetCPUDescriptorHandleForHeapStart());
-
-			m_RenderTargets.resize(m_PipelineDesc.SwapChain.BufferCount);
-
-			// Create a RTV for each frame.
-			for (UINT n = 0; n < m_PipelineDesc.SwapChain.BufferCount; n++)
-			{
-				hResult = m_SwapChain->GetBuffer(n, IID_PPV_ARGS(&m_RenderTargets[n]));
-				Assert(SUCCEEDED(hResult), "Failed to get the render target view with index [%i]: \n(%u)", n, hResult);
-				m_Device->CreateRenderTargetView(m_RenderTargets[n].Get(), nullptr, rtvHandle);
-				rtvHandle.ptr += m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-			}
-		}
+		m_FrameContexts.resize(m_PipelineDesc.SwapChain.BufferCount);
 
 		// Create a command allocator.
+		for (int8 frameCntxIdx = 0; frameCntxIdx < m_PipelineDesc.SwapChain.BufferCount; ++frameCntxIdx)
+		{
+			// Create one command allocator for each back buffer
+			hResult = m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_FrameContexts[frameCntxIdx].CommandAllocator));
+			Assert(SUCCEEDED(hResult), "Failed to create the command allocator: \n(%u)", hResult);
+		}
 
-		hResult = m_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_CommandAllocator));
-		Assert(SUCCEEDED(hResult), "Failed to create the command allocator: \n(%u)", hResult);
+
+		// Create command list
+		for (int8 frameCntxIdx = 0; frameCntxIdx < m_PipelineDesc.SwapChain.BufferCount; ++frameCntxIdx)
+		{
+			
+		}
+		
+		// Initialize frame contexts
+		for (int8 bufferIndex = 0; bufferIndex < m_PipelineDesc.SwapChain.BufferCount; ++bufferIndex)
+		{
+			
+		}
 
 		return 0;
 	}

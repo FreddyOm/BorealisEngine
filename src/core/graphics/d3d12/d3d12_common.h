@@ -27,7 +27,7 @@
 #endif
 
 // Borealis API-specific includes
-//#include "../helpers/d3d12_helpers.h" // <-- Not yet implemented
+#include "../helpers/d3d12_helpers.h"
 
 // Borealis API-agnostic helpers
 #include "../helpers/helpers.h"
