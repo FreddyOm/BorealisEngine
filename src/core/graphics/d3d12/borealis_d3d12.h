@@ -15,6 +15,10 @@ namespace Borealis::Graphics
 	extern Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_SRVDescHeapAllocator;
 	extern Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_DSVDescHeapAllocator;
 
+	// TODO: Move this to helpers / general renderer file and make this activate debug layer depending on the backend used currently
+	extern BOREALIS_API void InitD3D12LiveObjects();
+	extern BOREALIS_API void ReportD3D12LiveObjects();
+
 	struct BOREALIS_API BorealisD3D12Renderer : public Helpers::IBorealisRenderer
 	{
 		BorealisD3D12Renderer(PipelineDesc& pipelineDesc)
@@ -43,19 +47,20 @@ namespace Borealis::Graphics
 		Borealis::Types::int64 SetupPipeline();
 		Borealis::Types::int64 SetupAssets();
 		void WaitForPendingOperations();
-		HRESULT RegisterDescriptorHeapAllocator(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& const descHeap, const Types::uint16 numDescriptors,
+		HRESULT RegisterDescriptorHeapAllocator(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& descHeap, const Types::uint16 numDescriptors,
 			const D3D12_DESCRIPTOR_HEAP_TYPE heapType, const Types::uint8 NodeMask = 0) const;
 		
 
 	protected:
 
-		Microsoft::WRL::ComPtr<ID3D12Device> m_Device;
 		Microsoft::WRL::ComPtr<IDXGIFactory7> m_DXGIFactory;
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_SwapChain;
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue;
 		Microsoft::WRL::ComPtr<ID3D12CommandList> m_CommandList;
 
 		std::vector<Helpers::FrameContext> m_FrameContexts = {};
+
+		Microsoft::WRL::ComPtr<ID3D12Device> m_Device;
 
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RTV_DescriptorHeap;
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_SRV_DescriptorHeap;
@@ -79,11 +84,6 @@ namespace Borealis::Graphics
 
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 		
-	protected:
-
-		Microsoft::WRL::ComPtr<ID3D12Debug> m_DebugController;
-		Microsoft::WRL::ComPtr<IDXGIDebug1> m_DXGIDebug;
-
 	private:
 		
 		bool m_isInitialized = false;

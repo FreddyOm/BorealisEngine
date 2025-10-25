@@ -17,7 +17,7 @@ namespace Borealis::Runtime::Debug
 
 	struct BOREALIS_API RuntimeDebugger : protected IGUIDrawable
 	{
-		RuntimeDebugger(Graphics::Helpers::IBorealisRenderer& const renderer)
+		RuntimeDebugger(Graphics::Helpers::IBorealisRenderer& renderer)
 			: m_Renderer(renderer), IGUIDrawable(true)
 		{ 
 			/*categoryButtons =

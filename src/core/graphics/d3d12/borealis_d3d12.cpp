@@ -15,6 +15,14 @@ namespace Borealis::Graphics
 	Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_SRVDescHeapAllocator{};
 	Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_DSVDescHeapAllocator{};
 
+#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
+
+	Microsoft::WRL::ComPtr<ID3D12Debug> g_DebugController;
+	Microsoft::WRL::ComPtr<IDXGIDebug1> g_DXGIDebug;
+	bool g_ReportLiveObjInitialized = false;
+
+#endif
+
 	BorealisD3D12Renderer::~BorealisD3D12Renderer()
 	{
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
@@ -51,66 +59,78 @@ namespace Borealis::Graphics
 		// Wait for all pending operations to finish before destroying resources
 		WaitForPendingOperations();
 
-		// Release all allocated resources
-		for (auto& renderTarget : m_RenderTargets)
-		{
-			renderTarget->Release();
-			renderTarget.Reset();
-		}
-
-		// Release swap chain
+		// Set fullscreen state on swap chain
 		if (m_SwapChain)
 		{
 			m_SwapChain->SetFullscreenState(false, nullptr);
-			m_SwapChain->Release();
 		}
 		
 
 		// Release frame contexts
 		for (auto& frameCntx : m_FrameContexts)
 		{
-			frameCntx.CommandAllocator->Release();
+			//frameCntx.CommandAllocator->Release();	// Not necessary scince ComPtr already calls Release!
 
 			frameCntx.FenceValue = 0;
 		}
 
 		// Release command queue
 		if (m_CommandQueue)
-			m_CommandQueue->Release();
+		{
+			//m_CommandQueue.Get()->Release();
+		}
 		
 		// Release command list
-		if(m_CommandList)
-			m_CommandList->Release();
+		/*if (m_CommandList)
+		{
+			m_CommandList.Get()->Release();
+		}*/
 
-		// Release descriptor heaps
-		if(m_SRV_DescriptorHeap)
-			m_SRV_DescriptorHeap->Release();
+		//// Release descriptor heaps
+		//if (m_SRV_DescriptorHeap)
+		//{
+		//	m_SRV_DescriptorHeap->Release();
+		//}
 
-		if(m_DSV_DescriptorHeap)
-			m_DSV_DescriptorHeap->Release();
+		//if (m_DSV_DescriptorHeap)
+		//{
+		//	m_DSV_DescriptorHeap->Release();
+		//}
 
-		if(m_RTV_DescriptorHeap)
-			m_RTV_DescriptorHeap->Release();
+		//if (m_RTV_DescriptorHeap)
+		//{
+		//	m_RTV_DescriptorHeap->Release();
+		//}
 
-		// Release fence
-		if(m_CommandQueueFence)
-			m_CommandQueueFence->Release();
+		//// Release fence
+		//if (m_CommandQueueFence)
+		//{
+		//	m_CommandQueueFence->Release();
+		//}
 
 		if (m_FenceEvent)
 			CloseHandle(m_FenceEvent);
+
+
+		/*if (m_DXGIFactory)
+		{
+			m_DXGIFactory->Release();
+			m_DXGIFactory.Reset();
+		}
+
+		if (m_Device)
+		{
+			m_Device->Release();
+			m_Device.Reset();
+		}*/
 
 		g_SRVDescHeapAllocator.Destroy();
 		g_DSVDescHeapAllocator.Destroy();
 		g_RTVDescHeapAllocator.Destroy();
 
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
-
-		if (m_DXGIDebug)
-		{
-			m_DXGIDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
-		}
-
 		m_isInitialized = false;
+
 #endif
 		return 0;
 	}
@@ -141,6 +161,10 @@ namespace Borealis::Graphics
 		return m_RTV_DescriptorHeap.Get();
 	}
 
+	/// <summary>
+	/// Sets the fullscreen state of the swap chain to the opposite of the current state.
+	/// </summary>
+	/// <returns>The new fullscreen state as boolean value.</returns>
 	bool BorealisD3D12Renderer::ToggleFullscreen()
 	{
 		m_Fullscreen = !m_Fullscreen;
@@ -161,7 +185,7 @@ namespace Borealis::Graphics
 	/// <param name="numDescriptors">The amount of descriptor "slots" that can be stored in the heap.</param>
 	/// <param name="heapType">The heap type, that defines to which allocator the heap is added!</param>
 	/// <param name="NodeMask">The adapter, the resource is associated  with.</param>
-	HRESULT BorealisD3D12Renderer::RegisterDescriptorHeapAllocator(ComPtr<ID3D12DescriptorHeap>& const descHeap, 
+	HRESULT BorealisD3D12Renderer::RegisterDescriptorHeapAllocator(ComPtr<ID3D12DescriptorHeap>& descHeap, 
 		const Types::uint16 numDescriptors, const D3D12_DESCRIPTOR_HEAP_TYPE heapType, const Types::uint8 nodeMask) const
 	{
 		HRESULT hResult = S_OK;
@@ -218,24 +242,6 @@ namespace Borealis::Graphics
 			"Invalid window handle! Make sure to create and initialize the window before initializing the pipeline!");
 
 		HRESULT hResult{};
-
-#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
-
-		// Enable the debug layer.
-		hResult = D3D12GetDebugInterface(IID_PPV_ARGS(&m_DebugController));
-		if (SUCCEEDED(hResult))
-		{
-			m_DebugController->EnableDebugLayer();
-		}
-		else
-		{
-			LogWarning("Could not enable debug layer in D3D12 backend: \n(us)", hResult);
-		}
-
-		hResult = DXGIGetDebugInterface1(0, IID_PPV_ARGS(&m_DXGIDebug));
-		Assert(SUCCEEDED(hResult), "Failed to query DXGI debug interface: \n%u", hResult);
-
-#endif
 
 		// Create factory to define how objects are created
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
@@ -463,6 +469,52 @@ namespace Borealis::Graphics
 
 		m_CommandQueueFence->SetEventOnCompletion(m_LastSignaledFenceValue, m_FenceEvent);
 		::WaitForSingleObject(m_FenceEvent, INFINITE);
+	}
+
+	/// <summary>
+	/// Initializes the report of live D3D12 objects.
+	/// Only available in debug and relwithdebinfo builds. If called in release builds, the function does nothing.
+	/// </summary>
+	void InitD3D12LiveObjects()
+	{
+#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
+
+		// TODO: Move this to helpers so it can be accessed afzer D3D12 shut down!
+		// Enable the debug layer.
+		HRESULT hResult = D3D12GetDebugInterface(IID_PPV_ARGS(&g_DebugController));
+		if (SUCCEEDED(hResult))
+		{
+			g_DebugController->EnableDebugLayer();
+			g_ReportLiveObjInitialized = true;
+		}
+		else
+		{
+			LogWarning("Could not enable debug layer in D3D12 backend: \n(us)", hResult);
+		}
+
+		hResult = DXGIGetDebugInterface1(0, IID_PPV_ARGS(&g_DXGIDebug));
+		Assert(SUCCEEDED(hResult), "Failed to query DXGI debug interface: \n%u", hResult);
+
+#endif
+	}
+
+	/// <summary>
+	/// Prints all live objects referring to the D3D12 rendering pipeline. 
+	/// Only works if 'InitD3D12LiveObjects' was called before initializing the rendering pipeline.
+	/// Only available in debug and relwithdebinfo builds. If called in release builds, the function does nothing.
+	/// </summary>
+	void ReportD3D12LiveObjects()
+	{
+#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
+
+		Assert(g_ReportLiveObjInitialized, 
+			"Cannot report live objects if the debug layer was not successfully initialized. Make sure to call \"InitD3D12LiveObjects\" before initializing the rendering pipeline!");
+		if (g_DXGIDebug)
+		{
+			g_DXGIDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
+		}
+
+#endif
 	}
 
 }

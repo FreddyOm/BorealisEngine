@@ -25,7 +25,9 @@
 // #include <d3dcommon.h>
 
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
-#define D3DCOMPILE_DEBUG
+#ifndef D3DCOMPILE_DEBUG
+	#define D3DCOMPILE_DEBUG
+#endif
 #include <d3d11sdklayers.h>	// Debug Layer
 #include <dxgidebug.h>
 #endif

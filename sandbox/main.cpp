@@ -18,11 +18,12 @@ int main()
 		desc.SwapChain.WindowHandle = sandboxWindow.GetWindowHandle();
 
 		BorealisD3D12Renderer renderer = BorealisD3D12Renderer(desc);
+		Borealis::Graphics::InitD3D12LiveObjects();
 		renderer.InitializePipeline();
 
 #if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
 
-		Helpers::IBorealisRenderer& const baseRend = dynamic_cast<Helpers::IBorealisRenderer& const>(renderer);
+		Helpers::IBorealisRenderer& baseRend = dynamic_cast<Helpers::IBorealisRenderer&>(renderer);
 		RuntimeDebugger runtimeDebugger = RuntimeDebugger(baseRend);
 #endif
 
@@ -33,9 +34,7 @@ int main()
 
 #if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
 			//runtimeDebugger.Update();
-#endif
-
-			
+#endif			
 		}
 
 #if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
@@ -44,6 +43,8 @@ int main()
 
 		renderer.DeinitializePipeline();
 	}
+	
+	Borealis::Graphics::ReportD3D12LiveObjects();
 	
 	#endif
 

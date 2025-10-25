@@ -11,7 +11,7 @@ namespace Borealis::Graphics
 {
 	struct BOREALIS_API BorealisD3D11Renderer : protected Helpers::IBorealisRenderer
 	{
-		BorealisD3D11Renderer(PipelineDesc& const pipelineDesc)
+		BorealisD3D11Renderer(PipelineDesc& pipelineDesc)
 			: IBorealisRenderer(GraphicsBackend::D3D11, pipelineDesc)
 		{ }
 		~BorealisD3D11Renderer();
