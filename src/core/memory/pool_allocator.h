@@ -19,7 +19,7 @@ namespace Borealis::Memory
 	{
 	public:
 
-		PoolAllocator(Borealis::Types::uint32 poolElementNum, 
+		PoolAllocator(Borealis::Types::int32 poolElementNum, 
 			Borealis::Types::uint64 elementSize = 65536);	// Default elementSize is 64 kiB
 		PoolAllocator(const PoolAllocator& other) = delete;
 		PoolAllocator(PoolAllocator&& other) noexcept = delete;
@@ -51,7 +51,7 @@ namespace Borealis::Memory
 
 	private:
 
-		Borealis::Types::uint32 poolElementCount = 0;
+		Borealis::Types::int32 poolElementCount = 0;
 		Borealis::Types::uint64 poolElementSize = 0;
 
 		Borealis::Types::uint64Ptr p_poolBase = 0;

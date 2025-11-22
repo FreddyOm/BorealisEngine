@@ -52,7 +52,7 @@ namespace Borealis::Memory
 		{ }
 
 		Types::uint64Ptr HandleId = 0;		// 8 bytes
-		Types::uint32 RefCount = 0;			// 4 bytes
+		Types::int32 RefCount = 0;			// 4 bytes
 		MemAllocatorContext MemAllocCntxt = MemAllocatorContext::DEBUG;	// 1 bytes
 		Types::int8 Padding[3]{};			// 3 bytes
 	};

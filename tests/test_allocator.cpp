@@ -215,7 +215,7 @@ TEST(StackAllocatorTest, Full)
 
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 	
-	EXPECT_DEATH(p_testStructFull = new (AccessHandleData(stackAlloc.Alloc(sizeof(TestStruct))->HandleId)) TestStruct(), "");
+	EXPECT_EXIT(p_testStructFull = new (AccessHandleData(stackAlloc.Alloc(sizeof(TestStruct))->HandleId)) TestStruct(), testing::ExitedWithCode(668), "");
 
 #endif
 
@@ -350,7 +350,7 @@ TEST(PoolAllocatorTest, MemFree)
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
 	TestStruct* p_deathTest = new TestStruct();
-	EXPECT_DEATH(poolAlloc.FreeMemory(p_deathTest), "");
+	EXPECT_EXIT(poolAlloc.FreeMemory(p_deathTest), testing::ExitedWithCode(668), "");
 	delete p_deathTest;
 
 #endif

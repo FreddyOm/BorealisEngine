@@ -36,7 +36,7 @@ TEST(TypeTest, UintSize16)
 
 TEST(TypeTest, UintSize32)
 {
-    EXPECT_EQ(sizeof(uint32), 4);
+    EXPECT_EQ(sizeof(int32), 4);
 }
 
 TEST(TypeTest, UintSize64)

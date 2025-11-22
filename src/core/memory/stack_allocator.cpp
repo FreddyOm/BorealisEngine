@@ -36,7 +36,8 @@ namespace Borealis::Memory
 
 	HandleInfo* StackAllocator::Alloc(const Types::uint16 allocSize)
 	{
-		Assert(allocSize <= GetAvailableMemorySize(), "Allocator does not provide enough memory for the requested allocation process.");
+		Assert(allocSize <= GetAvailableMemorySize(), 
+			"Allocator does not provide enough memory for the requested allocation process.");
 
 		//void* ptr = new(reinterpret_cast<void*>(stackTopPtr)) T();
 		void* ptr = reinterpret_cast<void*>(stackTopPtr);

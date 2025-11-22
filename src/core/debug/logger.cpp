@@ -1,5 +1,6 @@
 #include "logger.h"
 #include <cstring>
+#include <stdexcept>
 
 namespace Borealis::Debug
 {
@@ -64,6 +65,7 @@ namespace Borealis::Debug
 		Types::int16 returnVal = LogMessageInternal(debugInfo);
 
 #ifdef THROW_ON_ASSERT
+		//throw std::exception(debugInfo.msg.c_str());
 		exit(668);
 #endif
 		return returnVal;
