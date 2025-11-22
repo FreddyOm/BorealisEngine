@@ -35,16 +35,22 @@ namespace Borealis::Memory
 
 	BOREALIS_API void UpdateHandle(const uint64Ptr handleId, void* const p_newData)
 	{
-		Assert(g_HandleTable.find(handleId) != g_HandleTable.end(), 
-			"Handle ID [%u] could not be found in the handle table!", handleId);
+		if (g_HandleTable.find(handleId) == g_HandleTable.end())
+		{
+			LogError("Trying to update handle [%u] which could not be found!", handleId);
+			return;
+		}
 
 		g_HandleTable[handleId] = p_newData;
 	}
 
 	BOREALIS_API void RemoveHandle(const Types::uint64Ptr handleId, HandleInfo* const p_hndlInfo)
 	{
-		Assert(g_HandleTable.find(handleId) != g_HandleTable.end(),
-			"Couldn't find handle [%u] in the table!", handleId);
+		if (g_HandleTable.find(handleId) == g_HandleTable.end())
+		{
+			LogError("Couldn't find handle [%u] in the table!", handleId);
+			return;
+		}
 
 		// Remove handle from handle table
 		g_HandleTable.erase(handleId);
@@ -53,10 +59,13 @@ namespace Borealis::Memory
 
 	BOREALIS_API void* const AccessHandleData(const Types::uint64Ptr handleId)
 	{
-		Assert(g_HandleTable.find(handleId) != g_HandleTable.end(),
-			"Handle ID [%u] could not be found in the handle table!", handleId);
+		if (g_HandleTable.find(handleId) == g_HandleTable.end())
+		{
+			LogError("Couldn't find handle [%u] in the table!", handleId);
+			return nullptr;
+		}
 
-		return g_HandleTable[handleId];
+		return g_HandleTable.find(handleId) == g_HandleTable.end() ? nullptr : g_HandleTable[handleId];
 	}
 
 #pragma endregion global handle table

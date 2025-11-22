@@ -40,7 +40,18 @@ TEST(RefCntAutoPtrTest, GeneralUse)
 
 TEST(RefCntAutoPtrTest, DefaultInit)
 {
+	MemAllocJanitor janitor(MemAllocatorContext::DEBUG);
+	RefCntAutoPtr<TestStruct> myReference;
+	
+	EXPECT_EQ(myReference.RawPtr(), nullptr);
+	EXPECT_EQ(myReference.UseCount(), 0);
 
+#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
+	
+	EXPECT_DEATH(myReference->myInt, ""); 
+	EXPECT_DEATH(myReference->myBoolArray[0] = false, "");
+
+#endif
 }
 
 TEST(RefCntAutoPtrTest, InvalidatedPtr)
@@ -57,8 +68,7 @@ TEST(RefCntAutoPtrTest, InvalidatedPtr)
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
 	// Invalidated pointer should not allow accessing members
-	EXPECT_DEATH(myReference->myInt, "");
-	EXPECT_DEATH(myReference->myBoolArray[0], "");
+	EXPECT_EQ(myReference.RawPtr(), nullptr);
 
 #endif
 }

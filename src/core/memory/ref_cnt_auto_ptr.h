@@ -140,7 +140,7 @@ namespace Borealis::Memory
 			return nullptr;
 		}
 
-		bool operator==(const RefCntAutoPtr<T> &other) const
+		const bool operator==(const RefCntAutoPtr<T> &other) const
 		{
 			// Two RefCntAutoPtr instances are the same if they point to the same handle info
 			return p_handleInfo != nullptr 
@@ -148,6 +148,12 @@ namespace Borealis::Memory
 				&& p_handleInfo == other.p_handleInfo;
 		}
 		
+		/// <summary>
+		/// Safely accesses the member of the underlying object. 
+		/// Data moved by memory defragmentation will be correctly referenced.
+		/// </summary>
+		/// <returns>If the reference is valid, the underlying data is returned.
+		/// If the reference was invalidated, a nullptr is returned.</returns>
 		T* operator->() const
 		{
 			Assert(p_handleInfo != nullptr, 
@@ -156,24 +162,44 @@ namespace Borealis::Memory
 			return reinterpret_cast<T*>(AccessHandleData(p_handleInfo->HandleId));
 		}
 		
+		/// <summary>
+		/// Safely derefernces the member of the underlying object. 
+		/// Data moved by memory defragmentation will be correctly referenced.
+		/// </summary>
+		/// <returns>If the reference is valid, the underlying data is returned.
+		/// If the reference was invalidated, a nullptr is returned.</returns>
 		T* RawPtr() const
 		{
-			Assert(p_handleInfo != nullptr,
-				"The RefCntAutoPtr has no handle info! Make sure the instance has been set up correctly using \"Allocate()\" or by assigning another valid instance!");
-
+			if (p_handleInfo == nullptr)
+			{
+				LogError("The RefCntAutoPtr has no handle info! Make sure the instance has been set up correctly using \"Allocate()\" or by assigning another valid instance!");
+				return nullptr;
+			}
+			
 			return reinterpret_cast<T*>(AccessHandleData(p_handleInfo->HandleId));
 		}
 
+		/// <summary>
+		/// Dereferences the RefCntAutoPtr and returns the underlying object. Asserts if no object is referenced!
+		/// </summary>
+		/// <returns>A reference to the underlying object.</returns>
 		T& operator*() const
 		{
 			T* p_Data = RawPtr();
+			
+			Assert(p_Data != nullptr,
+				"The RefCntAutoPtr is invalid! Make sure the instance has been set up correctly using \"Allocate()\" or by assigning another valid instance!");
+			
 			return reinterpret_cast<T&>(*p_Data);
 		}
 
-		Types::int16 UseCount() const
+		const Types::int16 UseCount() const
 		{
-			Assert(p_handleInfo != nullptr,
-				"The RefCntAutoPtr has no handle info! Make sure the instance has been set up correctly using \"Allocate()\" or by assigning another valid instance!");
+			if (p_handleInfo == nullptr)
+			{
+				LogError("The RefCntAutoPtr has no handle info! Make sure the instance has been set up correctly using \"Allocate()\" or by assigning another valid instance!");
+				return 0;
+			}
 
 			return p_handleInfo->RefCount;
 		}

@@ -8,7 +8,7 @@ using namespace Borealis::Debug;
 namespace Borealis::Memory
 {
 	
-	PoolAllocator::PoolAllocator(uint32 poolElementCount, uint64 elementSize)
+	PoolAllocator::PoolAllocator(int32 poolElementCount, uint64 elementSize)
 		: poolElementCount(poolElementCount), poolElementSize(elementSize)
 	{ 
 		Assert(poolElementCount > 0, "The number of pool elements may not be 0!");
