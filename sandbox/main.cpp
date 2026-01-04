@@ -16,9 +16,11 @@ int main()
 
 		PipelineDesc desc{};
 		desc.SwapChain.WindowHandle = sandboxWindow.GetWindowHandle();
+		desc.SwapChain.BufferHeight = sandboxWindow.GetWindowHeight();
+		desc.SwapChain.BufferWidth = sandboxWindow.GetWindowWidth();
 
 		BorealisD3D12Renderer renderer = BorealisD3D12Renderer(desc);
-		Borealis::Graphics::InitD3D12LiveObjects();
+		InitD3D12LiveObjects();
 		renderer.InitializePipeline();
 
 #if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
@@ -33,7 +35,8 @@ int main()
 			sandboxWindow.UpdateWindow();
 
 #if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
-			//runtimeDebugger.Update();
+
+			runtimeDebugger.UpdateDrawable();
 #endif			
 		}
 
@@ -44,7 +47,7 @@ int main()
 		renderer.DeinitializePipeline();
 	}
 	
-	Borealis::Graphics::ReportD3D12LiveObjects();
+	Borealis::Graphics::ReportD3D12LiveObjects();	// The corresponding initialization is done in Graphics initialization code -> dependency on ID3D12Device!
 	
 	#endif
 

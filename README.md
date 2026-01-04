@@ -80,3 +80,7 @@ cmake -S . -B ./build
 - CMake
 
 ## Sources
+
+- [DirectX Graphics Samples](https://github.com/microsoft/DirectX-Graphics-Samples/tree/master)
+- [Game Engine Architecture (Third Edition) - Jason Gregory (2018)](https://gameenginebook.com)
+- [Real-Time Rendering (Fourth Edition) -  Tomas Akenine-Möller, Eric Haines, Naty Hoffman, Angelo Pesce, Michal Iwanicki, Sebastien Hillaire (2018)](https://realtimerendering.com)

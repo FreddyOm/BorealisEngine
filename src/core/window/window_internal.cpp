@@ -45,12 +45,12 @@ namespace Borealis::Core
 		return isRunning;
 	}
 
-	uint8 GetWindowWidthInternal()
+	uint16 GetWindowWidthInternal()
 	{
 		return windowWidth;
 	}
 
-	uint8 GetWindowHeightInternal()
+	uint16 GetWindowHeightInternal()
 	{
 		return windowHeight;
 	}

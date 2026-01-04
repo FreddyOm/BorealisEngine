@@ -58,7 +58,12 @@ namespace Borealis::Graphics::Helpers
             FreeIndices.pop_back();
            
             out_cpu_desc_handle->ptr = HeapStartCpu.ptr + (idx * HeapHandleIncrement);
-            out_gpu_desc_handle->ptr = HeapStartGpu.ptr + (idx * HeapHandleIncrement);
+
+            // RTV does not need a gpu desc handle. Therefore it would be nullptr!
+            if (HeapType != D3D12_DESCRIPTOR_HEAP_TYPE_RTV)
+            {
+                out_gpu_desc_handle->ptr = HeapStartGpu.ptr + (idx * HeapHandleIncrement);
+            }
         }
         
         void Free(D3D12_CPU_DESCRIPTOR_HANDLE out_cpu_desc_handle, D3D12_GPU_DESCRIPTOR_HANDLE out_gpu_desc_handle)
@@ -79,7 +84,7 @@ namespace Borealis::Graphics::Helpers
     struct FrameContext
     {
         Microsoft::WRL::ComPtr<ID3D12CommandAllocator>  CommandAllocator;
-        Types::uint64                                   FenceValue;
+        Types::uint64                                   FenceValue = 0;
     };
 
 }

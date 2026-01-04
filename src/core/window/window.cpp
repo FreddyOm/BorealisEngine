@@ -30,12 +30,12 @@ namespace Borealis::Core
 		UpdateWindowInternal();
 	}
 
-	uint8 Window::GetWindowWidth() const
+	uint16 Window::GetWindowWidth() const
 	{
 		return GetWindowWidthInternal();
 	}
 	
-	uint8 Window::GetWindowHeight() const
+	uint16 Window::GetWindowHeight() const
 	{
 		return GetWindowHeightInternal();
 	}

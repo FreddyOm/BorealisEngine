@@ -12,7 +12,7 @@ namespace Borealis::Core
 	bool IsMinimizedInternal();
 	bool IsRunningInternal();
 	
-	Types::uint8 GetWindowWidthInternal();
-	Types::uint8 GetWindowHeightInternal();
+	Types::uint16 GetWindowWidthInternal();
+	Types::uint16 GetWindowHeightInternal();
 	Types::uint64 GetWindowHandleInternal();
 }

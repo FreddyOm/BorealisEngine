@@ -1,6 +1,6 @@
 #include "logger.h"
 #include <cstring>
-#include <stdexcept>
+#include <assert.h>
 
 namespace Borealis::Debug
 {
@@ -49,7 +49,7 @@ namespace Borealis::Debug
 		return LogMessageInternal(debugInfo);
 	}
 
-	Borealis::Types::int16 AssertInternal(const char* file, const Borealis::Types::int16 line, const bool assertion, const char* message, ...)
+	inline Borealis::Types::int16 AssertInternal(const char* file, const Borealis::Types::int16 line, const bool assertion, const char* message, ...)
 	{
 		if (assertion) { return 0; }
 			
@@ -65,8 +65,9 @@ namespace Borealis::Debug
 		Types::int16 returnVal = LogMessageInternal(debugInfo);
 
 #ifdef THROW_ON_ASSERT
+		assert(false && debugInfo.msg.c_str());
 		//throw std::exception(debugInfo.msg.c_str());
-		exit(668);
+		//exit(668);
 #endif
 		return returnVal;
 	}

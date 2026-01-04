@@ -1,12 +1,12 @@
 #pragma once
 #include "../../../config.h"
-#include "../../graphics/pipeline_config.h"
+//#include "../../graphics/pipeline_config.h"
 //#include "debug_category_button.h"
 #include "IGUIDrawable.h"
 #include "../../graphics/helpers/helpers.h"
 
 #include "imgui/imgui.h"
-#include <vector>
+//#include <vector>
 
 #define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 
@@ -58,7 +58,7 @@ namespace Borealis::Runtime::Debug
 		void InitializeGUI();
 		void UninitializeGUI();
 
-		void UpdateDrawable(ImFont* font) override;
+		void UpdateDrawable() override;
 
 	private:
 		void OnGui();
