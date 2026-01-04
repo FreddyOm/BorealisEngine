@@ -256,14 +256,14 @@ namespace Borealis::Runtime::Debug
 			pD3D12Renderer->GetCommandList()->ResourceBarrier(1, &barrier);
 			
 			// Close and execute the command list
-			//ID3D12CommandList* const pCommandList = pD3D12Renderer->m_CommandList.GetAddressOf();
+			ID3D12GraphicsCommandList7* const pCommandList = pD3D12Renderer->GetCommandList();
 
 			// Issue is probably pCommandList !!
-			hResult = pD3D12Renderer->GetCommandList()->Close();
+			hResult = pCommandList->Close();
 			Assert(hResult == S_OK, StrFromHResult(hResult));
 
 			// Execute the command list
-			pD3D12Renderer->GetCommandQueue()->ExecuteCommandLists(1, (ID3D12CommandList* const*) pD3D12Renderer->m_CommandList.GetAddressOf());
+			pD3D12Renderer->GetCommandQueue()->ExecuteCommandLists(1, (ID3D12CommandList* const*) &pCommandList);
 			hResult = pD3D12Renderer->GetCommandQueue()->Signal(pD3D12Renderer->m_CommandQueueFence.Get(), ++pD3D12Renderer->m_LastSignaledFenceValue);
 			Assert(hResult == S_OK, StrFromHResult(hResult));
 

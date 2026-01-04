@@ -49,7 +49,6 @@ namespace Borealis::Graphics
 		Microsoft::WRL::ComPtr<ID3D12Fence> m_CommandQueueFence;
 		Types::uint64 m_LastSignaledFenceValue = 0;
 
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList;
 
 	private:
 
@@ -64,6 +63,7 @@ namespace Borealis::Graphics
 
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_SwapChain;
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue;
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList;
 
 		std::vector<Helpers::FrameContext> m_FrameContexts = {};
 
