@@ -263,7 +263,7 @@ namespace Borealis::Runtime::Debug
 			pD3D12Renderer->GetCommandList()->ResourceBarrier(1, &barrier);
 		    
 			// Render Dear ImGui graphics | record commands
-			static float clear_color_with_alpha[4] = { 0.2, 0.2, 0.2, 1 };
+			static float clear_color_with_alpha[4] = { 0.1, 0.3, 0.5, 1 };
 			pD3D12Renderer->GetCommandList()->ClearRenderTargetView(pD3D12Renderer->GetRTVDescriptor(backBufferIdx), clear_color_with_alpha, 0, nullptr);
 			pD3D12Renderer->GetCommandList()->OMSetRenderTargets(1, &pD3D12Renderer->GetRTVDescriptor(backBufferIdx), FALSE, nullptr);
 			pD3D12Renderer->GetCommandList()->SetDescriptorHeaps(1, pD3D12Renderer->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetAddressOf());

@@ -2,7 +2,6 @@
 #include "../../debug/logger.h"
 #include "../../memory/memory.h"
 #include "../d3d12/d3d12_common.h"
-#include "../../debug/profiling.h"
 //#include "../../debug/runtime-debug/EditorWindow.h"
 
 using namespace Borealis::Types;
