@@ -38,13 +38,13 @@ set(SOURCES
 )
 
 if(WIN32)
-    message("Configuring tests for Windows platform")
+    message(STATUS "Configuring tests for Windows platform")
     add_compile_definitions(BOREALIS_WIN)
 elseif(APPLE)
-    message("Configuring tests for MacOS platform")
+    message(STATUS "Configuring tests for MacOS platform")
     add_compile_definitions(BOREALIS_OSX)
 elseif(UNIX)
-    message("Configuring tests for Linux platform")
+    message(STATUS "Configuring tests for Linux platform")
     add_compile_definitions(BOREALIS_LINUX)
 endif()
 

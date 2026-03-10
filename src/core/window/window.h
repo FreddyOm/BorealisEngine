@@ -2,6 +2,7 @@
 #include <string>
 #include "../types/string_id.h"
 #include "../types/types.h"
+#include "../../config.h"
 
 #if defined(BOREALIS_UNIX) || defined(BOREALIS_OSX)
 #define GLFW_INCLUDE_VULKAN
@@ -9,8 +10,12 @@
 #define GLFW_INCLUDE_NONE
 #endif
 
-#include "../../thirdparty/glfw/include/GLFW/glfw3.h"
+//#include "../../thirdparty/glfw/include/GLFW/glfw3.h"
 //#include <GLFW/glfw3.h>
+//#include "GLFW/glfw3.h"
+//#include "D:/02_Repositories/BorealisEngine/out/build/x64-Debug/_deps/glfw-src/include/GLFW/glfw3.h"
+
+struct GLFWwindow;
 
 namespace Borealis::Core
 {
@@ -35,7 +40,7 @@ namespace Borealis::Core
 			Types::uint16 GetWindowHeight() const;
 
 			Types::uint64 GetNativeWindowHandle() const;
-			GLFWwindow* GetGLFWWindow() const { return m_pWindow; }
+			GLFWwindow* GetGLFWWindow() const;
 			
 			void SetWindowName(std::string name);
 			Types::StringId GetWindowName() const;

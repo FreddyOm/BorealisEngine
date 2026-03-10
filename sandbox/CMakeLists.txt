@@ -24,18 +24,16 @@ set(SOURCES
 )
 
 if(WIN32)
-    message("Configuring sandbox for Windows platform")
+    message(STATUS "Configuring sandbox for Windows platform")
     add_compile_definitions(BOREALIS_WIN)
 elseif(APPLE)
-    message("Configuring sandbox for MacOS platform")
+    message(STATUS "Configuring sandbox for MacOS platform")
     add_compile_definitions(BOREALIS_OSX)
 elseif(UNIX)
-    message("Configuring sandbox for Linux platform")
+    message(STATUS "Configuring sandbox for Linux platform")
     add_compile_definitions(BOREALIS_LINUX)
 endif()
 
-
-message("Building engine sandbox...")
 add_executable(BorealisSandbox ${SOURCES})
 
 # Define preprocessor macros for build configurations

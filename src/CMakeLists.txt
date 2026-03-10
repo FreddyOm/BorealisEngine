@@ -12,29 +12,54 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Project information
 project(
     BorealisEngineLib
-    VERSION 0.1.0
+    VERSION 0.1.1
     LANGUAGES CXX C
 )
 
 # Platform-specific configurations
 if(WIN32)
-    message("Configuring engine lib for Windows platform")
+    message(STATUS "Configuring engine lib for Windows platform")
     add_compile_definitions(BOREALIS_WIN)
     add_compile_definitions(BOREALIS_BUILD_DLL)
 elseif(APPLE)
-    message("Configuring engine lib for MacOS platform")
+    message(STATUS "Configuring engine lib for MacOS platform")
     add_compile_definitions(BOREALIS_OSX)
     add_compile_definitions(BOREALIS_BUILD_DLL)
-elseif(UNIX)
-    message("Configuring engine lib for Linux platform")
+elseif(UNIX AND NOT APPLE)
+    message(STATUS "Configuring engine lib for Linux platform")
     add_compile_definitions(BOREALIS_LINUX)
     add_compile_definitions(BOREALIS_BUILD_DLL)
 endif()
 
-# Add GLFW as a subdirectory
-message("Adding GLFW via ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/GLFW/")
 
-message("Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
+message(STATUS "Adding dependencies...")
+# GLFW
+include(FetchContent)
+
+# Fetch and build GLFW 
+FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG 3.4  # oder eine andere stabile Version
+)
+FetchContent_MakeAvailable(glfw)
+
+# Vulkan
+if(UNIX AND NOT APPLE)
+    FetchContent_Declare(
+        vulkan_headers
+        GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers.git
+        GIT_TAG        v1.4.345
+    )
+    FetchContent_Declare(
+        vulkan_loader
+        GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Loader.git
+        GIT_TAG        v1.4.345
+    )
+    FetchContent_MakeAvailable(vulkan_headers vulkan_loader)
+endif()
+
+message(STATUS "Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
 
 # Project source files
 set(SOURCES 
@@ -115,16 +140,9 @@ set(HEADERS
     core/input/keyboard.h
 )
 
-# Specify lib directory for GLFW
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/GLFW/lib)
-
-
 # Create library
-if(WIN_32)
 add_library(BorealisEngineLib SHARED ${SOURCES} ${HEADERS}) #${CMAKE_CURRENT_SOURCE_DIR}/core/graphics/d3d12/DirectX-Headers/include)
-else()
-add_library(BorealisEngineLib SHARED ${SOURCES} ${HEADERS})
-endif(WIN_32)
+
 
 # Define preprocessor macros for build configurations
 target_compile_definitions(BorealisEngineLib PRIVATE
@@ -135,14 +153,41 @@ target_compile_definitions(BorealisEngineLib PRIVATE
         -DBOREALIS_VERSION=${CMAKE_PROJECT_VERSION}
 )
 
+# Include directories
+message(STATUS "GLFW Include Dir: ${glfw_SOURCE_DIR}/include")
+
+#include_directories(${glfw_SOURCE_DIR}/include)
+
+target_include_directories(BorealisEngineLib SYSTEM PRIVATE 
+    ${glfw_SOURCE_DIR}/include
+    $<$<AND:$<PLATFORM_ID:Linux>,$<NOT:$<PLATFORM_ID:Darwin>>>:${vulkan_headers_SOURCE_DIR}/include>
+)
+
+# Link libraries for each target platform
 if(WIN32)
-    target_link_libraries(BorealisEngineLib PUBLIC 
+    target_link_libraries(BorealisEngineLib PRIVATE 
         d3d12
         dxgi
         dxguid
         d3dcompiler
-        "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/GLFW/lib/glfw3.lib"
+        glfw
+    )
+elseif(APPLE)
+    target_link_libraries(BorealisEngineLib PRIVATE
+    glfw
+    ${Vulkan_LIBRARIES}
+    "-framework Cocoa"
+    "-framework IOKit"
+    "-framework QuartzCore"
+    )
+elseif(UNIX)
+    target_link_libraries(BorealisEngineLib PRIVATE
+        glfw
+        ${Vulkan_LIBRARIES}
+        X11
+        Xrandr
+        Xinerama
+        Xcursor
+        Xi
     )
 endif()
-
-target_include_directories(BorealisEngineLib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/GLFW/include/)

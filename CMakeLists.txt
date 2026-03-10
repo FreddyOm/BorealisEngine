@@ -19,15 +19,15 @@ project(
 )
 
 # Create dll
-message("Building engine library...")
+message(STATUS "BUILDING ENGINE LIBRARY...")
 add_subdirectory(src)
 
 
 # Create sandbox
-message("Building engine sandbox...")
+message(STATUS "BUILDING ENGINE SANDBOX...")
 add_subdirectory(sandbox)
 
 # Create test
-message("Building tests...")
+message(STATUS "BUILDING TESTS ...")
 enable_testing()
 add_subdirectory(tests)
