@@ -1,10 +1,16 @@
 #include <core/window/window.h>
 #include <core/graphics/graphics.h>
-#include <core/debug/runtime-debug/runtime-debug.h>
+#include <core/debug/runtime-debug/runtime_debug.h>
+#include <core/helpers/events.h>
+#include <core/input/input.h>
+#include <core/types/string_id.h>
+#include <core/debug/logger.h>
 
 using namespace Borealis::Core;
 using namespace Borealis::Graphics;
 using namespace Borealis::Runtime::Debug;
+using namespace Borealis::Types;
+using namespace Borealis::Input;
 
 int main()
 {
@@ -15,7 +21,7 @@ int main()
 		sandboxWindow.OpenWindow();
 
 		PipelineDesc desc{};
-		desc.SwapChain.WindowHandle = sandboxWindow.GetWindowHandle();
+		desc.SwapChain.WindowHandle = sandboxWindow.GetNativeWindowHandle();
 		desc.SwapChain.BufferHeight = sandboxWindow.GetWindowHeight();
 		desc.SwapChain.BufferWidth = sandboxWindow.GetWindowWidth();
 
@@ -23,14 +29,18 @@ int main()
 		InitD3D12LiveObjects();
 		renderer.InitializePipeline();
 
+		
+
+
+
 #if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
 
 		Helpers::IBorealisRenderer& baseRend = dynamic_cast<Helpers::IBorealisRenderer&>(renderer);
 		RuntimeDebugger runtimeDebugger = RuntimeDebugger(baseRend);
+		runtimeDebugger.Attatch(sandboxWindow.GetGLFWWindow());
 #endif
 
-		
-		while (sandboxWindow.IsRunning())
+		while (sandboxWindow.IsOpen())
 		{
 			sandboxWindow.UpdateWindow();
 
@@ -41,7 +51,7 @@ int main()
 		}
 
 #if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
-		runtimeDebugger.UninitializeGUI();
+		runtimeDebugger.Detatch();
 #endif
 
 		renderer.DeinitializePipeline();

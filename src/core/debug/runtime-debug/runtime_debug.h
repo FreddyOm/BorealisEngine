@@ -1,20 +1,20 @@
 #pragma once
 #include "../../../config.h"
-//#include "../../graphics/pipeline_config.h"
-//#include "debug_category_button.h"
 #include "IGUIDrawable.h"
 #include "../../graphics/helpers/helpers.h"
-
 #include "imgui/imgui.h"
-//#include <vector>
+//#include "debug_category_button.h"
+
 
 #define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 
-#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
+// TODO: Figure out how I can setup and use debug gui only in debug and relwithdebinfo builds
+//#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
+
+struct GLFWwindow;
 
 namespace Borealis::Runtime::Debug
 {
-
 	struct BOREALIS_API RuntimeDebugger : protected IGUIDrawable
 	{
 		RuntimeDebugger(Graphics::Helpers::IBorealisRenderer& renderer)
@@ -40,13 +40,11 @@ namespace Borealis::Runtime::Debug
 			//	// The filter is always the last one
 			//	new DebugLabelFilter("Filter", inter_bold, &labels, ImVec2(20, labelHeight)),
 			//};
-
-			InitializeGUI();
 		}
 		
 		~RuntimeDebugger()
 		{
-			UninitializeGUI();
+			Detatch();
 
 			/*for (auto* label : debugLabels)
 			{
@@ -55,8 +53,8 @@ namespace Borealis::Runtime::Debug
 		}
 
 	public:
-		void InitializeGUI();
-		void UninitializeGUI();
+		void Attatch(GLFWwindow* pWindow);
+		void Detatch();
 
 		void UpdateDrawable() override;
 
@@ -67,10 +65,9 @@ namespace Borealis::Runtime::Debug
 		
 	private:
 		bool initialized = false;
-		//Borealis::Graphics::PipelineDesc* const pPipelineDesc = nullptr;
 
 		Borealis::Graphics::Helpers::IBorealisRenderer& m_Renderer;
-
+		
 		ImGuiWindowFlags flags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove;
 
 		//std::vector<DebugCategoryButton> categoryButtons = { };
@@ -80,5 +77,3 @@ namespace Borealis::Runtime::Debug
 		static ImDrawData* p_drawData;
 	};
 }
-
-#endif

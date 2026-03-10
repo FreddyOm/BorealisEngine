@@ -21,7 +21,6 @@ namespace Borealis::Graphics
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
 	Microsoft::WRL::ComPtr<ID3D12Debug> g_DebugController;
-	/*Microsoft::WRL::ComPtr<IDXGIDebug1> g_DXGIDebug;*/
 	bool g_ReportLiveObjInitialized = false;
 
 #endif
@@ -171,13 +170,19 @@ namespace Borealis::Graphics
 		return frame_context;
 	}
 
+	//void BorealisD3D12Renderer::OnWindowResize(const Borealis::Core::WindowEvent& event)
+	//{
+	//	// Recreate the swap chain and all dependent resources
+	//	LogWarning("Window was resized but no recalculation of the resources were made yet! Need to implement!");
+	//}
+
 	D3D12_CPU_DESCRIPTOR_HANDLE& BorealisD3D12Renderer::GetRTVDescriptor(const Types::int32 rtvDescIdx)
 	{
 		return m_RTV_DescriptorHandles.at(rtvDescIdx);
 	}
 
 	/// <summary>
-	/// Initializes the D3D112 Info Queue for debug message handling.
+	/// Initializes the D3D12 Info Queue for debug message handling.
 	/// </summary>
 	/// <param name="m_Device">The rendering pipeline device.</param>
 	void InitD3D12InfoQueue(const ComPtr<ID3D12Device8> m_Device)

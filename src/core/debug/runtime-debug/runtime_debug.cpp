@@ -1,19 +1,19 @@
-#include "runtime-debug.h"
+#include "runtime_debug.h"
 
-#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
+//#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
 #include "../logger.h"
 #include "imgui/imgui.h"
 
 #ifdef BOREALIS_WIN
 
-#include "imgui/imgui_impl_win32.h"
+//#include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_dx12.h"
+#include "imgui/imgui_impl_glfw.h"
 
 //#include "../../graphics/d3d11/borealis_d3d11.h"
 #include "../../graphics/d3d12/borealis_d3d12.h"
-//#include "imgui/imgui_impl_vulkan.h"
 
 #include "../../graphics/helpers/helpers.h"
 #include "../../graphics/pipeline_config.h"
@@ -27,20 +27,43 @@ using namespace ImGui;
 using namespace Borealis::Graphics::Helpers;
 using namespace Borealis::Graphics;
 
+
 namespace Borealis::Runtime::Debug
 {
 	/// <summary>
 	/// Uninitializes the gui context.
 	/// </summary>
-	void RuntimeDebugger::UninitializeGUI()
+	void RuntimeDebugger::Detatch()
 	{
 		if (initialized)
 		{
 			initialized = false;
 
-			ImGui_ImplDX12_Shutdown();
-			//ImGui_ImplDX11_Shutdown();
-			ImGui_ImplWin32_Shutdown();
+			switch (m_Renderer.m_GraphicsBackend)
+			{
+				case GraphicsBackend::D3D11:
+				{
+					ImGui_ImplDX11_Shutdown();
+					break;
+				}
+				case GraphicsBackend::D3D12:
+				{
+					ImGui_ImplDX12_Shutdown();
+					break;
+				}
+				case GraphicsBackend::VULKAN:
+				{
+					//ImGui_ImplVulkan_Shutdown();
+					break;
+				}
+				default:
+				{
+					Assert(false, "Unsupported graphics backend for runtime debugger GUI!");
+					break;
+				}
+			}
+			
+			ImGui_ImplGlfw_Shutdown();
 
 			//guiDrawables.clear();
 		}
@@ -51,10 +74,10 @@ namespace Borealis::Runtime::Debug
 	/// <summary>
 	/// Initializes the gui context.
 	/// </summary>
-	void RuntimeDebugger::InitializeGUI()
+	void RuntimeDebugger::Attatch(GLFWwindow* pWindow)
 	{
-		ImGui_ImplWin32_EnableDpiAwareness();
-		float main_scale = ImGui_ImplWin32_GetDpiScaleForMonitor(::MonitorFromPoint(POINT{ 0, 0 }, MONITOR_DEFAULTTOPRIMARY));
+		/*ImGui_ImplWin32_EnableDpiAwareness();
+		float main_scale = ImGui_ImplWin32_GetDpiScaleForMonitor(::MonitorFromPoint(POINT{ 0, 0 }, MONITOR_DEFAULTTOPRIMARY));*/
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -62,18 +85,17 @@ namespace Borealis::Runtime::Debug
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-		//lexend_light = io.Fonts->AddFontFromFileTTF("./resources/fonts/Lexend-Light.ttf", 14);
-		
-		inter_bold = io.Fonts->AddFontFromFileTTF("D:/02_Repositories/BorealisEngine/out/build/x64-Debug/sandbox/resources/fonts/Inter-Bold.ttf", 14.0f);
-		inter_light = io.Fonts->AddFontFromFileTTF("D:/02_Repositories/BorealisEngine/out/build/x64-Debug/sandbox/resources/fonts/Inter-Light.ttf", 14.0f);
+		inter_bold = io.Fonts->AddFontFromFileTTF("./resources/fonts/Inter-Bold.ttf", 24.0f);
+		inter_light = io.Fonts->AddFontFromFileTTF("./resources/fonts/Inter-Light.ttf", 14.0f);
+		lexend_light = io.Fonts->AddFontFromFileTTF("./resources/fonts/Lexend-Light.ttf", 14.0f);
 
 		ImFontConfig config;
 		config.MergeMode = true;
 		config.GlyphMinAdvanceX = 14.0f; // Use if you want to make the icon monospaced
 		static const ImWchar icon_ranges[] = { 0xf000, 0xf372, 0 };
-		io.Fonts->AddFontFromFileTTF("D:/02_Repositories/BorealisEngine/out/build/x64-Debug/sandbox/resources/fonts/IconFont.ttf", 14.0f, &config, icon_ranges);
+		io.Fonts->AddFontFromFileTTF("./resources/fonts/IconFont.ttf", 14.0f, &config, icon_ranges);
 
-		io.Fonts->Build();
+		//io.Fonts->Build();
 
 		// Use CCE Colors
 		ImGui::StyleColorsBorealis();
@@ -88,25 +110,27 @@ namespace Borealis::Runtime::Debug
 
 		// TODO: Hook the editors input calls to the engines input
 		//Input::InputCallback = &ImGui_ImplWin32_WndProcHandler;
+		//ImGui_ImplGlfw_InstallCallbacks(pWindow);
 
 		// Setup scaling
 		ImGuiStyle& style = ImGui::GetStyle();
-		style.ScaleAllSizes(main_scale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
+		//style.ScaleAllSizes(main_scale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
 		
 		// TODO: Make sure the correct graphics backend is used
-
+		
 		Assert(m_Renderer.m_GraphicsBackend != GraphicsBackend::UNDEFINED,
 			"Cannot initialize Dear Imgui for undefined graphics backend!");
 
 		// Windwos only graphics APIs will always use Win32 in Borealis for now!
 		if (m_Renderer.m_GraphicsBackend == GraphicsBackend::D3D11 || m_Renderer.m_GraphicsBackend == GraphicsBackend::D3D12)
 		{
-			Assert(ImGui_ImplWin32_Init(reinterpret_cast<void*>(m_Renderer.m_PipelineDesc.SwapChain.WindowHandle)),
-				"Failed to initialize the runtime debugger GUI with Win32.");
+			/*Assert(ImGui_ImplWin32_Init(reinterpret_cast<void*>(m_Renderer.m_PipelineDesc.SwapChain.WindowHandle)),
+				"Failed to initialize the runtime debugger GUI with Win32.");*/
+			Assert(ImGui_ImplGlfw_InitForOther(pWindow, true),
+				"Failed to initialize the runtime debugger GUI with GLFW.");
 		}
 		
 		// For now, fall-through because windows impl is always reliant on win32
-		
 		switch (m_Renderer.m_GraphicsBackend)
 		{
 			case GraphicsBackend::D3D11:
@@ -151,11 +175,6 @@ namespace Borealis::Runtime::Debug
 		initialized = true;
 	}
 
-	/// <summary>
-	/// A flag that indicates wether or not the gui is initialized.
-	/// </summary>
-	//bool IGUIDrawable::initialized = false;
-
 
 	/// <summary>
 	/// A list of registered gui drawables.
@@ -169,7 +188,7 @@ namespace Borealis::Runtime::Debug
 
 	void RuntimeDebugger::UpdateDrawable()
 	{
-		Assert(initialized, "Cannot draw GUI when not initialized.");
+		Assert(initialized, "Cannot draw GUI when not initialized. Call Attatch() during initialization!");
 
 		static Graphics::GraphicsBackend graphicsBackend = m_Renderer.m_GraphicsBackend;
 		//static BorealisD3D12Renderer* pRenderer = dynamic_cast renderer;
@@ -178,11 +197,11 @@ namespace Borealis::Runtime::Debug
 		{
 		case D3D11:
 			ImGui_ImplDX11_NewFrame();
-			ImGui_ImplWin32_NewFrame();
+			//ImGui_ImplWin32_NewFrame();
 			break;
 		case D3D12:
 			ImGui_ImplDX12_NewFrame();
-			ImGui_ImplWin32_NewFrame();
+			//ImGui_ImplWin32_NewFrame();
 			break;
 		case VULKAN:
 			Assert(false, "Not yet implemented!");
@@ -192,6 +211,7 @@ namespace Borealis::Runtime::Debug
 			break;
 		}
 
+		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
 		OnGui();
@@ -325,4 +345,4 @@ namespace Borealis::Runtime::Debug
 
 }
 
-#endif
+//#endif

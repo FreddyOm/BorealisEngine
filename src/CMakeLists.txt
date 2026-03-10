@@ -16,6 +16,7 @@ project(
     LANGUAGES CXX C
 )
 
+# Platform-specific configurations
 if(WIN32)
     message("Configuring engine lib for Windows platform")
     add_compile_definitions(BOREALIS_WIN)
@@ -28,20 +29,10 @@ elseif(UNIX)
     message("Configuring engine lib for Linux platform")
     add_compile_definitions(BOREALIS_LINUX)
     add_compile_definitions(BOREALIS_BUILD_DLL)
-
-    #include(FetchContent)
-    #FetchContent_Declare(
-    #    libX11
-    #    GIT_REPOSITORY https://github.com/mirror/libX11.git
-    #    GIT_TAG libX11-1.8.4
-    #    GIT_SHALLOW TRUE
-    #)
-    #FetchContent_MakeAvailable(libX11)
-    #
-    #find_package(X11 REQUIRED)
-    #link_libraries(${X11_LIBRARIES})
-    #include_directories(${X11_INCLUDE_DIR})
 endif()
+
+# Add GLFW as a subdirectory
+message("Adding GLFW via ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/GLFW/")
 
 message("Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
 
@@ -49,10 +40,9 @@ message("Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
 set(SOURCES 
     core/types/string_id.cpp
     core/window/window.cpp
-    core/window/window_internal.cpp
     core/debug/logger.cpp
     core/debug/logger_internal.cpp
-    core/debug/runtime-debug/runtime-debug.cpp
+    core/debug/runtime-debug/runtime_debug.cpp
     core/debug/runtime-debug/IGUIDrawable.cpp
     core/debug/runtime-debug/imgui/imgui.cpp
     core/debug/runtime-debug/imgui/imgui_demo.cpp
@@ -61,6 +51,7 @@ set(SOURCES
     core/debug/runtime-debug/imgui/imgui_impl_dx12.cpp
     core/debug/runtime-debug/imgui/imgui_impl_vulkan.cpp
     core/debug/runtime-debug/imgui/imgui_impl_win32.cpp
+    core/debug/runtime-debug/imgui/imgui_impl_glfw.cpp
     core/debug/runtime-debug/imgui/imgui_tables.cpp
     core/debug/runtime-debug/imgui/imgui_widgets.cpp
     core/memory/stack_allocator.cpp
@@ -74,6 +65,8 @@ set(SOURCES
     core/graphics/d3d11/borealis_d3d11.cpp
     core/graphics/d3d12/borealis_d3d12.cpp
     core/graphics/vulkan/borealis_vulkan.cpp
+    core/input/input.cpp
+    core/input/keyboard.cpp
 )
 
 # Project include files
@@ -83,10 +76,10 @@ set(HEADERS
     core/types/types.h
     core/types/string_id.h
     core/window/window.h
-    core/window/window_internal.h
     core/debug/logger.h
     core/debug/logger_internal.h
-    core/debug/runtime-debug/runtime-debug.h
+    core/debug/runtime-debug/runtime_debug.h
+    core/debug/runtime-debug/runtime_debug_internal.h
     core/debug/runtime-debug/IGUIDrawable.h
     core/debug/runtime-debug/imgui/imconfig.h
     core/debug/runtime-debug/imgui/imgui.h
@@ -94,6 +87,7 @@ set(HEADERS
     core/debug/runtime-debug/imgui/imgui_impl_dx12.h
     core/debug/runtime-debug/imgui/imgui_impl_vulkan.h
     core/debug/runtime-debug/imgui/imgui_impl_win32.h
+    core/debug/runtime-debug/imgui/imgui_impl_glfw.h
     core/debug/runtime-debug/imgui/imgui_internal.h
     core/debug/runtime-debug/imgui/imstb_textedit.h
     core/debug/runtime-debug/imgui/imstb_truetype.h
@@ -116,7 +110,14 @@ set(HEADERS
     core/graphics/helpers/helpers.h
     core/graphics/helpers/d3d12_helpers.h
     core/graphics/helpers/gbuffer.h
+    core/helpers/events.h
+    core/input/input.h
+    core/input/keyboard.h
 )
+
+# Specify lib directory for GLFW
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/GLFW/lib)
+
 
 # Create library
 if(WIN_32)
@@ -134,12 +135,14 @@ target_compile_definitions(BorealisEngineLib PRIVATE
         -DBOREALIS_VERSION=${CMAKE_PROJECT_VERSION}
 )
 
-
 if(WIN32)
-    target_link_libraries(BorealisEngineLib PRIVATE 
+    target_link_libraries(BorealisEngineLib PUBLIC 
         d3d12
         dxgi
         dxguid
         d3dcompiler
+        "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/GLFW/lib/glfw3.lib"
     )
 endif()
+
+target_include_directories(BorealisEngineLib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/GLFW/include/)

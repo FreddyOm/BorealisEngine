@@ -15,7 +15,7 @@ TEST(D3D12GraphicsTest, InitAndDeinitPipeline)
 
 	// Create config
 	PipelineDesc pipelineConfig{};
-	pipelineConfig.SwapChain.WindowHandle = testWindow.GetWindowHandle();
+	pipelineConfig.SwapChain.WindowHandle = testWindow.GetNativeWindowHandle();
 
 	// D3D12
 #ifdef BOREALIS_WIN

@@ -2,7 +2,8 @@
 #include "../../../config.h"
 #include "../../graphics/pipeline_config.h"
 
-#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
+// TODO: Figure out how I can setup and use debug gui only in debug and relwithdebinfo builds
+//#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
 struct ImFont;
 
@@ -37,10 +38,11 @@ namespace Borealis::Runtime::Debug
 		
 		static ImFont* inter_light;
 		static ImFont* inter_bold;
+		static ImFont* lexend_light;
 
 	protected:
 		bool isOpen = false;
 
 	};
 }
-#endif
+//#endif

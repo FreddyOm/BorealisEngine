@@ -22,6 +22,7 @@ project(
 message("Building engine library...")
 add_subdirectory(src)
 
+
 # Create sandbox
 message("Building engine sandbox...")
 add_subdirectory(sandbox)

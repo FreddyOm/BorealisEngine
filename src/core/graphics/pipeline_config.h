@@ -71,7 +71,7 @@ namespace Borealis::Graphics
 	// TODO: Implement Vulkan Pipeline Desc
 	struct PipelineDesc
 	{
-
+		
 	};
 
 #endif

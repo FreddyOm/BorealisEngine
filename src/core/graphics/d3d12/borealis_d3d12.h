@@ -1,6 +1,7 @@
 #pragma once
 #include "../../../config.h"
 #include "../../types/types.h"
+#include "../../window/window.h"
 
 #if defined(BOREALIS_WIN)
 #include <vector>
@@ -33,6 +34,7 @@ namespace Borealis::Graphics
 		Borealis::Types::int64 InitializePipeline() override;
 		Borealis::Types::int64 DeinitializePipeline() override;
 
+		// Getters
 		ID3D12Device8* const GetDevice() const;
 		ID3D12CommandQueue* const GetCommandQueue() const;
 		ID3D12GraphicsCommandList7* const GetCommandList() const;
@@ -40,11 +42,13 @@ namespace Borealis::Graphics
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetDescriptorHeap(const D3D12_DESCRIPTOR_HEAP_TYPE descHeapType) const;
 		ID3D12Resource* const GetRenderTarget(const Types::int32) const;
 		ID3D12Resource* const GetCurrentRenderTarget() const;
-		Helpers::FrameContext* const WaitForNextFrameContext();
 		D3D12_CPU_DESCRIPTOR_HANDLE& GetRTVDescriptor(const Types::int32 rtvDescIdx);
 
+		// Functional
 		HRESULT PresentFrame();
 		bool ToggleFullscreen();
+		Helpers::FrameContext* const WaitForNextFrameContext();
+		//void OnWindowResize(const Borealis::Core::WindowEvent& event);
 
 		Microsoft::WRL::ComPtr<ID3D12Fence> m_CommandQueueFence;
 		Types::uint64 m_LastSignaledFenceValue = 0;

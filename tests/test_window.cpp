@@ -14,17 +14,17 @@ TEST(WindowTest, WindowOpenClose)
 
     testWindow.OpenWindow();
 
-    EXPECT_TRUE(testWindow.IsRunning());
+    EXPECT_TRUE(testWindow.IsOpen());
     EXPECT_FALSE(testWindow.IsMinimized());
 
     EXPECT_GT(testWindow.GetWindowHeight(), 0);
     EXPECT_GT(testWindow.GetWindowWidth(), 0);
     
-    EXPECT_NE(testWindow.GetWindowHandle(), 0);
+    EXPECT_NE(testWindow.GetNativeWindowHandle(), 0);
 
     testWindow.CloseWindow();
 
-    EXPECT_FALSE(testWindow.IsRunning());
+    EXPECT_FALSE(testWindow.IsOpen());
     EXPECT_FALSE(testWindow.IsMinimized());
 
     EXPECT_EQ(testWindow.GetWindowHeight(), 0);
