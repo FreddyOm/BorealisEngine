@@ -121,6 +121,25 @@ namespace Borealis::Memory
 			return nullptr;
 		}
 
+		static HandleInfo* AllocBlock(Types::uint64 blockSize)
+		{
+			if (g_memoryAllocatorContext.empty())
+			{
+				LogError("No memory allocator assigned for allocation! Use a MemAllocJanitor to push an allocator context!");
+				return nullptr;
+			}
+
+			HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->Alloc(blockSize);
+			if (p_hndl)
+			{
+				new (AccessHandleData(p_hndl->HandleId)) T();
+				return p_hndl;
+			}
+
+			LogError("Couldn't allocate memory!");
+			return nullptr;
+		}
+
 		static HandleInfo* AllocAligned()
 		{
 			if (g_memoryAllocatorContext.empty())
