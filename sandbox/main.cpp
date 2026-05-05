@@ -1,10 +1,11 @@
 #include <core/window/window.h>
 #include <core/graphics/graphics.h>
 #include <core/debug/runtime-debug/runtime_debug.h>
-#include <core/helpers/events.h>
 #include <core/input/input.h>
-#include <core/types/string_id.h>
-#include <core/debug/logger.h>
+//#include <core/helpers/events.h>
+//#include <core/input/input.h>
+//#include <core/types/string_id.h>
+//#include <core/debug/logger.h>
 
 using namespace Borealis::Core;
 using namespace Borealis::Graphics;
@@ -28,20 +29,19 @@ int main()
 		BorealisD3D12Renderer renderer = BorealisD3D12Renderer(desc);
 		InitD3D12LiveObjects();
 		renderer.InitializePipeline();
-
 		
-
-
+		InputSystem inputSystem = InputSystem();
 
 #if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
 
 		Helpers::IBorealisRenderer& baseRend = dynamic_cast<Helpers::IBorealisRenderer&>(renderer);
-		RuntimeDebugger runtimeDebugger = RuntimeDebugger(baseRend);
+		RuntimeDebugger runtimeDebugger = RuntimeDebugger(baseRend, &inputSystem);
 		runtimeDebugger.Attatch(sandboxWindow.GetGLFWWindow());
 #endif
 
 		while (sandboxWindow.IsOpen())
 		{
+			inputSystem.UpdateInputState();
 			sandboxWindow.UpdateWindow();
 
 #if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)

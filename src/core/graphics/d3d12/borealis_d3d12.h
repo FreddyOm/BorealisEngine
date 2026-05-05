@@ -54,6 +54,10 @@ namespace Borealis::Graphics
 		Types::uint64 m_LastSignaledFenceValue = 0;
 
 
+		// Functional methods
+		Texture* CreateTexture(const char* path);
+
+
 	private:
 
 		Borealis::Types::int64 SetupPipeline();

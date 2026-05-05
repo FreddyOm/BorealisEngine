@@ -175,12 +175,6 @@ namespace Borealis::Runtime::Debug
 		initialized = true;
 	}
 
-
-	/// <summary>
-	/// A list of registered gui drawables.
-	/// </summary>
-	//std::vector<IGUIDrawable*> IGUIDrawable::guiDrawables = {};
-
 	/// <summary>
 	/// ImGuis draw data. 
 	/// </summary>
@@ -300,16 +294,32 @@ namespace Borealis::Runtime::Debug
 	{
 		if (isOpen)
 		{
+			// The runtime debugger itself is a whole, screen-filling Dear ImGui window itself.
+			// In order to create those overlay elements (labels and category buttons) the window has no background!
+			
+			
+			// ----- Do not draw anything that should have background or borders down here! -----
 			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 			ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 			ImGui::PushStyleColor(ImGuiCol_BorderShadow, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-
-			ImGui::ShowDemoWindow();
 
 			DrawCategoryButtons();
 			DrawDebugInfoLabels();
 
 			ImGui::PopStyleColor(3);
+
+			ImGui::ShowDemoWindow();
+
+			// ----- Now you can draw normal windows and GUI stuff -----
+			
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(30, 20));
+
+			for (auto* runtimeDebugWindow : runtimeGUIDrawables)
+			{
+				runtimeDebugWindow->UpdateDrawable();
+			}
+
+			ImGui::PopStyleVar();
 		}
 	}
 
@@ -320,10 +330,10 @@ namespace Borealis::Runtime::Debug
 
 		ImGui::Begin("Debug Categories", &isOpen, flags);
 
-		//for (Types::uint16 i = 0; i < categoryButtons.size(); ++i)
-		//{
-		//	categoryButtons[i].Draw(i + 1); // draw all added debug windows except this (which is at index 0)
-		//}
+		for (Types::uint16 i = 0; i < categoryButtons.size(); ++i)
+		{
+			categoryButtons[i].Draw(i); 
+		}
 
 		ImGui::End();
 	}
@@ -335,10 +345,10 @@ namespace Borealis::Runtime::Debug
 
 		ImGui::Begin("FPSStats", &isOpen, flags);
 
-		/*for (Types::uint16 i = 0; i < debugLabels.size(); ++i)
+		for (Types::uint16 i = 0; i < debugLabels.size(); ++i)
 		{
 			debugLabels[i]->Draw();
-		}*/
+		}
 
 		ImGui::End();
 	}

@@ -4,6 +4,12 @@
 namespace Borealis::Types
 {	
 	
+	struct IResettable
+	{
+		virtual void Reset() noexcept = 0;
+		virtual ~IResettable() = default;
+	};
+
 #if defined(BOREALIS_WIN)
 
 	typedef int_fast8_t				int8;

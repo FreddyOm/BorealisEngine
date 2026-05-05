@@ -68,7 +68,9 @@ set(SOURCES
     core/debug/logger.cpp
     core/debug/logger_internal.cpp
     core/debug/runtime-debug/runtime_debug.cpp
-    core/debug/runtime-debug/IGUIDrawable.cpp
+    core/debug/runtime-debug/IGUI_drawable.cpp
+    core/debug/runtime-debug/editor_window.cpp
+    core/debug/runtime-debug/debug_category_button.cpp
     core/debug/runtime-debug/imgui/imgui.cpp
     core/debug/runtime-debug/imgui/imgui_demo.cpp
     core/debug/runtime-debug/imgui/imgui_draw.cpp
@@ -90,22 +92,29 @@ set(SOURCES
     core/graphics/d3d11/borealis_d3d11.cpp
     core/graphics/d3d12/borealis_d3d12.cpp
     core/graphics/vulkan/borealis_vulkan.cpp
+    core/graphics/helpers/helpers.cpp
     core/input/input.cpp
     core/input/keyboard.cpp
+    core/io/file_io.cpp
 )
 
 # Project include files
 set(HEADERS
     config.h
     borealis_engine.h
+    thirdparty/ds5w/include/ds5w.h
+    thirdparty/directxtk12/include/directxtk12/WICTextureLoader.h
     core/types/types.h
     core/types/string_id.h
     core/window/window.h
     core/debug/logger.h
     core/debug/logger_internal.h
     core/debug/runtime-debug/runtime_debug.h
-    core/debug/runtime-debug/runtime_debug_internal.h
-    core/debug/runtime-debug/IGUIDrawable.h
+    core/debug/runtime-debug/debug_info_label.h
+    core/debug/runtime-debug/debug_category_button.h
+    core/debug/runtime-debug/IGUI_drawable.h
+    core/debug/runtime-debug/editor_window.h
+    core/debug/runtime-debug/input_debugger.h
     core/debug/runtime-debug/imgui/imconfig.h
     core/debug/runtime-debug/imgui/imgui.h
     core/debug/runtime-debug/imgui/imgui_impl_dx11.h
@@ -136,8 +145,12 @@ set(HEADERS
     core/graphics/helpers/d3d12_helpers.h
     core/graphics/helpers/gbuffer.h
     core/helpers/events.h
+    core/helpers/object_pool.h
     core/input/input.h
     core/input/keyboard.h
+    core/input/borealis_devices.h
+    core/input/input_device.h
+    core/io/file_io.h
 )
 
 # Create library
@@ -154,13 +167,13 @@ target_compile_definitions(BorealisEngineLib PRIVATE
 )
 
 # Include directories
-message(STATUS "GLFW Include Dir: ${glfw_SOURCE_DIR}/include")
-
-#include_directories(${glfw_SOURCE_DIR}/include)
+#message(STATUS "GLFW Include Dir: ${glfw_SOURCE_DIR}/include")
 
 target_include_directories(BorealisEngineLib SYSTEM PRIVATE 
     ${glfw_SOURCE_DIR}/include
     $<$<AND:$<PLATFORM_ID:Linux>,$<NOT:$<PLATFORM_ID:Darwin>>>:${vulkan_headers_SOURCE_DIR}/include>
+    ${CMAKE_SOURCE_DIR}/src/thirdparty/ds5w/include
+    ${CMAKE_SOURCE_DIR}/src/thirdparty/directxtk12/include
 )
 
 # Link libraries for each target platform
@@ -169,8 +182,19 @@ if(WIN32)
         d3d12
         dxgi
         dxguid
+        uuid
+        kernel32
+        user32
+        comdlg32
+        advapi32
+        shell32
+        ole32
+        oleaut32
+        runtimeobject
         d3dcompiler
         glfw
+        ${CMAKE_SOURCE_DIR}/src/thirdparty/ds5w/ds5w_x64.lib
+        ${CMAKE_SOURCE_DIR}/src/thirdparty/directxtk12/lib/DirectXTK12.lib
     )
 elseif(APPLE)
     target_link_libraries(BorealisEngineLib PRIVATE

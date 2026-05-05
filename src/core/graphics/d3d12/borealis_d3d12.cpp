@@ -2,11 +2,14 @@
 #include "../../debug/logger.h"
 #include "../../memory/memory.h"
 #include "../d3d12/d3d12_common.h"
+#include "../../io/file_io.h"
 //#include "../../debug/runtime-debug/EditorWindow.h"
 
 using namespace Borealis::Types;
 
 #if defined(BOREALIS_WIN)	// D3D12 only available for Windows OS
+
+#include <directxtk12/WICTextureLoader.h>
 
 using namespace Microsoft::WRL;
 using namespace Borealis::Graphics::Helpers;
@@ -354,6 +357,22 @@ namespace Borealis::Graphics
 		}
 		
 		return hResult;
+	}
+
+	Texture* BorealisD3D12Renderer::CreateTexture(const char* path)
+	{
+		Texture tex;
+
+		
+		uint64 fileSize = 0;
+		Memory::RefCntAutoPtr<char> texData = IO::ReadFile(path, Memory::MemAllocatorContext::RENDERING, fileSize);
+
+		std::unique_ptr<uint8_t[]> decodedData{};
+		D3D12_SUBRESOURCE_DATA srData{};
+
+		//HRESULT hRes = DirectX::LoadWICTextureFromMemory(m_Device.Get(), texData.RawPtr(), fileSize, tex.GetTexResource(), decodedData, srData);
+		
+		return nullptr;
 	}
 
 	int64 BorealisD3D12Renderer::SetupPipeline()

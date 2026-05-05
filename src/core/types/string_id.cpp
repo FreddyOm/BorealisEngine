@@ -14,9 +14,9 @@ namespace Borealis::Types
 	Types::StringId InternString(const char* str)
 	{
 		Assert(str != nullptr, "Cannot create string from nullptr!");
-		Assert(strlen(str) > 0, "Empty strings are not allowed!");
+		Assert(std::char_traits<char>::length(str) > 0, "Empty strings are not allowed!");
 
-		StringId sid = Math::HashValue(str, strlen(str));
+		StringId sid = Math::HashValue(str, std::char_traits<char>::length(str));
 		std::unordered_map<StringId, const char*>::iterator it
 			= g_StringIdTable.find(sid);
 
@@ -32,6 +32,11 @@ namespace Borealis::Types
 	Types::StringId String(const char* str)
 	{
 		return InternString(str);
+	}
+
+	const char* ValueFromStringId(Types::StringId stringId)
+	{
+		return g_StringIdTable.find(stringId) != g_StringIdTable.end() ? g_StringIdTable[stringId] : "";
 	}
 }
 

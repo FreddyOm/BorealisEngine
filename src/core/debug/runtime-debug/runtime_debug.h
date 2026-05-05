@@ -1,10 +1,14 @@
 #pragma once
 #include "../../../config.h"
-#include "IGUIDrawable.h"
+#include "../../types/string_id.h"
 #include "../../graphics/helpers/helpers.h"
-#include "imgui/imgui.h"
-//#include "debug_category_button.h"
 
+#include "IGUI_drawable.h"
+#include "debug_category_button.h"
+#include "debug_info_label.h"
+#include "input_debugger.h"
+
+#include "imgui/imgui.h"
 
 #define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 
@@ -15,41 +19,58 @@ struct GLFWwindow;
 
 namespace Borealis::Runtime::Debug
 {
+	
 	struct BOREALIS_API RuntimeDebugger : protected IGUIDrawable
 	{
-		RuntimeDebugger(Graphics::Helpers::IBorealisRenderer& renderer)
+		RuntimeDebugger(Graphics::Helpers::IBorealisRenderer& renderer, Input::InputSystem* pInputSystem)
 			: m_Renderer(renderer), IGUIDrawable(true)
 		{ 
-			/*categoryButtons =
+
+			// First, register all debug windows (deriving from IGUIDrawable)
+			runtimeGUIDrawables.push_back(new InputDebugger(pInputSystem));
+			//runtimeGUIDrawables.push_back(new InputDebugger());
+
+			// Then, register category buttons, passing the runtimeGUIDrawables for "click" events
+			categoryButtons =
 			{
-				DebugCategoryButton(ImVec2(40,40), GetGUIDrawablePtrs(), ICON_FK_VIDEO_CAMERA),
-				DebugCategoryButton(ImVec2(40,40), GetGUIDrawablePtrs(), ICON_FK_CHECK_CIRCLE_O),
-				DebugCategoryButton(ImVec2(40,40), GetGUIDrawablePtrs(), ICON_FK_KEYBOARD_O),
-				DebugCategoryButton(ImVec2(40,40), GetGUIDrawablePtrs(), ICON_FK_TASKS),
-			};*/
+				DebugCategoryButton(ImVec2(100,100), &runtimeGUIDrawables, Types::String("CatA")),
+				DebugCategoryButton(ImVec2(100,100), &runtimeGUIDrawables, Types::String("CatB")),
+				DebugCategoryButton(ImVec2(100,100), &runtimeGUIDrawables, Types::String("CatC")),
+				DebugCategoryButton(ImVec2(100,100), &runtimeGUIDrawables, Types::String("CatD")),
+			};
 
-			//// Add more individual metrics here (e.g. GPU time, vertex count, mesh count, ...)
-			//debugLabels =
-			//{
-			//	new RuntimePauseLabel("Runtime Pause Label", inter_bold, ImVec2(labelHeight, labelHeight)),
-			//	new FrameTimeDebugInfoLabel("Game Update Time", inter_bold, ImVec2(130, labelHeight)),
-			//	new ImGuiDebugInfoLabel("ImGui Update Time", inter_bold, pImgui_process_time_ms, ImVec2(115, labelHeight)),
-			//	new PhysicsTimeDebugInfoLabel("Physics Update Time", inter_bold, ImVec2(115, labelHeight)),
-			//	new ConsoleDebugInfoLabel("Console Info", inter_bold, GetGUIDrawablePtrs(), ImVec2(130, labelHeight)),
-
-			//	// The filter is always the last one
-			//	new DebugLabelFilter("Filter", inter_bold, &labels, ImVec2(20, labelHeight)),
-			//};
+			//Finally, create labels for better overview and customized statistics
+			// Add more individual metrics here (e.g. GPU time, vertex count, mesh count, ...)
+			debugLabels =
+			{
+				//new RuntimePauseLabel("Runtime Pause Label", inter_bold, ImVec2(labelHeight, labelHeight)),
+				//new FrameTimeDebugInfoLabel("Game Update Time", inter_bold, ImVec2(130, labelHeight)),
+				//new ImGuiDebugInfoLabel("ImGui Update Time", inter_bold, pImgui_process_time_ms, ImVec2(115, labelHeight)),
+				//new PhysicsTimeDebugInfoLabel("Physics Update Time", inter_bold, ImVec2(115, labelHeight)),
+				//new ConsoleDebugInfoLabel("Console Info", inter_bold, GetGUIDrawablePtrs(), ImVec2(130, labelHeight)),
+				//
+				//// The filter is always the last one
+				//new DebugLabelFilter("Filter", inter_bold, &labels, ImVec2(20, labelHeight)),
+			};
 		}
 		
 		~RuntimeDebugger()
 		{
 			Detatch();
 
-			/*for (auto* label : debugLabels)
+			for (auto* runtimeDebugWindow : runtimeGUIDrawables)
+			{
+				delete runtimeDebugWindow;
+			}
+
+			runtimeGUIDrawables.clear();
+
+			for (auto* label : debugLabels)
 			{
 				delete label;
-			}*/
+			}
+
+			debugLabels.clear();
 		}
 
 	public:
@@ -70,8 +91,11 @@ namespace Borealis::Runtime::Debug
 		
 		ImGuiWindowFlags flags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove;
 
-		//std::vector<DebugCategoryButton> categoryButtons = { };
-		//std::vector<DebugInfoLabel*> debugLabels = { };
+
+		std::vector<IGUIDrawable*> runtimeGUIDrawables = {};
+
+		std::vector<Runtime::Debug::DebugCategoryButton> categoryButtons = { };
+		std::vector<Runtime::Debug::DebugInfoLabel*> debugLabels = { };
 
 		float labelHeight = 18.f;
 		static ImDrawData* p_drawData;

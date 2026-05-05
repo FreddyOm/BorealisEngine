@@ -20,7 +20,12 @@ namespace Borealis::Types
 	/// <returns>The string id.</returns>
 	BOREALIS_API extern StringId String(const char* str);
 
-	// TODO: Add macro that reads string value from StringId in debug configs
+	/// <summary>
+	/// Reads the human-readable string value from a StringId.
+	/// </summary>
+	/// <param name="stringId">The StringId to look up.</param>
+	/// <returns>A human readable string with the content stored as that StringId.</returns>
+	BOREALIS_API extern const char* ValueFromStringId(StringId stringId);
 
 #else
 
@@ -38,6 +43,18 @@ namespace Borealis::Types
 		// TODO: Non-constexpr strlen cannot produce compile-time-static value! Fix me!
 		return Math::CompileTimeHashValue(str);
 	}
+
+	/// <summary>
+	/// String function directly evaluates to an empty string since the string id will not store any 
+	/// readable value in release builds.
+	/// </summary>
+	/// <param name="stringId">The string ID to look up.</param>
+	/// <returns>Always an empty string.</returns>
+	BOREALIS_API constexpr const char* ValueFromStringId(StringId stringId)
+	{
+		return "";
+	}
+
 
 #endif
 }
