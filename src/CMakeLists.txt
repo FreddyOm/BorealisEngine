@@ -12,52 +12,65 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Project information
 project(
     BorealisEngineLib
-    VERSION 0.1.0
+    VERSION 0.1.1
     LANGUAGES CXX C
 )
 
+# Platform-specific configurations
 if(WIN32)
-    message("Configuring engine lib for Windows platform")
+    message(STATUS "Configuring engine lib for Windows platform")
     add_compile_definitions(BOREALIS_WIN)
     add_compile_definitions(BOREALIS_BUILD_DLL)
-
-    message("Building D3DX12...")
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/core/graphics/d3d12/DirectX-Headers)
-    include_directories(core/graphics/d3d12/DirectX-Headers/include)
-
 elseif(APPLE)
-    message("Configuring engine lib for MacOS platform")
+    message(STATUS "Configuring engine lib for MacOS platform")
     add_compile_definitions(BOREALIS_OSX)
     add_compile_definitions(BOREALIS_BUILD_DLL)
-elseif(UNIX)
-    message("Configuring engine lib for Linux platform")
+elseif(UNIX AND NOT APPLE)
+    message(STATUS "Configuring engine lib for Linux platform")
     add_compile_definitions(BOREALIS_LINUX)
     add_compile_definitions(BOREALIS_BUILD_DLL)
-
-    #include(FetchContent)
-    #FetchContent_Declare(
-    #    libX11
-    #    GIT_REPOSITORY https://github.com/mirror/libX11.git
-    #    GIT_TAG libX11-1.8.4
-    #    GIT_SHALLOW TRUE
-    #)
-    #FetchContent_MakeAvailable(libX11)
-    #
-    #find_package(X11 REQUIRED)
-    #link_libraries(${X11_LIBRARIES})
-    #include_directories(${X11_INCLUDE_DIR})
 endif()
 
-message("Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
+
+message(STATUS "Adding dependencies...")
+# GLFW
+include(FetchContent)
+
+# Fetch and build GLFW 
+FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG 3.4  # oder eine andere stabile Version
+)
+FetchContent_MakeAvailable(glfw)
+
+# Vulkan
+if(UNIX AND NOT APPLE)
+    FetchContent_Declare(
+        vulkan_headers
+        GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers.git
+        GIT_TAG        v1.4.345
+    )
+    FetchContent_Declare(
+        vulkan_loader
+        GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Loader.git
+        GIT_TAG        v1.4.345
+    )
+    FetchContent_MakeAvailable(vulkan_headers vulkan_loader)
+endif()
+
+message(STATUS "Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
 
 # Project source files
 set(SOURCES 
     core/types/string_id.cpp
     core/window/window.cpp
-    core/window/window_internal.cpp
     core/debug/logger.cpp
     core/debug/logger_internal.cpp
-    core/debug/runtime-debug/runtime-debug.cpp
+    core/debug/runtime-debug/runtime_debug.cpp
+    core/debug/runtime-debug/IGUI_drawable.cpp
+    core/debug/runtime-debug/editor_window.cpp
+    core/debug/runtime-debug/debug_category_button.cpp
     core/debug/runtime-debug/imgui/imgui.cpp
     core/debug/runtime-debug/imgui/imgui_demo.cpp
     core/debug/runtime-debug/imgui/imgui_draw.cpp
@@ -65,6 +78,7 @@ set(SOURCES
     core/debug/runtime-debug/imgui/imgui_impl_dx12.cpp
     core/debug/runtime-debug/imgui/imgui_impl_vulkan.cpp
     core/debug/runtime-debug/imgui/imgui_impl_win32.cpp
+    core/debug/runtime-debug/imgui/imgui_impl_glfw.cpp
     core/debug/runtime-debug/imgui/imgui_tables.cpp
     core/debug/runtime-debug/imgui/imgui_widgets.cpp
     core/memory/stack_allocator.cpp
@@ -78,25 +92,36 @@ set(SOURCES
     core/graphics/d3d11/borealis_d3d11.cpp
     core/graphics/d3d12/borealis_d3d12.cpp
     core/graphics/vulkan/borealis_vulkan.cpp
+    core/graphics/helpers/helpers.cpp
+    core/input/input.cpp
+    core/input/keyboard.cpp
+    core/io/file_io.cpp
 )
 
 # Project include files
 set(HEADERS
     config.h
     borealis_engine.h
+    thirdparty/ds5w/include/ds5w.h
+    thirdparty/directxtk12/include/directxtk12/WICTextureLoader.h
     core/types/types.h
     core/types/string_id.h
     core/window/window.h
-    core/window/window_internal.h
     core/debug/logger.h
     core/debug/logger_internal.h
-    core/debug/runtime-debug/runtime-debug.h
+    core/debug/runtime-debug/runtime_debug.h
+    core/debug/runtime-debug/debug_info_label.h
+    core/debug/runtime-debug/debug_category_button.h
+    core/debug/runtime-debug/IGUI_drawable.h
+    core/debug/runtime-debug/editor_window.h
+    core/debug/runtime-debug/input_debugger.h
     core/debug/runtime-debug/imgui/imconfig.h
     core/debug/runtime-debug/imgui/imgui.h
     core/debug/runtime-debug/imgui/imgui_impl_dx11.h
     core/debug/runtime-debug/imgui/imgui_impl_dx12.h
     core/debug/runtime-debug/imgui/imgui_impl_vulkan.h
     core/debug/runtime-debug/imgui/imgui_impl_win32.h
+    core/debug/runtime-debug/imgui/imgui_impl_glfw.h
     core/debug/runtime-debug/imgui/imgui_internal.h
     core/debug/runtime-debug/imgui/imstb_textedit.h
     core/debug/runtime-debug/imgui/imstb_truetype.h
@@ -112,19 +137,25 @@ set(HEADERS
     core/graphics/graphics.h
     core/graphics/pipeline_config.h
     core/graphics/d3d11/borealis_d3d11.h
+    core/graphics/d3d11/d3d11_common.h
     core/graphics/d3d12/borealis_d3d12.h
+    core/graphics/d3d12/d3d12_common.h
     core/graphics/vulkan/borealis_vulkan.h
     core/graphics/helpers/helpers.h
     core/graphics/helpers/d3d12_helpers.h
     core/graphics/helpers/gbuffer.h
+    core/helpers/events.h
+    core/helpers/object_pool.h
+    core/input/input.h
+    core/input/keyboard.h
+    core/input/borealis_devices.h
+    core/input/input_device.h
+    core/io/file_io.h
 )
 
 # Create library
-if(WIN_32)
-add_library(BorealisEngineLib SHARED ${SOURCES} ${HEADERS} ${CMAKE_CURRENT_SOURCE_DIR}/core/graphics/d3d12/DirectX-Headers/include)
-else()
-add_library(BorealisEngineLib SHARED ${SOURCES} ${HEADERS})
-endif(WIN_32)
+add_library(BorealisEngineLib SHARED ${SOURCES} ${HEADERS}) #${CMAKE_CURRENT_SOURCE_DIR}/core/graphics/d3d12/DirectX-Headers/include)
+
 
 # Define preprocessor macros for build configurations
 target_compile_definitions(BorealisEngineLib PRIVATE
@@ -135,12 +166,52 @@ target_compile_definitions(BorealisEngineLib PRIVATE
         -DBOREALIS_VERSION=${CMAKE_PROJECT_VERSION}
 )
 
+# Include directories
+#message(STATUS "GLFW Include Dir: ${glfw_SOURCE_DIR}/include")
 
+target_include_directories(BorealisEngineLib SYSTEM PRIVATE 
+    ${glfw_SOURCE_DIR}/include
+    $<$<AND:$<PLATFORM_ID:Linux>,$<NOT:$<PLATFORM_ID:Darwin>>>:${vulkan_headers_SOURCE_DIR}/include>
+    ${CMAKE_SOURCE_DIR}/src/thirdparty/ds5w/include
+    ${CMAKE_SOURCE_DIR}/src/thirdparty/directxtk12/include
+)
+
+# Link libraries for each target platform
 if(WIN32)
     target_link_libraries(BorealisEngineLib PRIVATE 
         d3d12
         dxgi
         dxguid
+        uuid
+        kernel32
+        user32
+        comdlg32
+        advapi32
+        shell32
+        ole32
+        oleaut32
+        runtimeobject
         d3dcompiler
+        glfw
+        ${CMAKE_SOURCE_DIR}/src/thirdparty/ds5w/ds5w_x64.lib
+        ${CMAKE_SOURCE_DIR}/src/thirdparty/directxtk12/lib/DirectXTK12.lib
+    )
+elseif(APPLE)
+    target_link_libraries(BorealisEngineLib PRIVATE
+    glfw
+    ${Vulkan_LIBRARIES}
+    "-framework Cocoa"
+    "-framework IOKit"
+    "-framework QuartzCore"
+    )
+elseif(UNIX)
+    target_link_libraries(BorealisEngineLib PRIVATE
+        glfw
+        ${Vulkan_LIBRARIES}
+        X11
+        Xrandr
+        Xinerama
+        Xcursor
+        Xi
     )
 endif()

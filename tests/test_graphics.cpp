@@ -15,16 +15,16 @@ TEST(D3D12GraphicsTest, InitAndDeinitPipeline)
 
 	// Create config
 	PipelineDesc pipelineConfig{};
-	pipelineConfig.SwapChain.WindowHandle = reinterpret_cast<HWND>(testWindow.GetWindowHandle());
+	pipelineConfig.SwapChain.WindowHandle = testWindow.GetNativeWindowHandle();
 
 	// D3D12
 #ifdef BOREALIS_WIN
 
-	EXPECT_NO_FATAL_FAILURE(
-		{
-			BorealisD3D12Renderer renderer(pipelineConfig);
-		}
-	);
+	BorealisD3D12Renderer renderer = BorealisD3D12Renderer(pipelineConfig);
+
+	EXPECT_EQ(0, renderer.InitializePipeline());
+	
+	EXPECT_EQ(0, renderer.DeinitializePipeline());
 	
 #endif
 

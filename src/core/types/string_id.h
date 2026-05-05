@@ -1,5 +1,4 @@
 #pragma once
-#include "../../config.h"
 #include "types.h"
 #include "../debug/logger.h"
 
@@ -13,17 +12,20 @@ namespace Borealis::Types
 	typedef uint64Ptr StringId;
 
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
-	BOREALIS_API extern StringId InternString(const char* str);
 
 	/// <summary>
 	/// Evaluates to a hash value and stores the native string internally.
 	/// </summary>
 	/// <param name="str">The native string to store.</param>
 	/// <returns>The string id.</returns>
-	StringId String(const char* str)
-	{
-		return InternString(str);
-	}
+	BOREALIS_API extern StringId String(const char* str);
+
+	/// <summary>
+	/// Reads the human-readable string value from a StringId.
+	/// </summary>
+	/// <param name="stringId">The StringId to look up.</param>
+	/// <returns>A human readable string with the content stored as that StringId.</returns>
+	BOREALIS_API extern const char* ValueFromStringId(StringId stringId);
 
 #else
 
@@ -41,6 +43,18 @@ namespace Borealis::Types
 		// TODO: Non-constexpr strlen cannot produce compile-time-static value! Fix me!
 		return Math::CompileTimeHashValue(str);
 	}
+
+	/// <summary>
+	/// String function directly evaluates to an empty string since the string id will not store any 
+	/// readable value in release builds.
+	/// </summary>
+	/// <param name="stringId">The string ID to look up.</param>
+	/// <returns>Always an empty string.</returns>
+	BOREALIS_API constexpr const char* ValueFromStringId(StringId stringId)
+	{
+		return "";
+	}
+
 
 #endif
 }

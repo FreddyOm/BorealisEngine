@@ -1,0 +1,64 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36" version="29.6.1">
+  <diagram name="Seite-1" id="xlpG9cMRmin-ETlIHFSG">
+    <mxGraphModel dx="905" dy="564" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="tinL0Xj5YQxG_0m4viSz-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;" value="&lt;font face=&quot;Lexend&quot;&gt;InputSystem&lt;/font&gt;" vertex="1">
+          <mxGeometry height="160" width="760" x="40" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="tinL0Xj5YQxG_0m4viSz-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;&lt;font face=&quot;Lexend&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;font face=&quot;Lexend&quot;&gt;&lt;div&gt;&lt;font face=&quot;Lexend&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Lexend&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Lexend&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Lexend&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Operating System&lt;/span&gt;&lt;/div&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="100" width="760" x="40" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="tinL0Xj5YQxG_0m4viSz-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;gradientColor=#7ea6e0;" value="&lt;font face=&quot;Lexend&quot;&gt;Windows&lt;/font&gt;" vertex="1">
+          <mxGeometry height="60" width="230" x="57.5" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="tinL0Xj5YQxG_0m4viSz-4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;gradientColor=#ea6b66;" value="&lt;font face=&quot;Lexend&quot;&gt;Linux&lt;/font&gt;" vertex="1">
+          <mxGeometry height="60" width="240" x="300" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="tinL0Xj5YQxG_0m4viSz-5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6d0de;strokeColor=#996185;gradientColor=#d5739d;" value="&lt;font face=&quot;Lexend&quot;&gt;Mac OS&lt;/font&gt;" vertex="1">
+          <mxGeometry height="60" width="240" x="550" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="tinL0Xj5YQxG_0m4viSz-13" edge="1" parent="1" source="tinL0Xj5YQxG_0m4viSz-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="tinL0Xj5YQxG_0m4viSz-1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="830" y="455" />
+              <mxPoint x="830" y="235" />
+            </Array>
+            <mxPoint x="910" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tinL0Xj5YQxG_0m4viSz-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;gradientColor=#7ea6e0;strokeColor=#6c8ebf;" value="&lt;font face=&quot;Lexend&quot;&gt;GLFW Window&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="760" x="40" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="tinL0Xj5YQxG_0m4viSz-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;gradientColor=#97d077;" value="&lt;font face=&quot;Lexend&quot;&gt;D3D11/12&lt;/font&gt;" vertex="1">
+          <mxGeometry height="80" width="260" x="40" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="tinL0Xj5YQxG_0m4viSz-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=light-dark(#F8CECC,#510808);strokeColor=#b85450;gradientColor=light-dark(#EA6B66,#D03434);" value="&lt;font face=&quot;Lexend&quot;&gt;Vulkan&lt;/font&gt;" vertex="1">
+          <mxGeometry height="80" width="490" x="310" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="tinL0Xj5YQxG_0m4viSz-11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffcd28;gradientColor=#ffa500;strokeColor=#d79b00;" value="&lt;font face=&quot;Lexend&quot;&gt;Dear ImGui Runtime Debugger&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="760" x="40" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="QrP_WzE0BmKQojTLR6tl-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;gradientColor=#97d077;" value="&lt;font face=&quot;Lexend&quot;&gt;GameInput&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="235" x="55" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="QrP_WzE0BmKQojTLR6tl-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;gradientColor=#7ea6e0;" value="&lt;font face=&quot;Lexend&quot;&gt;DualSense&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="235" x="55" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="QrP_WzE0BmKQojTLR6tl-4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;gradientColor=#97d077;" value="&lt;font face=&quot;Lexend&quot;&gt;XPAD&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="240" x="300" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="QrP_WzE0BmKQojTLR6tl-5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;gradientColor=#7ea6e0;" value="&lt;font face=&quot;Lexend&quot;&gt;DualSense (?)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="240" x="300" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="QrP_WzE0BmKQojTLR6tl-6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;gradientColor=#7ea6e0;" value="&lt;font face=&quot;Lexend&quot;&gt;DualSense (?)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="240" x="550" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="QrP_WzE0BmKQojTLR6tl-8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#36393d;dashed=1;dashPattern=8 8;" value="&lt;font face=&quot;Lexend&quot;&gt;libgamepad (?), ...&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="735" x="55" y="170" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

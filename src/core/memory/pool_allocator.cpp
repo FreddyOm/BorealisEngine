@@ -2,11 +2,11 @@
 #include "../debug/logger.h"
 #include "memory.h"
 
+using namespace Borealis::Types;
+using namespace Borealis::Debug;
 
 namespace Borealis::Memory
 {
-	using namespace Borealis::Types;
-	using namespace Borealis::Debug;
 	
 	PoolAllocator::PoolAllocator(int32 poolElementCount, uint64 elementSize)
 		: poolElementCount(poolElementCount), poolElementSize(elementSize)
@@ -112,6 +112,11 @@ namespace Borealis::Memory
 		++freeCount;
 	}
 
+	/// <summary>
+	/// Allocates a free pool element and aligns the data.
+	/// </summary>
+	/// <param name="allocSize">The allocation size to allocate. Usually sizeof(T).</param>
+	/// <returns>A handle to the pool elements data.</returns>
 	HandleInfo* PoolAllocator::AllocAligned(const uint16 allocSize)
 	{
 		Assert(allocSize * 2 <= poolElementSize,
@@ -146,6 +151,10 @@ namespace Borealis::Memory
 		return RegisterHandle(p_freePoolElement);
 	}
 
+	/// <summary>
+	/// Frees an aligned pool element from the pool allocator.
+	/// </summary>
+	/// <param name="address">The address of the element to free.</param>
 	void PoolAllocator::FreeAligned(const void* const address)
 	{
 		Assert(reinterpret_cast<uint64Ptr>(address) >= p_poolBase &&
@@ -169,6 +178,10 @@ namespace Borealis::Memory
 		++freeCount;
 	}
 
+	/// <summary>
+	/// Resets the pool allocator and makes all pool elements available again.
+	/// Does not override the pool elements or zero the memory. Memory is released when deconstructing the pool allocator as a whole.
+	/// </summary>
 	void PoolAllocator::Clear()
 	{
 		p_freePoolElementList = std::stack<Borealis::Types::uint64Ptr>();

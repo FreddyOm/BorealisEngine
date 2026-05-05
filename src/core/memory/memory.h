@@ -7,6 +7,7 @@
 
 #include <stack>
 #include <unordered_map>
+#include <utility>
 
 namespace Borealis::Memory
 {
@@ -82,8 +83,8 @@ namespace Borealis::Memory
 	BOREALIS_API void FlushAllocator();
 
 
-	template<typename T>
-	T* Allocate()
+	template<typename T, typename... Args>
+	T* Allocate(Args&&... args)
 	{
 		if (g_memoryAllocatorContext.empty())
 		{
@@ -95,14 +96,14 @@ namespace Borealis::Memory
 		Assert(p_hndl != nullptr, "Failed to allocate memory!");
 		if (p_hndl) 
 		{
-			return new (AccessHandleData(p_hndl->HandleId)) T();
+			return new (AccessHandleData(p_hndl->HandleId)) T(std::forward<Args>(args)...);
 		}
 
 		return nullptr;
 	}
 
-	template<typename T>
-	T* AllocAligned()
+	template<typename T, typename... Args>
+	T* AllocAligned(Args&&... args)
 	{
 		if (g_memoryAllocatorContext.empty())
 			return nullptr;
@@ -111,7 +112,7 @@ namespace Borealis::Memory
 		Assert(p_hndl != nullptr, "Failed to allocate memory!");
 		if (p_hndl) 
 		{
-			return new (AccessHandleData(p_hndl->HandleId)) T();
+			return new (AccessHandleData(p_hndl->HandleId)) T(std::forward<Args>(args)...);
 		}
 
 		return nullptr;
