@@ -205,6 +205,9 @@ elseif(APPLE)
     "-framework QuartzCore"
     )
 elseif(UNIX)
+
+    set(GLFW_BUILD_X11)
+
     target_link_libraries(BorealisEngineLib PRIVATE
         glfw
         ${Vulkan_LIBRARIES}
