@@ -51,12 +51,6 @@ if(UNIX AND NOT APPLE)
         GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers.git
         GIT_TAG        v1.4.345
     )
-    FetchContent_Declare(
-        vulkan_loader
-        GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Loader.git
-        GIT_TAG        v1.4.345
-    )
-    FetchContent_MakeAvailable(vulkan_headers vulkan_loader)
 endif()
 
 message(STATUS "Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
