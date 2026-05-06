@@ -66,6 +66,7 @@ namespace Borealis::Debug
 
 #ifdef THROW_ON_ASSERT
 		assert(false && debugInfo.msg.c_str());
+		exit(3);	// Make sure to always fail if THROW_ON_ASSERT is defined and the assert is called.
 #endif
 		return returnVal;
 	}

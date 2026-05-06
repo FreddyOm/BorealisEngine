@@ -30,7 +30,8 @@ namespace Borealis::Core
 			~Window();
 
 			void OpenWindow();
-			void CloseWindow() const;
+			void CloseWindow();
+
 			void UpdateWindow() const;
 			
 			bool IsMinimized() const;

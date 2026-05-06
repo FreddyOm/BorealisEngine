@@ -13,12 +13,12 @@ namespace Borealis::Core
 	/// <returns>true if the window is minimized; otherwise false.</returns>
 	bool Window::IsMinimized() const
 	{
-		return glfwGetWindowAttrib(m_pWindow, GLFW_ICONIFIED);
+		return m_pWindow ? glfwGetWindowAttrib(m_pWindow, GLFW_ICONIFIED) : false;
 	}
 
 	bool Window::IsMaximized() const
 	{
-		return glfwGetWindowAttrib(m_pWindow, GLFW_MAXIMIZED);
+		return m_pWindow? glfwGetWindowAttrib(m_pWindow, GLFW_MAXIMIZED) : false;
 	}
 
 	/// <summary>
@@ -78,9 +78,13 @@ namespace Borealis::Core
 	/// <summary>
 	/// Closes the window.
 	/// </summary>
-	void Window::CloseWindow() const
+	void Window::CloseWindow()
 	{
+		Assert(IsOpen(), "Cannot close an uninitialized or terminated window!");
+
 		glfwDestroyWindow(m_pWindow);
+		glfwTerminate();
+		m_pWindow = nullptr;
 	}
 
 	/// <summary>
@@ -88,6 +92,7 @@ namespace Borealis::Core
 	/// </summary>
 	void Window::UpdateWindow() const
 	{
+		Assert(IsOpen(), "Cannot update an uninitialized or terminated window!");
 		glfwPollEvents();
 	}
 
@@ -97,10 +102,13 @@ namespace Borealis::Core
 	/// <returns>The window width.</returns>
 	uint16 Window::GetWindowWidth() const
 	{
+		if (!IsOpen())
+			return 0;
+
 		GLFWmonitor* p_glfwMonitor = glfwGetPrimaryMonitor();
 		auto* p_vidMode = glfwGetVideoMode(p_glfwMonitor);
 		
-		return IsOpen() ? p_vidMode->width : 0;
+		return p_vidMode->width;
 	}
 	
 	/// <summary>
@@ -109,10 +117,13 @@ namespace Borealis::Core
 	/// <returns>The window height.</returns>
 	uint16 Window::GetWindowHeight() const
 	{
+		if (!IsOpen())
+			return 0;
+
 		GLFWmonitor* p_glfwMonitor = glfwGetPrimaryMonitor();
 		auto* p_vidMode = glfwGetVideoMode(p_glfwMonitor);
 
-		return IsOpen() ? p_vidMode->height : 0;
+		return p_vidMode->height;
 	}
 
 	/// <summary>
@@ -123,7 +134,7 @@ namespace Borealis::Core
 	{
 #ifdef BOREALIS_WIN
 		
-		return reinterpret_cast<Types::uint64>(glfwGetWin32Window(m_pWindow));
+		return IsOpen() ? reinterpret_cast<Types::uint64>(glfwGetWin32Window(m_pWindow)) : 0;
 
 #else	// BOREALIS_UNIX || BOREALIS_OSX
 		
@@ -144,6 +155,8 @@ namespace Borealis::Core
 	/// <param name="name">The new window name.</param>
 	void Window::SetWindowName(std::string name)
 	{
+		Assert(IsOpen(), "Cannot set the window name on an uninitialized or terminated window!");
+
 		windowName = name;
 		glfwSetWindowTitle(m_pWindow, windowName.c_str());
 	}
