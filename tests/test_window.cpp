@@ -23,16 +23,17 @@ TEST(WindowTest, WindowOpenClose)
     EXPECT_GT(testWindow.GetWindowHeight(), 0);
     EXPECT_GT(testWindow.GetWindowWidth(), 0);
     
+#ifdef BOREALIS_WIN
+    // The native handle can only be referenced by win targets for now. 
+    // That is because the Vulkan implementation for Unix / OSX is not yet present in the code base.
+    // As soon as the Vulkan impl. is ready, a native handle can be returned and the test case can be done for all platforms.
     EXPECT_NE(testWindow.GetNativeWindowHandle(), 0);
-
+#endif
     testWindow.CloseWindow();
 
     EXPECT_FALSE(testWindow.IsOpen());
 
     EXPECT_FALSE(testWindow.IsMinimized());
-
-    int t4 = testWindow.GetWindowHeight();
-    int t5 = testWindow.GetWindowWidth();
 
     EXPECT_EQ(testWindow.GetWindowHeight(), 0);
     EXPECT_EQ(testWindow.GetWindowWidth(), 0);
