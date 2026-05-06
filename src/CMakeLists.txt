@@ -36,6 +36,10 @@ message(STATUS "Adding dependencies...")
 # GLFW
 include(FetchContent)
 
+if(UNIX AND NOT APPLE)
+    set(GLFW_BUILD_X11)
+endif()
+
 # Fetch and build GLFW 
 FetchContent_Declare(
     glfw
@@ -205,8 +209,6 @@ elseif(APPLE)
     "-framework QuartzCore"
     )
 elseif(UNIX)
-
-    set(GLFW_BUILD_X11)
 
     target_link_libraries(BorealisEngineLib PRIVATE
         glfw
