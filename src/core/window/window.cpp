@@ -1,5 +1,12 @@
 #include "window.h"
+
+#ifdef BOREALIS_WIN
 #define GLFW_EXPOSE_NATIVE_WIN32
+#elif BOREALIS_UNIX
+#define GLFW_EXPOSE_NATIVE_X11
+#define GLFW_EXPOSE_NATIVE_WAYLAND
+#endif
+
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
