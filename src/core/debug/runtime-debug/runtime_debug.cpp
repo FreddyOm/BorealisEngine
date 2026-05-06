@@ -221,32 +221,35 @@ namespace Borealis::Runtime::Debug
 		{
 #ifdef BOREALIS_WIN
 		case GraphicsBackend::D3D11:
+		{
 			p_drawData = ImGui::GetDrawData();
 			ImGui_ImplDX11_RenderDrawData(p_drawData);
 			break;
+		}
 		case GraphicsBackend::D3D12:
+		{
 			// TODO: Push common rendering code to BorealisD3D12Renderer
 			// TODO: Move ImGui specific code from BorealisD3D12Renderer to here
-			
+
 			/*static*/ BorealisD3D12Renderer* pD3D12Renderer = dynamic_cast<BorealisD3D12Renderer* const>(&m_Renderer);
 			Assert(pD3D12Renderer != nullptr, "Failed to cast the renderer to BorealisD3D12Renderer.");
 			static HRESULT hResult;
 			hResult = S_OK;
-			
+
 			// Get back buffer index
 			const UINT backBufferIdx = pD3D12Renderer->GetSwapChain()->GetCurrentBackBufferIndex();
-			
+
 			// Waiting for the last frame to finish
 			FrameContext* frameCtx = pD3D12Renderer->WaitForNextFrameContext();
-			
+
 			// Reset command allocator
 			hResult = frameCtx->CommandAllocator->Reset();
 			Assert(hResult == S_OK, "Failed to reset command allocator in preparation for the new frame!");
-			
+
 			// Reset command list
 			hResult = pD3D12Renderer->GetCommandList()->Reset(frameCtx->CommandAllocator.Get(), nullptr);
 			Assert(hResult == S_OK, "Failed to reset command list in preparation for the new frame!");
-			
+
 			// TODO: Try to wrap resource barriers in a helper function in BorealisD3D12Renderer
 			D3D12_RESOURCE_BARRIER barrier = {};
 			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -255,25 +258,25 @@ namespace Borealis::Runtime::Debug
 			barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 			barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
 			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-			
+
 			/*hResult = pD3D12Renderer->GetCommandList()->Reset(frameCtx->CommandAllocator.Get(), nullptr);
 			Assert(hResult == S_OK, StrFromHResult(hResult));*/
-			
+
 			pD3D12Renderer->GetCommandList()->ResourceBarrier(1, &barrier);
-		    
+
 			// Render Dear ImGui graphics | record commands
 			static float clear_color_with_alpha[4] = { 0.1, 0.3, 0.5, 1 };
 			pD3D12Renderer->GetCommandList()->ClearRenderTargetView(pD3D12Renderer->GetRTVDescriptor(backBufferIdx), clear_color_with_alpha, 0, nullptr);
 			pD3D12Renderer->GetCommandList()->OMSetRenderTargets(1, &pD3D12Renderer->GetRTVDescriptor(backBufferIdx), FALSE, nullptr);
 			pD3D12Renderer->GetCommandList()->SetDescriptorHeaps(1, pD3D12Renderer->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetAddressOf());
-			
+
 			// Draw render data
 			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), pD3D12Renderer->GetCommandList());
-			
+
 			barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 			pD3D12Renderer->GetCommandList()->ResourceBarrier(1, &barrier);
-			
+
 			// Close and execute the command list
 			ID3D12GraphicsCommandList7* const pCommandList = pD3D12Renderer->GetCommandList();
 
@@ -282,7 +285,7 @@ namespace Borealis::Runtime::Debug
 			Assert(hResult == S_OK, StrFromHResult(hResult));
 
 			// Execute the command list
-			pD3D12Renderer->GetCommandQueue()->ExecuteCommandLists(1, (ID3D12CommandList* const*) &pCommandList);
+			pD3D12Renderer->GetCommandQueue()->ExecuteCommandLists(1, (ID3D12CommandList* const*)&pCommandList);
 			hResult = pD3D12Renderer->GetCommandQueue()->Signal(pD3D12Renderer->m_CommandQueueFence.Get(), ++pD3D12Renderer->m_LastSignaledFenceValue);
 			Assert(hResult == S_OK, StrFromHResult(hResult));
 
@@ -290,9 +293,21 @@ namespace Borealis::Runtime::Debug
 
 			hResult = pD3D12Renderer->PresentFrame();
 			Assert(hResult == S_OK, StrFromHResult(hResult));
-			
+
 			break;
+		}
 #endif
+		case GraphicsBackend::VULKAN:
+		{
+			break;
+		}
+
+		default:	// NONE, UNKNOWN
+		{
+			// Nothing
+			LogError("Graphics-Backend could not be specified!");
+			break;
+		}
 		}
 	}
 

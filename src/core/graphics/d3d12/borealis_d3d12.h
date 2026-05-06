@@ -3,7 +3,7 @@
 #include "../../types/types.h"
 #include "../../window/window.h"
 
-#if defined(BOREALIS_WIN)
+#ifdef BOREALIS_WIN
 #include <vector>
 #include "../helpers/d3d12_helpers.h"
 #include "../helpers/helpers.h"
