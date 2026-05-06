@@ -10,18 +10,18 @@
 
 namespace Borealis::Graphics
 {
-#ifdef BOREALIS_WIN
-
 	/// <summary>
 	/// Defines the possible graphics backends used with this pipeline.
 	/// </summary>
-	enum BOREALIS_API GraphicsBackend
+	enum class BOREALIS_API GraphicsBackend
 	{
 		UNDEFINED = 0,
 		D3D11 = 1,
 		D3D12 = 2,
 		VULKAN = 3
 	};
+
+#ifdef BOREALIS_WIN
 
 	/// <summary>
 	/// Defines some higher-level options for configuring the rendering pipelines swapchain.

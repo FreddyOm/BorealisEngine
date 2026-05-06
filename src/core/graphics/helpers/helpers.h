@@ -163,6 +163,8 @@ namespace Borealis::Graphics
         TEX_FORMAT_A4B4G4R4_UNORM = 191,
     };
 
+#ifdef BOREALIS_WIN
+
     struct BOREALIS_API BorealisD3D12Texture
     {
         BorealisD3D12Texture()
@@ -192,6 +194,7 @@ namespace Borealis::Graphics
         // Store filepath? Or GUID? 
     };
 
+#else
 
     struct BOREALIS_API BorealisVulkanTexture
     {
@@ -216,6 +219,8 @@ namespace Borealis::Graphics
         Types::uint16 m_Height = 0;
         // Store filepath? Or GUID? 
     };
+
+#endif
 
 
 #if defined(BOREALIS_WIN)

@@ -8,6 +8,9 @@ namespace Borealis::Graphics::Helpers
 
 namespace Borealis::Graphics
 {
+
+#ifdef BOREALIS_WIN
+
 	const Types::uint16 Borealis::Graphics::BorealisD3D12Texture::GetWidth() const
 	{
 		return m_Width;
@@ -18,6 +21,8 @@ namespace Borealis::Graphics
 		return m_Height;
 	}
 
+#else
+
 	const Types::uint16 Borealis::Graphics::BorealisVulkanTexture::GetWidth() const
 	{
 		return m_Width;
@@ -27,4 +32,6 @@ namespace Borealis::Graphics
 	{
 		return m_Height;
 	}
+
+#endif
 }

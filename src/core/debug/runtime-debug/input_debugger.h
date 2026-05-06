@@ -201,7 +201,7 @@ namespace Borealis::Runtime::Debug
 							, device->DeviceID[7]
 							);
 
-						ImGui::Text(idtxt.c_str());
+						ImGui::Text("%s", idtxt.c_str());
 
 						ImGui::Spacing();
 
@@ -249,6 +249,10 @@ namespace Borealis::Runtime::Debug
 							{
 								ImGui::Text("Type: Mouse");
 								DrawMouseDebugLayout(*pInputSystem->GetMouse());
+								break;
+							}
+							default:
+							{
 								break;
 							}
 						}

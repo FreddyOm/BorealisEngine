@@ -189,15 +189,15 @@ namespace Borealis::Runtime::Debug
 
 		switch (graphicsBackend)
 		{
-		case D3D11:
+		case GraphicsBackend::D3D11:
 			ImGui_ImplDX11_NewFrame();
 			//ImGui_ImplWin32_NewFrame();
 			break;
-		case D3D12:
+		case GraphicsBackend::D3D12:
 			ImGui_ImplDX12_NewFrame();
 			//ImGui_ImplWin32_NewFrame();
 			break;
-		case VULKAN:
+		case GraphicsBackend::VULKAN:
 			Assert(false, "Not yet implemented!");
 			break;
 		default:
@@ -215,11 +215,11 @@ namespace Borealis::Runtime::Debug
 
 		switch (graphicsBackend)
 		{
-		case D3D11:
+		case GraphicsBackend::D3D11:
 			p_drawData = ImGui::GetDrawData();
 			ImGui_ImplDX11_RenderDrawData(p_drawData);
 			break;
-		case D3D12:
+		case GraphicsBackend::D3D12:
 			// TODO: Push common rendering code to BorealisD3D12Renderer
 			// TODO: Move ImGui specific code from BorealisD3D12Renderer to here
 			

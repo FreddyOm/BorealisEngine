@@ -10,7 +10,7 @@ namespace Borealis::Input
 	struct IInputDevice : public Types::IResettable
 	{
 		IInputDevice(const InputDeviceCategory deviceType
-			,const BYTE* deviceId
+			,const Types::uint8* deviceId
 			,const Types::StringId displayName)
 			: DeviceType(deviceType)
 			,DisplayName(displayName)
@@ -29,13 +29,13 @@ namespace Borealis::Input
 		virtual ~IInputDevice() { }
 
 		InputDeviceCategory DeviceType = InputDeviceCategory::NONE;
-		BYTE DeviceID[32] = { 0 };
+		Types::uint8 DeviceID[32] = { 0 };
 		Types::StringId DisplayName = Types::String("N/A");
 	};
 
 	struct Gamepad : public IInputDevice
 	{
-		Gamepad(const BYTE* deviceId
+		Gamepad(const Types::uint8* deviceId
 			,const Types::StringId displayName, GamepadType vendorType)
 			: IInputDevice(InputDeviceCategory::GAMEPAD, deviceId, displayName), VendorType(vendorType)
 		{ }
@@ -61,7 +61,7 @@ namespace Borealis::Input
 
 	struct Keyboard : public IInputDevice
 	{
-		Keyboard(const BYTE deviceId [32]
+		Keyboard(const Types::uint8 deviceId [32]
 			,const Types::StringId displayName)
 			: IInputDevice(InputDeviceCategory::KEYBOARD, deviceId, displayName)
 		{ }
@@ -73,7 +73,7 @@ namespace Borealis::Input
 
 	struct Mouse : public IInputDevice
 	{
-		Mouse(const BYTE deviceId [32]
+		Mouse(const Types::uint8 deviceId [32]
 			,const Types::StringId displayName)
 			: IInputDevice(InputDeviceCategory::MOUSE, deviceId, displayName)
 		{ }

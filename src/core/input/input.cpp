@@ -527,4 +527,56 @@ namespace Borealis::Input
 
 #endif // BOREALIS_WIN
 
+#ifdef BOREALIS_LINUX
+
+	LinuxInputSystem::LinuxInputSystem()
+	{
+		Assert(false, "Not implemented yet!");
+	}
+
+	LinuxInputSystem::~LinuxInputSystem()
+	{
+		Assert(false, "Not implemented yet!");
+	}
+
+	void LinuxInputSystem::UpdateInputState()
+	{
+		Assert(false, "Not implemented yet!");
+	}
+
+	void LinuxInputSystem::OnDeviceConnected(IInputDevice& device, InputDeviceCategory category)
+	{
+		Assert(false, "Not implemented yet!");
+	}
+
+	void LinuxInputSystem::OnDeviceDisconnected(IInputDevice& device, InputDeviceCategory category)
+	{
+		Assert(false, "Not implemented yet!");
+	}
+
+	std::set<IInputDevice>& LinuxInputSystem::GetAllDevices()
+	{
+		Assert(false, "Not implemented yet!");
+		return std::set<IInputDevice>();
+	}
+
+	const Mouse* LinuxInputSystem::GetMouse() const
+	{
+		Assert(false, "Not implemented yet!");
+		return nullptr;
+	}
+
+	const Keyboard* LinuxInputSystem::GetKeyboard() const
+	{
+		Assert(false, "Not implemented yet!");
+		return nullptr;
+	}
+
+	const std::set<Gamepad*>& LinuxInputSystem::GetGamepads() const
+	{
+		Assert(false, "Not implemented yet!");
+		return std::set<Gamepad*>();
+	}
+
+#endif
 }
