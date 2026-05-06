@@ -36,10 +36,6 @@ message(STATUS "Adding dependencies...")
 # GLFW
 include(FetchContent)
 
-if(UNIX AND NOT APPLE)
-    set(GLFW_BUILD_X11)
-endif()
-
 # Fetch and build GLFW 
 FetchContent_Declare(
     glfw
