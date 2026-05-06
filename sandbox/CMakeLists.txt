@@ -53,10 +53,22 @@ if(WIN32)
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             $<TARGET_RUNTIME_DLLS:BorealisSandbox>
+            ${CMAKE_SOURCE_DIR}/src/thirdparty/ds5w/ds5w_x64.dll
+            ${CMAKE_SOURCE_DIR}/resources/
             $<TARGET_FILE_DIR:BorealisSandbox>
         COMMENT "Copying runtime DLLs to output directory..."
         COMMAND_EXPAND_LISTS
     )
+
+    # Copy the 'resources' directory to the output directory
+add_custom_command(
+    TARGET BorealisSandbox
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/resources
+        $<TARGET_FILE_DIR:BorealisSandbox>/resources
+    COMMENT "Copying 'resources' directory to output directory..."
+)
 
 elseif(UNIX OR APPLE)
 

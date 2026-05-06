@@ -34,6 +34,7 @@ namespace Borealis::Core
 			void UpdateWindow() const;
 			
 			bool IsMinimized() const;
+			bool IsMaximized() const;
 			bool IsOpen() const;
 			
 			Types::uint16 GetWindowWidth() const;

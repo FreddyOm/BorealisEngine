@@ -68,6 +68,7 @@ if(WIN32)
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             $<TARGET_RUNTIME_DLLS:BorealisEngineTests>
+            ${CMAKE_SOURCE_DIR}/src/thirdparty/ds5w/ds5w_x64.dll
             $<TARGET_FILE_DIR:BorealisEngineTests>
         COMMENT "Copying runtime DLLs to output directory..."
         COMMAND_EXPAND_LISTS
