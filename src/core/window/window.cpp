@@ -13,8 +13,12 @@ namespace Borealis::Core
 	/// <returns>true if the window is minimized; otherwise false.</returns>
 	bool Window::IsMinimized() const
 	{
-		LogError("Minimization status not yet implemented!");
-		return false;
+		return glfwGetWindowAttrib(m_pWindow, GLFW_ICONIFIED);
+	}
+
+	bool Window::IsMaximized() const
+	{
+		return glfwGetWindowAttrib(m_pWindow, GLFW_MAXIMIZED);
 	}
 
 	/// <summary>
@@ -96,7 +100,7 @@ namespace Borealis::Core
 		GLFWmonitor* p_glfwMonitor = glfwGetPrimaryMonitor();
 		auto* p_vidMode = glfwGetVideoMode(p_glfwMonitor);
 		
-		return p_vidMode->width;
+		return IsOpen() ? p_vidMode->width : 0;
 	}
 	
 	/// <summary>
@@ -108,7 +112,7 @@ namespace Borealis::Core
 		GLFWmonitor* p_glfwMonitor = glfwGetPrimaryMonitor();
 		auto* p_vidMode = glfwGetVideoMode(p_glfwMonitor);
 
-		return p_vidMode->height;
+		return IsOpen() ? p_vidMode->height : 0;
 	}
 
 	/// <summary>

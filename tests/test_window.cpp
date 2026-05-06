@@ -16,6 +16,9 @@ TEST(WindowTest, WindowOpenClose)
 
     EXPECT_TRUE(testWindow.IsOpen());
     EXPECT_FALSE(testWindow.IsMinimized());
+    EXPECT_FALSE(testWindow.IsMaximized());
+
+    // TODO: Add maximization function and check if maximized is true!
 
     EXPECT_GT(testWindow.GetWindowHeight(), 0);
     EXPECT_GT(testWindow.GetWindowWidth(), 0);
@@ -25,7 +28,11 @@ TEST(WindowTest, WindowOpenClose)
     testWindow.CloseWindow();
 
     EXPECT_FALSE(testWindow.IsOpen());
+
     EXPECT_FALSE(testWindow.IsMinimized());
+
+    int t4 = testWindow.GetWindowHeight();
+    int t5 = testWindow.GetWindowWidth();
 
     EXPECT_EQ(testWindow.GetWindowHeight(), 0);
     EXPECT_EQ(testWindow.GetWindowWidth(), 0);

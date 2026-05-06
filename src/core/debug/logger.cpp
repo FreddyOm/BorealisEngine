@@ -66,8 +66,6 @@ namespace Borealis::Debug
 
 #ifdef THROW_ON_ASSERT
 		assert(false && debugInfo.msg.c_str());
-		//throw std::exception(debugInfo.msg.c_str());
-		//exit(668);
 #endif
 		return returnVal;
 	}
