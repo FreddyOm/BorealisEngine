@@ -4,19 +4,19 @@
 
 #include "../logger.h"
 #include "imgui/imgui.h"
-
-#ifdef BOREALIS_WIN
-
-//#include "imgui/imgui_impl_win32.h"
-#include "imgui/imgui_impl_dx11.h"
-#include "imgui/imgui_impl_dx12.h"
 #include "imgui/imgui_impl_glfw.h"
-
-//#include "../../graphics/d3d11/borealis_d3d11.h"
-#include "../../graphics/d3d12/borealis_d3d12.h"
 
 #include "../../graphics/helpers/helpers.h"
 #include "../../graphics/pipeline_config.h"
+
+#ifdef BOREALIS_WIN
+//#include "imgui/imgui_impl_win32.h"
+#include "imgui/imgui_impl_dx11.h"
+#include "imgui/imgui_impl_dx12.h"
+
+#include "../../graphics/d3d12/borealis_d3d12.h"
+//#include "../../graphics/d3d11/borealis_d3d11.h"
+
 #else
 
 //#include "imgui/imgui_impl_vulkan.h"
@@ -41,6 +41,7 @@ namespace Borealis::Runtime::Debug
 
 			switch (m_Renderer.m_GraphicsBackend)
 			{
+#ifdef BOREALIS_WIN
 				case GraphicsBackend::D3D11:
 				{
 					ImGui_ImplDX11_Shutdown();
@@ -51,6 +52,7 @@ namespace Borealis::Runtime::Debug
 					ImGui_ImplDX12_Shutdown();
 					break;
 				}
+#endif
 				case GraphicsBackend::VULKAN:
 				{
 					//ImGui_ImplVulkan_Shutdown();
@@ -124,8 +126,6 @@ namespace Borealis::Runtime::Debug
 		// Windwos only graphics APIs will always use Win32 in Borealis for now!
 		if (m_Renderer.m_GraphicsBackend == GraphicsBackend::D3D11 || m_Renderer.m_GraphicsBackend == GraphicsBackend::D3D12)
 		{
-			/*Assert(ImGui_ImplWin32_Init(reinterpret_cast<void*>(m_Renderer.m_PipelineDesc.SwapChain.WindowHandle)),
-				"Failed to initialize the runtime debugger GUI with Win32.");*/
 			Assert(ImGui_ImplGlfw_InitForOther(pWindow, true),
 				"Failed to initialize the runtime debugger GUI with GLFW.");
 		}
@@ -141,6 +141,7 @@ namespace Borealis::Runtime::Debug
 			}
 			case GraphicsBackend::D3D12:
 			{
+#ifdef BOREALIS_WIN
 				BorealisD3D12Renderer* const pD3D12Renderer = dynamic_cast<BorealisD3D12Renderer* const>(&m_Renderer);
 				Assert(pD3D12Renderer != nullptr, "Failed to cast generic IBorealisRenderer to BorealisD3D12Renderer renderer!");
 
@@ -155,6 +156,7 @@ namespace Borealis::Runtime::Debug
 				d3d12InitInfo.SrvDescriptorFreeFn = [](ImGui_ImplDX12_InitInfo*, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle) { return g_SRVDescHeapAllocator.Free(cpu_handle, gpu_handle); };
 
 				Assert(ImGui_ImplDX12_Init(&d3d12InitInfo), "Failed to initialize the runtime debugger GUI with D3D12.");
+#endif
 				break;
 			}
 			case GraphicsBackend::VULKAN:
@@ -189,6 +191,7 @@ namespace Borealis::Runtime::Debug
 
 		switch (graphicsBackend)
 		{
+#ifdef BOREALIS_WIN
 		case GraphicsBackend::D3D11:
 			ImGui_ImplDX11_NewFrame();
 			//ImGui_ImplWin32_NewFrame();
@@ -197,6 +200,7 @@ namespace Borealis::Runtime::Debug
 			ImGui_ImplDX12_NewFrame();
 			//ImGui_ImplWin32_NewFrame();
 			break;
+#endif
 		case GraphicsBackend::VULKAN:
 			Assert(false, "Not yet implemented!");
 			break;
@@ -215,6 +219,7 @@ namespace Borealis::Runtime::Debug
 
 		switch (graphicsBackend)
 		{
+#ifdef BOREALIS_WIN
 		case GraphicsBackend::D3D11:
 			p_drawData = ImGui::GetDrawData();
 			ImGui_ImplDX11_RenderDrawData(p_drawData);
@@ -287,6 +292,7 @@ namespace Borealis::Runtime::Debug
 			Assert(hResult == S_OK, StrFromHResult(hResult));
 			
 			break;
+#endif
 		}
 	}
 

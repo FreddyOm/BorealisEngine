@@ -163,7 +163,7 @@ namespace Borealis::Runtime::Debug
 
 			ImGui::Text("Mouse connected: %u / 1", pInputSystem->GetMouse() == nullptr ? 0 : 1);
 			ImGui::Text("Keyboards connected: %u / 1", pInputSystem->GetKeyboard() == nullptr ? 0 : 1);
-			ImGui::Text("Gamepads connected: %u / %u", pInputSystem->GetGamepads().size(), Input::MAX_GAMEPADS());
+			ImGui::Text("Gamepads connected: %lu / %u", pInputSystem->GetGamepads().size(), Input::MAX_GAMEPADS());
 			
 			//ImGui::Text("More stuff: %u", 123);
 
@@ -233,6 +233,10 @@ namespace Borealis::Runtime::Debug
 									case Input::GamepadType::DUAL_SENSE:
 									{
 										DrawDualSenseDebugLayout(*gamepad);
+										break;
+									}
+									default:
+									{
 										break;
 									}
 								}

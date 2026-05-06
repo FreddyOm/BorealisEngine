@@ -80,7 +80,7 @@ namespace Borealis::Runtime::Debug
 		void UpdateDrawable() override;
 
 	private:
-		void OnGui();
+		virtual void OnGui() override;
 		void DrawCategoryButtons();
 		void DrawDebugInfoLabels();
 		

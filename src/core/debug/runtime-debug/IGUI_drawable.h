@@ -19,7 +19,7 @@ namespace Borealis::Runtime::Debug
 			//guiDrawables.emplace_back(this);
 		}
 
-		~IGUIDrawable()
+		virtual ~IGUIDrawable()
 		{
 
 		}
