@@ -41,7 +41,7 @@ jobs:
         submodules: recursive
 
     - name: Install libs
-      run: sudo apt install libwayland-dev libxkbcommon-dev xorg-dev doxygen
+      run: sudo apt install libwayland-dev libxkbcommon-dev xorg-dev doxygen vulkan-tools libvulkan1
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
