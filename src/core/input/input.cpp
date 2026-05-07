@@ -6,15 +6,12 @@
 
 #include <unordered_map>
 
-// DualSense
-#include <ds5w.h>
 
 #ifdef BOREALIS_WIN
-
-#if BOREALIS_WIN
+// DualSense
+#include <ds5w.h>
 #include <wrl.h>
 
-#endif
 
 namespace Borealis::Input
 {	

@@ -2,7 +2,6 @@
 #include "../../config.h"
 #include "input_device.h"
 #include <set>
-#include <vector>
 
 namespace Borealis::Input
 {	
@@ -80,14 +79,14 @@ namespace Borealis::Input
 
     //    void UpdateInputState() override;
 
-    //    void OnDeviceConnected(const IInputDevice& device, InputDeviceCategory category) override;
-    //    void OnDeviceDisconnected(const IInputDevice& device, InputDeviceCategory category) override;
+    //    static void OnDeviceConnected(IInputDevice& device, InputDeviceCategory category);
+    //    static void OnDeviceDisconnected(IInputDevice& device, InputDeviceCategory category);
 
-    //    std::vector<IInputDevice>& GetAllDevices() override;
+    //    std::set<IInputDevice*>& GetAllDevices() override;
 
-    //    Mouse& GetMouse() override;
-    //    Keyboard& GetKeyboard() override;
-    //    std::vector<Gamepad>& GetGamepads() override;
+    //    const Mouse* GetMouse() const override;
+    //    const Keyboard* GetKeyboard() const override;
+    //    const std::set<Gamepad*>& GetGamepads() const override;
     //};
 
 #endif

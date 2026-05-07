@@ -5,6 +5,8 @@
 #include "borealis_devices.h"
 #include "../types/types.h"
 
+#include <cstring>
+
 namespace Borealis::Input
 {
 	struct IInputDevice : public Types::IResettable

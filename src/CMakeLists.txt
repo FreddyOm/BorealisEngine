@@ -91,7 +91,6 @@ set(COMMON_SOURCES
 set(COMMON_HEADERS
     config.h
     borealis_engine.h
-    thirdparty/ds5w/include/ds5w.h
     core/types/types.h
     core/types/string_id.h
     core/window/window.h
@@ -123,7 +122,6 @@ set(COMMON_HEADERS
     core/graphics/pipeline_config.h
     core/graphics/vulkan/borealis_vulkan.h
     core/graphics/helpers/helpers.h
-    core/graphics/helpers/d3d12_helpers.h
     core/graphics/helpers/gbuffer.h
     core/helpers/events.h
     core/helpers/object_pool.h
@@ -144,10 +142,12 @@ set(WINDOWS_SOURCES
 )
 
 set(WINDOWS_HEADER
+    thirdparty/ds5w/include/ds5w.h
     thirdparty/directxtk12/include/directxtk12/WICTextureLoader.h
     core/debug/runtime-debug/imgui/imgui_impl_dx11.h
     core/debug/runtime-debug/imgui/imgui_impl_dx12.h
     core/debug/runtime-debug/imgui/imgui_impl_win32.h
+    core/graphics/helpers/d3d12_helpers.h
     core/graphics/d3d11/borealis_d3d11.h
     core/graphics/d3d11/d3d11_common.h
     core/graphics/d3d12/borealis_d3d12.h
