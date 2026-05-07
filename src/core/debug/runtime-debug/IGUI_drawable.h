@@ -1,7 +1,6 @@
 #pragma once
-#include "../../../config.h"
-#include "../../graphics/pipeline_config.h"
-#include <vector>
+//#include "../../../config.h"
+//#include "../../graphics/pipeline_config.h"
 
 // TODO: Figure out how I can setup and use debug gui only in debug and relwithdebinfo builds
 //#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)

@@ -49,7 +49,7 @@ namespace Borealis::Debug
 		return LogMessageInternal(debugInfo);
 	}
 
-	inline Borealis::Types::int16 AssertInternal(const char* file, const Borealis::Types::int16 line, const bool assertion, const char* message, ...)
+	Borealis::Types::int16 AssertInternal(const char* file, const Borealis::Types::int16 line, const bool assertion, const char* message, ...)
 	{
 		if (assertion) { return 0; }
 			
