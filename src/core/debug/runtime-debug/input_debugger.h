@@ -12,10 +12,7 @@ namespace Borealis::Runtime::Debug
 	public:
 		InputDebugger(Input::InputSystem* pInputSystem)
 			: pInputSystem(pInputSystem), IGUIDrawable(true)
-		{
-
-
-		}
+		{ }
 
 		void UpdateDrawable() override
 		{

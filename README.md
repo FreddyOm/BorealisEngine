@@ -49,9 +49,9 @@ cmake -S . -B ./build
   - [x] Custom RefCnt Pointer
   - [x] Heap Allocator
   - [x] Defragmentation
-- [ ] Input System
-  - [ ] Mouse & Keyboard
-  - [ ] Controller (XInput)
+- [x] Input System
+  - [x] Mouse & Keyboard
+  - [x] Controller (XInput, Sony DualSense)
 - [ ] Basic D3D11 Rendering Implementation
 - [ ] Basic D3D12 Rendering Implementation
 - [ ] Advanced Rendering Features
@@ -66,7 +66,7 @@ cmake -S . -B ./build
   - [ ] Jobified updating of ECS data buffers (see JobSystem above)
 - [x] String Class
 - [ ] Runtime Debugging Toolkit
-  - [ ] Dear ImGui Interface
+  - [x] Dear ImGui Interface
   - [ ] Console Implementation
   - [ ] Rendering Options
   - [ ] Memory Usage
@@ -77,10 +77,24 @@ cmake -S . -B ./build
 
 ## Dependencies
 
+### Common:
 - CMake
+
+### Windows:
+
+### Linux:
+- X11 or Wayland
+- Doxygen
+- Vulkan
+
+>On Linux, use ```sudo apt install libwayland-dev libxkbcommon-dev xorg-dev doxygen vulkan-validationlayers vulkan-tools libvulkan1``` to install all necessary dependencies! You can always find an up-to-date install command [here](./.github/workflows/cmake-linux-debug.yml).
+
+### Apple (OSX):
+
+- Not yet available.
 
 ## Sources
 
 - [DirectX Graphics Samples](https://github.com/microsoft/DirectX-Graphics-Samples/tree/master)
 - [Game Engine Architecture (Third Edition) - Jason Gregory (2018)](https://gameenginebook.com)
-- [Real-Time Rendering (Fourth Edition) -  Tomas Akenine-Möller, Eric Haines, Naty Hoffman, Angelo Pesce, Michal Iwanicki, Sebastien Hillaire (2018)](https://realtimerendering.com)
+- [Real-Time Rendering (Fourth Edition) -  Tomas Akenine-MÃ¶ller, Eric Haines, Naty Hoffman, Angelo Pesce, Michal Iwanicki, Sebastien Hillaire (2018)](https://realtimerendering.com)

@@ -3,6 +3,12 @@
 #include "input_device.h"
 #include <set>
 
+#ifdef BOREALIS_WIN
+typedef Borealis::Types::uint64 GameInputCallbackToken;
+enum GameInputDeviceStatus;
+struct IGameInputDevice;
+#endif
+
 namespace Borealis::Input
 {	
     struct IInputSystemBase
@@ -13,19 +19,15 @@ namespace Borealis::Input
         virtual void UpdateInputState() = 0;
 
         // Maybe use set aswell?
-        virtual std::set<IInputDevice*>& GetAllDevices() = 0;
+        virtual ::std::set<IInputDevice*>& GetAllDevices() = 0;
         
         virtual const Mouse* GetMouse() const = 0;
 		virtual const Keyboard* GetKeyboard() const = 0;
-		virtual const std::set<Gamepad*>& GetGamepads() const = 0;
+		virtual const ::std::set<Gamepad*>& GetGamepads() const = 0;
     };
 
 
-#ifdef BOREALIS_WIN    
-
-    typedef Types::uint64 GameInputCallbackToken;
-    enum GameInputDeviceStatus;
-    struct IGameInputDevice;
+#ifdef BOREALIS_WIN
 
     struct BOREALIS_API WinInputSystem : public IInputSystemBase
     {
@@ -37,11 +39,11 @@ namespace Borealis::Input
         static void OnDeviceConnected(IInputDevice& device, InputDeviceCategory category);
 		static void OnDeviceDisconnected(IInputDevice& device, InputDeviceCategory category);
 
-		std::set<IInputDevice*>& GetAllDevices() override;
+		::std::set<IInputDevice*>& GetAllDevices() override;
 
 		const Mouse* GetMouse() const override;
 		const Keyboard* GetKeyboard() const override;
-		const std::set<Gamepad*>& GetGamepads() const override;
+		const ::std::set<Gamepad*>& GetGamepads() const override;
 
     private:
 
@@ -63,11 +65,11 @@ namespace Borealis::Input
         static void OnDeviceConnected(IInputDevice& device, InputDeviceCategory category);
         static void OnDeviceDisconnected(IInputDevice& device, InputDeviceCategory category);
 
-        std::set<IInputDevice*>& GetAllDevices() override;
+        ::std::set<IInputDevice*>& GetAllDevices() override;
 
         const Mouse* GetMouse() const override;
         const Keyboard* GetKeyboard() const override;
-        const std::set<Gamepad*>& GetGamepads() const override;
+        const ::std::set<Gamepad*>& GetGamepads() const override;
     };
 
 #elif BOREALIS_OSX
@@ -91,13 +93,13 @@ namespace Borealis::Input
 
 #endif
 
-
 #ifdef BOREALIS_WIN
-    using InputSystem = WinInputSystem;
+    using InputSystem = Borealis::Input::WinInputSystem;
 #elif BOREALIS_LINUX
-    using InputSystem = LinuxInputSystem;
+    using InputSystem = Borealis::Input::LinuxInputSystem;
 #elif BOREALIS_OSX
-    using InputSystem = OsxInputSystem;
+    using InputSystem = Borealis::Input::OsxInputSystem;
 #endif
 
 }
+

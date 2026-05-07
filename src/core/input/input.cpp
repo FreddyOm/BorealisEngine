@@ -1,4 +1,5 @@
 #include "input.h"
+
 #include "../debug/logger.h"
 #include "../types/string_id.h"
 #include "../types/types.h"
@@ -6,46 +7,47 @@
 
 #include <unordered_map>
 
-
 #ifdef BOREALIS_WIN
 // DualSense
 #include <ds5w.h>
+
+	// Microsoft GameInput Data
+#pragma comment(lib, "GameInput.lib")
+#include <GameInput.h>
+
 #include <wrl.h>
 
+#endif
+
+
+using namespace Borealis::Types;
+using namespace Borealis::Debug;
+using namespace std;
 
 namespace Borealis::Input
 {	
-	using namespace Borealis::Types;
-	using namespace Borealis::Debug;
-	using namespace Microsoft::WRL;
 
 	// Borealis input devices
 	Keyboard* g_Keyboard = nullptr;
 	Mouse* g_Mouse = nullptr;
 	Helpers::ObjectPool<Gamepad, MAX_GAMEPADS()> g_GamepadPool = {};
 
-	std::set<IInputDevice*> g_AllDevices = {};
+	set<IInputDevice*> g_AllDevices = {};
 
 #ifdef BOREALIS_WIN
 
-	// Microsoft GameInput Data
-#pragma comment(lib, "GameInput.lib")
-#include <GameInput.h>
-
-#endif	// BOREALIS_WIN
-
 	GameInputCallbackToken g_gameInputCallbackToken{};
-	ComPtr<IGameInput> g_pGameInput = nullptr;
+	Microsoft::WRL::ComPtr<IGameInput> g_pGameInput = nullptr;
 
 	IGameInputDevice* g_pWinKeyboardInternal = nullptr;
 	IGameInputDevice* g_pWinMouseInternal = nullptr;
-	std::unordered_map<uint64, IGameInputDevice*> g_pWinGamepadsInternal{};
+	unordered_map<uint64, IGameInputDevice*> g_pWinGamepadsInternal{};
+
 
 	// DS5W DualSense input devices
 	DS5W::DeviceEnumInfo g_DualSenseDeviceInfo[MAX_GAMEPADS()];
-	std::unordered_map<Gamepad*, DS5W::DeviceContext> g_DualSenseDeviceContexts{};
+	unordered_map<Gamepad*, DS5W::DeviceContext> g_DualSenseDeviceContexts{};
 	uint32 g_DualSenseDeviceCount = 0;
-
 
 
 	const StringId GetDeviceTypeString(GameInputDeviceInfo const* deviceInfo)
@@ -85,7 +87,7 @@ namespace Borealis::Input
 		uint64 hash = 0;
 		
 		for (uint8 i = 0; i < 32; ++i)
-			hash += deviceId[i] * (i + 1);	// Progressively sum up the multiplied device id byte by byte
+			hash += deviceId[i] * (i + 1);	// Progressively sum up the device id byte by byte
 
 		return hash;
 	}
@@ -206,9 +208,9 @@ namespace Borealis::Input
 					{
 
 						// Search for device with the given id
-						const std::set<Gamepad*> gamepads = g_GamepadPool.GetActiveElements();
+						const set<Gamepad*> gamepads = g_GamepadPool.GetActiveElements();
 
-						for (std::set<Gamepad*>::iterator it = gamepads.begin(); it != gamepads.end(); ++it)
+						for (set<Gamepad*>::iterator it = gamepads.begin(); it != gamepads.end(); ++it)
 						{
 							if ( HashDeviceID( (*it)->DeviceID ) == HashDeviceID( deviceInfo->deviceId.value ) )
 							{
@@ -552,10 +554,9 @@ namespace Borealis::Input
 		Assert(false, "Not implemented yet!");
 	}
 
-	std::set<IInputDevice>& LinuxInputSystem::GetAllDevices()
+	std::set<IInputDevice*>& LinuxInputSystem::GetAllDevices()
 	{
-		Assert(false, "Not implemented yet!");
-		return std::set<IInputDevice>();
+		return g_AllDevices;
 	}
 
 	const Mouse* LinuxInputSystem::GetMouse() const
@@ -572,9 +573,9 @@ namespace Borealis::Input
 
 	const std::set<Gamepad*>& LinuxInputSystem::GetGamepads() const
 	{
-		Assert(false, "Not implemented yet!");
-		return std::set<Gamepad*>();
+		return g_GamepadPool.GetActiveElements();
 	}
 
 #endif
+
 }
