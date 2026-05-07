@@ -2,6 +2,7 @@
 #include "allocator.h"
 #include "../../config.h"
 #include "../types/types.h"
+#include "../helpers/macros.h"
 #include <list>
 
 #ifndef CLEAR_HEAP_ELEMENT_ON_FREE
@@ -100,13 +101,13 @@ namespace Borealis::Memory
 
 		HeapAllocator();
 		HeapAllocator(Types::uint64 size);
-		HeapAllocator(const HeapAllocator& other) = delete;
-		HeapAllocator(HeapAllocator&& other) noexcept;
-
 		~HeapAllocator() override;
 
-		HeapAllocator& operator=(const HeapAllocator& other) = delete;
+		HeapAllocator(HeapAllocator&& other) noexcept;
+		BOREALIS_DEFAULT_COPY_CONSTRUCT(HeapAllocator)
+
 		HeapAllocator& operator=(HeapAllocator&& other) noexcept;
+		BOREALIS_DEFAULT_COPY_ASSIGN(HeapAllocator)
 
 	public:
 

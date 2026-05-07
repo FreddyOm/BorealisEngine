@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IGUI_drawable.h"
+#include "../../helpers/macros.h"
 #include "../../input/input.h"
 #include "../../input/borealis_devices.h"
 #include <cstdio>
@@ -13,6 +14,14 @@ namespace Borealis::Runtime::Debug
 		InputDebugger(Input::InputSystem* pInputSystem)
 			: pInputSystem(pInputSystem), IGUIDrawable(true)
 		{ }
+
+		~InputDebugger() = default;
+
+		BOREALIS_DEFAULT_COPY_CONSTRUCT(InputDebugger)
+		BOREALIS_DEFAULT_MOVE_CONSTRUCT(InputDebugger)
+		BOREALIS_DEFAULT_COPY_ASSIGN(InputDebugger)
+		BOREALIS_DEFAULT_MOVE_ASSIGN(InputDebugger)
+
 
 		void UpdateDrawable() override
 		{

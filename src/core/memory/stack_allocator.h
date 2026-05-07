@@ -2,6 +2,7 @@
 
 #include "allocator.h"
 #include "../../config.h"
+#include "../helpers/macros.h"
 
 namespace Borealis::Memory
 {
@@ -15,6 +16,11 @@ namespace Borealis::Memory
 		StackAllocator(Borealis::Types::uint64 size);
 
 		~StackAllocator() override;
+
+		BOREALIS_DEFAULT_COPY_CONSTRUCT(StackAllocator)
+		BOREALIS_DEFAULT_MOVE_CONSTRUCT(StackAllocator)
+		BOREALIS_DEFAULT_COPY_ASSIGN(StackAllocator)
+		BOREALIS_DEFAULT_MOVE_ASSIGN(StackAllocator)
 
 	public:
 
