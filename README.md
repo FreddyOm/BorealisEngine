@@ -87,7 +87,7 @@ cmake -S . -B ./build
 - Doxygen
 - Vulkan
 
->On Linux, use ```sudo apt install libwayland-dev libxkbcommon-dev xorg-dev doxygen vulkan-validationlayers vulkan-tools libvulkan1``` to install all necessary dependencies! You can always find an up-to-date install command [here](./.github/worflows/cmake-linux-debug.yml)
+>On Linux, use ```sudo apt install libwayland-dev libxkbcommon-dev xorg-dev doxygen vulkan-validationlayers vulkan-tools libvulkan1``` to install all necessary dependencies! You can always find an up-to-date install command [here](./.github/workflows/cmake-linux-debug.yml).
 
 ### Apple (OSX):
 
