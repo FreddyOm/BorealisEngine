@@ -6,15 +6,9 @@
 
 #include <unordered_map>
 
-
-#ifdef BOREALIS_WIN
-// DualSense
-#include <ds5w.h>
-#include <wrl.h>
-
-
 namespace Borealis::Input
-{	
+{
+
 	using namespace Borealis::Types;
 	using namespace Borealis::Debug;
 
@@ -26,12 +20,16 @@ namespace Borealis::Input
 	std::set<IInputDevice*> g_AllDevices = {};
 
 #ifdef BOREALIS_WIN
+
+// DualSense
+#include <ds5w.h>
+#include <wrl.h>
 	
 	// Microsoft GameInput Data
 #pragma comment(lib, "GameInput.lib")
 #include <GameInput.h>
 
-#endif	// BOREALIS_WIN
+
 
 	GameInputCallbackToken g_gameInputCallbackToken{};
 	Microsoft::WRL::ComPtr<IGameInput> g_pGameInput = nullptr;
@@ -551,10 +549,9 @@ namespace Borealis::Input
 		Assert(false, "Not implemented yet!");
 	}
 
-	std::set<IInputDevice>& LinuxInputSystem::GetAllDevices()
+	std::set<IInputDevice*>& LinuxInputSystem::GetAllDevices()
 	{
-		Assert(false, "Not implemented yet!");
-		return std::set<IInputDevice>();
+		return g_AllDevices;
 	}
 
 	const Mouse* LinuxInputSystem::GetMouse() const
@@ -571,9 +568,9 @@ namespace Borealis::Input
 
 	const std::set<Gamepad*>& LinuxInputSystem::GetGamepads() const
 	{
-		Assert(false, "Not implemented yet!");
-		return std::set<Gamepad*>();
+		return g_GamepadPool.GetActiveElements();
 	}
 
 #endif
+
 }

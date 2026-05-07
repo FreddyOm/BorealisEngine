@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include <utility>
 
+// TODO: Fix this! Use memory.h as main include and expose refcntautoptr via this header, and remove the direct allocation capabilities here!
+
 namespace Borealis::Memory
 {
 #pragma region forward declarations
@@ -41,6 +43,7 @@ namespace Borealis::Memory
 		STATIC = 4,
 
 	};
+	
 	extern BOREALIS_API std::stack<MemAllocatorContext> g_memoryAllocatorContext;
 
 
@@ -78,6 +81,7 @@ namespace Borealis::Memory
 
 	BOREALIS_API IMemoryAllocator* GetMemoryAllocator(const MemAllocatorContext context);
 	
+	// Problem with pushing and popping allocators is that the user might not know which allocator was used to allocate when freeing! 
 	BOREALIS_API void PushAllocator(const MemAllocatorContext context);
 	BOREALIS_API void PopAllocator();
 	BOREALIS_API void FlushAllocator();
@@ -94,12 +98,8 @@ namespace Borealis::Memory
 
 		HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->Alloc(sizeof(T));
 		Assert(p_hndl != nullptr, "Failed to allocate memory!");
-		if (p_hndl) 
-		{
-			return new (AccessHandleData(p_hndl->HandleId)) T(std::forward<Args>(args)...);
-		}
-
-		return nullptr;
+		
+		return p_hndl ? new (AccessHandleData(p_hndl->HandleId)) T(std::forward<Args>(args)...) : nullptr;
 	}
 
 	template<typename T, typename... Args>
@@ -110,12 +110,8 @@ namespace Borealis::Memory
 
 		HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->AllocAligned(sizeof(T));
 		Assert(p_hndl != nullptr, "Failed to allocate memory!");
-		if (p_hndl) 
-		{
-			return new (AccessHandleData(p_hndl->HandleId)) T(std::forward<Args>(args)...);
-		}
-
-		return nullptr;
+		
+		return p_hndl ? new (AccessHandleData(p_hndl->HandleId)) T(std::forward<Args>(args)...) : nullptr;
 	}
 
 	template<typename T>
