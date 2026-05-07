@@ -49,15 +49,11 @@
 // DirectX
 #include <stdio.h>
 
-#ifdef WIN32
-
 #include <d3d11.h>
 #include <d3dcompiler.h>
 
 #ifdef _MSC_VER
 #pragma comment(lib, "d3dcompiler") // Automatically link with d3dcompiler.lib as we are using D3DCompile() below.
-#endif
-
 #endif
 
 // Clang/GCC warnings with -Weverything

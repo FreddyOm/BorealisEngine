@@ -55,8 +55,8 @@ endif()
 
 message(STATUS "Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
 
-# Project source files
-set(SOURCES 
+# Cross-platform sources & headers
+set(COMMON_SOURCES 
     core/types/string_id.cpp
     core/window/window.cpp
     core/debug/logger.cpp
@@ -68,9 +68,6 @@ set(SOURCES
     core/debug/runtime-debug/imgui/imgui.cpp
     core/debug/runtime-debug/imgui/imgui_demo.cpp
     core/debug/runtime-debug/imgui/imgui_draw.cpp
-    core/debug/runtime-debug/imgui/imgui_impl_dx11.cpp
-    core/debug/runtime-debug/imgui/imgui_impl_dx12.cpp
-    core/debug/runtime-debug/imgui/imgui_impl_win32.cpp
     core/debug/runtime-debug/imgui/imgui_impl_vulkan.cpp
     core/debug/runtime-debug/imgui/imgui_impl_glfw.cpp
     core/debug/runtime-debug/imgui/imgui_tables.cpp
@@ -83,8 +80,6 @@ set(SOURCES
     core/math/math.cpp
     core/math/random.cpp
     core/math/crc_hash.cpp
-    core/graphics/d3d11/borealis_d3d11.cpp
-    core/graphics/d3d12/borealis_d3d12.cpp
     core/graphics/vulkan/borealis_vulkan.cpp
     core/graphics/helpers/helpers.cpp
     core/input/input.cpp
@@ -93,11 +88,10 @@ set(SOURCES
 )
 
 # Project include files
-set(HEADERS
+set(COMMON_HEADERS
     config.h
     borealis_engine.h
     thirdparty/ds5w/include/ds5w.h
-    thirdparty/directxtk12/include/directxtk12/WICTextureLoader.h
     core/types/types.h
     core/types/string_id.h
     core/window/window.h
@@ -111,10 +105,7 @@ set(HEADERS
     core/debug/runtime-debug/input_debugger.h
     core/debug/runtime-debug/imgui/imconfig.h
     core/debug/runtime-debug/imgui/imgui.h
-    core/debug/runtime-debug/imgui/imgui_impl_dx11.h
-    core/debug/runtime-debug/imgui/imgui_impl_dx12.h
     core/debug/runtime-debug/imgui/imgui_impl_vulkan.h
-    core/debug/runtime-debug/imgui/imgui_impl_win32.h
     core/debug/runtime-debug/imgui/imgui_impl_glfw.h
     core/debug/runtime-debug/imgui/imgui_internal.h
     core/debug/runtime-debug/imgui/imstb_textedit.h
@@ -130,10 +121,6 @@ set(HEADERS
     core/math/crc_hash.h   
     core/graphics/graphics.h
     core/graphics/pipeline_config.h
-    core/graphics/d3d11/borealis_d3d11.h
-    core/graphics/d3d11/d3d11_common.h
-    core/graphics/d3d12/borealis_d3d12.h
-    core/graphics/d3d12/d3d12_common.h
     core/graphics/vulkan/borealis_vulkan.h
     core/graphics/helpers/helpers.h
     core/graphics/helpers/d3d12_helpers.h
@@ -147,8 +134,33 @@ set(HEADERS
     core/io/file_io.h
 )
 
+# Windows platform specific sources & headers
+set(WINDOWS_SOURCES
+    core/debug/runtime-debug/imgui/imgui_impl_dx11.cpp
+    core/debug/runtime-debug/imgui/imgui_impl_dx12.cpp
+    core/debug/runtime-debug/imgui/imgui_impl_win32.cpp
+    core/graphics/d3d11/borealis_d3d11.cpp
+    core/graphics/d3d12/borealis_d3d12.cpp
+)
+
+set(WINDOWS_HEADER
+    thirdparty/directxtk12/include/directxtk12/WICTextureLoader.h
+    core/debug/runtime-debug/imgui/imgui_impl_dx11.h
+    core/debug/runtime-debug/imgui/imgui_impl_dx12.h
+    core/debug/runtime-debug/imgui/imgui_impl_win32.h
+    core/graphics/d3d11/borealis_d3d11.h
+    core/graphics/d3d11/d3d11_common.h
+    core/graphics/d3d12/borealis_d3d12.h
+    core/graphics/d3d12/d3d12_common.h
+)
+
 # Create library
-add_library(BorealisEngineLib SHARED ${SOURCES} ${HEADERS}) #${CMAKE_CURRENT_SOURCE_DIR}/core/graphics/d3d12/DirectX-Headers/include)
+add_library(BorealisEngineLib SHARED ${COMMON_SOURCES} ${COMMON_HEADERS}) #${CMAKE_CURRENT_SOURCE_DIR}/core/graphics/d3d12/DirectX-Headers/include)
+
+target_sources(BorealisEngineLib PRIVATE
+    $<$<PLATFORM_ID:Windows>:${WINDOWS_SOURCES}>
+    $<$<PLATFORM_ID:Windows>:${WINDOWS_HEADERS}>
+)
 
 
 # Define preprocessor macros for build configurations
@@ -167,7 +179,9 @@ target_include_directories(BorealisEngineLib SYSTEM PRIVATE
     ${glfw_SOURCE_DIR}/include
     $<$<AND:$<PLATFORM_ID:Linux>,$<NOT:$<PLATFORM_ID:Darwin>>>:${vulkan_headers_SOURCE_DIR}/include>
     ${CMAKE_SOURCE_DIR}/src/thirdparty/ds5w/include
+if(WIN32)
     ${CMAKE_SOURCE_DIR}/src/thirdparty/directxtk12/include
+endif()
 )
 
 # Link libraries for each target platform
