@@ -65,8 +65,13 @@ namespace Borealis::Debug
 		Types::int16 returnVal = LogMessageInternal(debugInfo);
 
 #ifdef THROW_ON_ASSERT
+#if defined(BOREALIS_DEBUG)
 		assert(false && debugInfo.msg.c_str());
-		exit(3);	// Make sure to always fail if THROW_ON_ASSERT is defined and the assert is called.
+#else
+		// Make sure to always fail if THROW_ON_ASSERT is defined and the assert is called.
+		printf("%s", debugInfo.msg.c_str());
+		exit(3);	
+#endif
 #endif
 		return returnVal;
 	}
