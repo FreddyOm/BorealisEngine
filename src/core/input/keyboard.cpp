@@ -3,8 +3,8 @@
 
 namespace Borealis::Input
 {
-	using namespace Borealis::Types;
-	using namespace Borealis::Debug;
+	//using namespace Borealis::Types;
+	//using namespace Borealis::Debug;
 
 
 	//void Keyboard::DetectButtonUpDownEvents()

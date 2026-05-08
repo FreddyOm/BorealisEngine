@@ -1,5 +1,12 @@
 #include "heap_allocator.h"
-#include "ref_cnt_auto_ptr.h"
+#include "allocator.h"
+#include "../debug/logger.h"
+#include "../types/types.h"
+#include "memory.h"
+
+#include <list>
+#include <string.h>
+#include <malloc.h>
 
 using namespace Borealis::Types;
 using namespace Borealis::Debug;

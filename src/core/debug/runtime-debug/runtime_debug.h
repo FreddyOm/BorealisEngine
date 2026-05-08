@@ -7,7 +7,9 @@
 #include "IGUI_drawable.h"
 #include "debug_category_button.h"
 #include "debug_info_label.h"
+
 #include "input_debugger.h"
+#include "memory_debugger.h"
 
 #include "imgui/imgui.h"
 
@@ -29,6 +31,7 @@ namespace Borealis::Runtime::Debug
 
 			// First, register all debug windows (deriving from IGUIDrawable)
 			runtimeGUIDrawables.push_back(new InputDebugger(pInputSystem));
+			runtimeGUIDrawables.push_back(new MemoryDebugger());
 			//runtimeGUIDrawables.push_back(new InputDebugger());
 
 			// Then, register category buttons, passing the runtimeGUIDrawables for "click" events

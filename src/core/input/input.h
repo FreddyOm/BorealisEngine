@@ -1,7 +1,10 @@
 #pragma once
 #include "../../config.h"
 #include "../helpers/macros.h"
+#include "../types/types.h"
 #include "input_device.h"
+#include "borealis_devices.h"
+
 #include <set>
 
 #ifdef BOREALIS_WIN

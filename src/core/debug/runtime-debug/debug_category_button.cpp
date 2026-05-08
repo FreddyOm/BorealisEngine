@@ -1,3 +1,4 @@
+#include "../../types/types.h"
 #include "debug_category_button.h"
 #include "IGUI_drawable.h"
 
@@ -19,7 +20,7 @@ namespace Borealis::Runtime::Debug
 			ImGui::PushStyleColor(ImGuiCol_Button, normalColor);
 		}
 
-		if (ImGui::Button("Debug Category Button", size))
+		if (ImGui::Button(std::string("Cat ").append(std::to_string(buttonIndex)).c_str(), size))
 		{
 			pDrawables->at(buttonIndex)->ToggleWindow();
 		}

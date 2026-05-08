@@ -1,5 +1,6 @@
 #pragma once
 #include "IGUI_drawable.h"
+#include "../../helpers/macros.h"
 #include <string>
 
 struct ImFont;

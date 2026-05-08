@@ -32,6 +32,7 @@ namespace Borealis::Runtime::Debug
 			}
 		}
 
+	private:
 		void DrawXBOXOneDebugLayout(const Input::Gamepad& gamepad)
 		{
 			// TODO: Draw the image(s) of the controller and highlight / move the parts accordingly to the actual input
@@ -159,6 +160,8 @@ namespace Borealis::Runtime::Debug
 			// In the case of the keyboard, evaluate if a list of pressed buttons is a better debug format!
 		}
 
+	public:
+
 		void OnGui() override
 		{
 			ImGui::SeparatorText("Device Connections");
@@ -274,8 +277,6 @@ namespace Borealis::Runtime::Debug
 				ImGui::TreePop();
 			}
 		}
-
-		
 
 	private:
 		Input::InputSystem* pInputSystem;
