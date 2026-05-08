@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../config.h"
+#include "../helpers/macros.h"
 #include "allocator.h"
 #include "../types/types.h"
 
@@ -21,13 +22,13 @@ namespace Borealis::Memory
 
 		PoolAllocator(Borealis::Types::int32 poolElementNum, 
 			Borealis::Types::uint64 elementSize = 65536);	// Default elementSize is 64 kiB
-		PoolAllocator(const PoolAllocator& other) = delete;
-		PoolAllocator(PoolAllocator&& other) noexcept = delete;
+
+		BOREALIS_DELETE_COPY_CONSTRUCT(PoolAllocator)
+		BOREALIS_DELETE_MOVE_CONSTRUCT(PoolAllocator)
+		BOREALIS_DELETE_COPY_ASSIGN(PoolAllocator)
+		BOREALIS_DELETE_MOVE_ASSIGN(PoolAllocator)
 
 		~PoolAllocator() override;
-
-		void operator=(const PoolAllocator& other) = delete;
-		void operator=(PoolAllocator&& other) noexcept = delete;
 
 	public: 
 

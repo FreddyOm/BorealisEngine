@@ -2,6 +2,7 @@
 #include "../../../config.h"
 #include "../../types/types.h"
 #include "../../window/window.h"
+#include "../../helpers/macros.h"
 
 #ifdef BOREALIS_WIN
 #include <vector>
@@ -24,13 +25,14 @@ namespace Borealis::Graphics
 		BorealisD3D12Renderer(PipelineDesc& pipelineDesc)
 			: IBorealisRenderer(GraphicsBackend::D3D12, pipelineDesc)
 		{ }
-		~BorealisD3D12Renderer();
 
-		BorealisD3D12Renderer(const BorealisD3D12Renderer& other) = delete;
-		BorealisD3D12Renderer(BorealisD3D12Renderer&& other) noexcept = delete;
-		BorealisD3D12Renderer& operator=(const BorealisD3D12Renderer& other) = delete;
-		BorealisD3D12Renderer& operator=(BorealisD3D12Renderer&& other) noexcept = delete;
+		~BorealisD3D12Renderer();
 		
+		BOREALIS_DELETE_COPY_CONSTRUCT(BorealisD3D12Renderer)
+		BOREALIS_DELETE_MOVE_CONSTRUCT(BorealisD3D12Renderer)
+		BOREALIS_DELETE_COPY_ASSIGN(BorealisD3D12Renderer)
+		BOREALIS_DELETE_MOVE_ASSIGN(BorealisD3D12Renderer)
+
 		Borealis::Types::int64 InitializePipeline() override;
 		Borealis::Types::int64 DeinitializePipeline() override;
 

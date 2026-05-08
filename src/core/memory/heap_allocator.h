@@ -2,6 +2,7 @@
 #include "allocator.h"
 #include "../../config.h"
 #include "../types/types.h"
+#include "../helpers/macros.h"
 #include <list>
 
 #ifndef CLEAR_HEAP_ELEMENT_ON_FREE
@@ -20,6 +21,13 @@ namespace Borealis::Memory
 		HeapDescription(const Types::uint64Ptr handleId, const Types::uint16 size, const Types::uint16 alignOffset = 0)
 			: HandleId(handleId), Size(size), AlignOffset(alignOffset)
 		{ }
+
+		~HeapDescription() = default;
+
+		BOREALIS_DEFAULT_COPY_CONSTRUCT(HeapDescription)
+		BOREALIS_DELETE_MOVE_CONSTRUCT(HeapDescription)
+		BOREALIS_DEFAULT_COPY_ASSIGN(HeapDescription)
+		BOREALIS_DELETE_MOVE_ASSIGN(HeapDescription)
 
 		Types::uint64Ptr HandleId = 0;		// 8 bytes
 		Types::uint16 Size = 0;				// 2 bytes
@@ -61,6 +69,13 @@ namespace Borealis::Memory
 			: p_BlockStart(p_blockStart), p_BlockEnd(p_blockEnd)
 		{ }
 
+		~HeapFreeListEntry() = default;
+
+		BOREALIS_DEFAULT_COPY_CONSTRUCT(HeapFreeListEntry)
+		BOREALIS_DEFAULT_MOVE_CONSTRUCT(HeapFreeListEntry)
+		BOREALIS_DEFAULT_COPY_ASSIGN(HeapFreeListEntry)
+		BOREALIS_DEFAULT_MOVE_ASSIGN(HeapFreeListEntry)
+
 		// The start address of the free memory block
 		void* p_BlockStart;		// 8 bytes
 		void* p_BlockEnd;		// 8 bytes
@@ -100,13 +115,13 @@ namespace Borealis::Memory
 
 		HeapAllocator();
 		HeapAllocator(Types::uint64 size);
-		HeapAllocator(const HeapAllocator& other) = delete;
-		HeapAllocator(HeapAllocator&& other) noexcept;
-
 		~HeapAllocator() override;
 
-		HeapAllocator& operator=(const HeapAllocator& other) = delete;
+		HeapAllocator(HeapAllocator&& other) noexcept;
+		BOREALIS_DELETE_COPY_CONSTRUCT(HeapAllocator)
+
 		HeapAllocator& operator=(HeapAllocator&& other) noexcept;
+		BOREALIS_DELETE_COPY_ASSIGN(HeapAllocator)
 
 	public:
 

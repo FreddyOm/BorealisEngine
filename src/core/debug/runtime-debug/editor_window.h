@@ -1,5 +1,6 @@
 #pragma once
 #include "IGUI_drawable.h"
+#include "../../helpers/macros.h"
 #include <string>
 
 struct ImFont;
@@ -23,6 +24,11 @@ namespace Borealis::Runtime::Debug
 		/// </summary>
 		~EditorWindow()
 		{ }
+
+		BOREALIS_DELETE_COPY_CONSTRUCT(EditorWindow)
+		BOREALIS_DELETE_MOVE_CONSTRUCT(EditorWindow)
+		BOREALIS_DELETE_COPY_ASSIGN(EditorWindow)
+		BOREALIS_DELETE_MOVE_ASSIGN(EditorWindow)
 
 		void UpdateDrawable() override;
 

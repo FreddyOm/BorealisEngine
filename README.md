@@ -31,6 +31,10 @@ cd BorealisEngine
 ```
 cmake -S . -B ./build
 ```
+or 
+```
+cmake --build . --config <Debug/Release/MinSizeRel/RelWithDebInfo>
+```
 
 
 ## Features

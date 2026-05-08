@@ -1,7 +1,4 @@
 #pragma once
-#include "../../config.h"
-#include <bitset>
-#include "../helpers/events.h"
 #include "../types/types.h"
 
 
@@ -200,18 +197,18 @@ namespace Borealis::Input
         KEYBOARD_KEYS_SIZE = 0xFF
     };
 
-	class Keyboard
-	{
-		public:
-		Keyboard() = default;
-		~Keyboard() = default;
+	//class Keyboard
+	//{
+	//	public:
+	//	Keyboard() = default;
+	//	~Keyboard() = default;
 
-		void DetectButtonUpDownEvents();
-        Borealis::Events::Action<KEYBOARD_KEYS> onKeyDown;
-        Borealis::Events::Action<KEYBOARD_KEYS> onKeyUp;
+	//	void DetectButtonUpDownEvents();
+ //       Borealis::Events::Action<KEYBOARD_KEYS> onKeyDown;
+ //       Borealis::Events::Action<KEYBOARD_KEYS> onKeyUp;
 
-	private:
-		std::bitset<256> prevKeyboardKeyStates{ 0 };
-		std::bitset<256> keyboardKeyStates{ 0 };
-	};
+	//private:
+	//	std::bitset<256> prevKeyboardKeyStates{ 0 };
+	//	std::bitset<256> keyboardKeyStates{ 0 };
+	//};
 }

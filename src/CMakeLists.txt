@@ -101,7 +101,6 @@ set(COMMON_HEADERS
     core/debug/runtime-debug/debug_category_button.h
     core/debug/runtime-debug/IGUI_drawable.h
     core/debug/runtime-debug/editor_window.h
-    core/debug/runtime-debug/input_debugger.h
     core/debug/runtime-debug/imgui/imconfig.h
     core/debug/runtime-debug/imgui/imgui.h
     core/debug/runtime-debug/imgui/imgui_impl_vulkan.h
@@ -109,6 +108,8 @@ set(COMMON_HEADERS
     core/debug/runtime-debug/imgui/imgui_internal.h
     core/debug/runtime-debug/imgui/imstb_textedit.h
     core/debug/runtime-debug/imgui/imstb_truetype.h
+    core/debug/runtime-debug/input_debugger.h
+    core/debug/runtime-debug/memory_debugger.h
     core/memory/allocator.h
     core/memory/stack_allocator.h
     core/memory/pool_allocator.h
@@ -124,6 +125,7 @@ set(COMMON_HEADERS
     core/graphics/helpers/helpers.h
     core/graphics/helpers/gbuffer.h
     core/helpers/events.h
+    core/helpers/macros.h
     core/helpers/object_pool.h
     core/input/input.h
     core/input/keyboard.h

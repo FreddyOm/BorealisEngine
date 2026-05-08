@@ -55,6 +55,8 @@ namespace Borealis::Memory
 			: HandleId(handleId), /*p_Data(p_data),*/ RefCount(1), MemAllocCntxt(g_memoryAllocatorContext.empty() ? MemAllocatorContext::STATIC : g_memoryAllocatorContext.top())
 		{ }
 
+		~HandleInfo() = default;
+
 		Types::uint64Ptr HandleId = 0;		// 8 bytes
 		Types::int32 RefCount = 0;			// 4 bytes
 		MemAllocatorContext MemAllocCntxt = MemAllocatorContext::DEBUG;	// 1 bytes

@@ -1,5 +1,6 @@
 #pragma once
 #include "../../../config.h"
+#include "../../helpers/macros.h"
 #include "../pipeline_config.h"
 #include "../../types/types.h"
 
@@ -17,6 +18,11 @@ namespace Borealis::Graphics::Helpers
 
 		virtual ~IBorealisRenderer() = default;
 		
+        BOREALIS_DELETE_COPY_CONSTRUCT(IBorealisRenderer)
+        BOREALIS_DELETE_MOVE_CONSTRUCT(IBorealisRenderer)
+        BOREALIS_DELETE_COPY_ASSIGN(IBorealisRenderer)
+        BOREALIS_DELETE_MOVE_ASSIGN(IBorealisRenderer)
+
 		virtual Borealis::Types::int64 InitializePipeline() = 0;
 		virtual Borealis::Types::int64 DeinitializePipeline() = 0;
 		
@@ -176,6 +182,11 @@ namespace Borealis::Graphics
 
         ~BorealisD3D12Texture() = default;
 
+        BOREALIS_DELETE_COPY_CONSTRUCT(BorealisD3D12Texture)
+        BOREALIS_DELETE_MOVE_CONSTRUCT(BorealisD3D12Texture)
+        BOREALIS_DELETE_COPY_ASSIGN(BorealisD3D12Texture)
+        BOREALIS_DELETE_MOVE_ASSIGN(BorealisD3D12Texture)
+
         const Types::uint16 GetWidth() const;
         const Types::uint16 GetHeight() const;
 
@@ -206,6 +217,11 @@ namespace Borealis::Graphics
         {}
 
         ~BorealisVulkanTexture() = default;
+
+        BOREALIS_DEFAULT_COPY_CONSTRUCT(BorealisVulkanTexture)
+        BOREALIS_DEFAULT_MOVE_CONSTRUCT(BorealisVulkanTexture)
+        BOREALIS_DEFAULT_COPY_ASSIGN(BorealisVulkanTexture)
+        BOREALIS_DEFAULT_MOVE_ASSIGN(BorealisVulkanTexture)
 
         const Types::uint16 GetWidth() const;
         const Types::uint16 GetHeight() const;
