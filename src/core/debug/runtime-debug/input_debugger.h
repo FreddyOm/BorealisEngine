@@ -135,8 +135,57 @@ namespace Borealis::Runtime::Debug
 			ImGui::Text("Touchpad P1 (x: %.2f | y: %.2f)", gamepad.InputState.Touchpad1X, gamepad.InputState.Touchpad1Y);
 			ImGui::Text("Touchpad P2 (x: %.2f | y: %.2f)", gamepad.InputState.Touchpad2X, gamepad.InputState.Touchpad2Y);
 		
-			ImGui::Text("Accelerometer: (x: %.2f | y: %.2f | z: %.2f)", gamepad.InputState.Accelerometer.x, gamepad.InputState.Accelerometer.y, gamepad.InputState.Accelerometer.z);
 			ImGui::Text("Battery level: (%f)", gamepad.BatteryChargeLevel);
+
+			ImGui::Spacing();
+			ImGui::Text("Accelerometer: (x: %.2f | y: %.2f | z: %.2f)", gamepad.InputState.Accelerometer.x, gamepad.InputState.Accelerometer.y, gamepad.InputState.Accelerometer.z);
+
+			DrawAccelerometerPlot(gamepad);
+		}
+
+		void DrawAccelerometerPlot(const Borealis::Input::Gamepad& gamepad)
+		{
+			// Fill plot with new values each frame
+			static float accelerometerValuesX[30]{ 0 };
+			static float accelerometerValuesY[30]{ 0 };
+			static float accelerometerValuesZ[30]{ 0 };
+
+			for (int i = 0; i < 29; ++i)
+			{
+				accelerometerValuesX[i] = accelerometerValuesX[i + 1];
+			}
+
+			for (int i = 0; i < 29; ++i)
+			{
+				accelerometerValuesY[i] = accelerometerValuesY[i + 1];
+			}
+
+			for (int i = 0; i < 29; ++i)
+			{
+				accelerometerValuesZ[i] = accelerometerValuesZ[i + 1];
+			}
+
+			accelerometerValuesX[29] = gamepad.InputState.Accelerometer.x;
+			accelerometerValuesY[29] = gamepad.InputState.Accelerometer.y;
+			accelerometerValuesZ[29] = gamepad.InputState.Accelerometer.z;
+
+			ImGui::Spacing();
+
+			ImGui::BeginGroup();
+
+			ImGui::PushStyleColor(ImGuiCol_PlotLines, ImVec4(1,0,0,1));
+			ImGui::PlotLines("X", accelerometerValuesX, 30, 0, 0, -2500.0f, 2500.0f, ImVec2(250, 30.0f));
+			ImGui::PopStyleColor();
+
+			ImGui::PushStyleColor(ImGuiCol_PlotLines, ImVec4(0, 1, 0, 1));
+			ImGui::PlotLines("Y", accelerometerValuesY, 30, 0, 0, -2500.0f, 2500.0f, ImVec2(250, 30.0f));
+			ImGui::PopStyleColor();
+			
+			ImGui::PushStyleColor(ImGuiCol_PlotLines, ImVec4(0.3, 0.3, 1, 1));
+			ImGui::PlotLines("Z", accelerometerValuesZ, 30, 0, 0, -2500.0f, 2500.0f, ImVec2(250, 30.0f));
+			ImGui::PopStyleColor();
+
+			ImGui::EndGroup();
 		}
 
 		void DrawMouseDebugLayout(const Input::Mouse& mouse)
