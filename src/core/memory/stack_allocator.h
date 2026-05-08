@@ -17,10 +17,10 @@ namespace Borealis::Memory
 
 		~StackAllocator() override;
 
-		BOREALIS_DEFAULT_COPY_CONSTRUCT(StackAllocator)
-		BOREALIS_DEFAULT_MOVE_CONSTRUCT(StackAllocator)
-		BOREALIS_DEFAULT_COPY_ASSIGN(StackAllocator)
-		BOREALIS_DEFAULT_MOVE_ASSIGN(StackAllocator)
+		BOREALIS_DELETE_COPY_CONSTRUCT(StackAllocator)
+		BOREALIS_DELETE_MOVE_CONSTRUCT(StackAllocator)
+		BOREALIS_DELETE_COPY_ASSIGN(StackAllocator)
+		BOREALIS_DELETE_MOVE_ASSIGN(StackAllocator)
 
 	public:
 

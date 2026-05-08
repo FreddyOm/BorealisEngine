@@ -1,4 +1,5 @@
 #pragma once
+#include "../../helpers/macros.h"
 //#include "../../../config.h"
 //#include "../../graphics/pipeline_config.h"
 
@@ -22,6 +23,11 @@ namespace Borealis::Runtime::Debug
 		{
 
 		}
+
+		BOREALIS_DELETE_COPY_CONSTRUCT(IGUIDrawable)
+		BOREALIS_DELETE_MOVE_CONSTRUCT(IGUIDrawable)
+		BOREALIS_DELETE_COPY_ASSIGN(IGUIDrawable)
+		BOREALIS_DELETE_MOVE_ASSIGN(IGUIDrawable)
 
 		/// <summary>
 		/// Method called when updating the editor window.

@@ -23,10 +23,10 @@ namespace Borealis::Memory
 		PoolAllocator(Borealis::Types::int32 poolElementNum, 
 			Borealis::Types::uint64 elementSize = 65536);	// Default elementSize is 64 kiB
 
-		BOREALIS_DEFAULT_COPY_CONSTRUCT(PoolAllocator)
-		BOREALIS_DEFAULT_MOVE_CONSTRUCT(PoolAllocator)
-		BOREALIS_DEFAULT_COPY_ASSIGN(PoolAllocator)
-		BOREALIS_DEFAULT_MOVE_ASSIGN(PoolAllocator)
+		BOREALIS_DELETE_COPY_CONSTRUCT(PoolAllocator)
+		BOREALIS_DELETE_MOVE_CONSTRUCT(PoolAllocator)
+		BOREALIS_DELETE_COPY_ASSIGN(PoolAllocator)
+		BOREALIS_DELETE_MOVE_ASSIGN(PoolAllocator)
 
 		~PoolAllocator() override;
 

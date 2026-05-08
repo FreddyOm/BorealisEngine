@@ -22,6 +22,13 @@ namespace Borealis::Memory
 			: HandleId(handleId), Size(size), AlignOffset(alignOffset)
 		{ }
 
+		~HeapDescription() = default;
+
+		BOREALIS_DEFAULT_COPY_CONSTRUCT(HeapDescription)
+		BOREALIS_DELETE_MOVE_CONSTRUCT(HeapDescription)
+		BOREALIS_DEFAULT_COPY_ASSIGN(HeapDescription)
+		BOREALIS_DELETE_MOVE_ASSIGN(HeapDescription)
+
 		Types::uint64Ptr HandleId = 0;		// 8 bytes
 		Types::uint16 Size = 0;				// 2 bytes
 		Types::uint16 AlignOffset = 0;		// 2 bytes
@@ -61,6 +68,13 @@ namespace Borealis::Memory
 		HeapFreeListEntry(void* p_blockStart, void* p_blockEnd)
 			: p_BlockStart(p_blockStart), p_BlockEnd(p_blockEnd)
 		{ }
+
+		~HeapFreeListEntry() = default;
+
+		BOREALIS_DEFAULT_COPY_CONSTRUCT(HeapFreeListEntry)
+		BOREALIS_DEFAULT_MOVE_CONSTRUCT(HeapFreeListEntry)
+		BOREALIS_DEFAULT_COPY_ASSIGN(HeapFreeListEntry)
+		BOREALIS_DEFAULT_MOVE_ASSIGN(HeapFreeListEntry)
 
 		// The start address of the free memory block
 		void* p_BlockStart;		// 8 bytes
@@ -104,10 +118,10 @@ namespace Borealis::Memory
 		~HeapAllocator() override;
 
 		HeapAllocator(HeapAllocator&& other) noexcept;
-		BOREALIS_DEFAULT_COPY_CONSTRUCT(HeapAllocator)
+		BOREALIS_DELETE_COPY_CONSTRUCT(HeapAllocator)
 
 		HeapAllocator& operator=(HeapAllocator&& other) noexcept;
-		BOREALIS_DEFAULT_COPY_ASSIGN(HeapAllocator)
+		BOREALIS_DELETE_COPY_ASSIGN(HeapAllocator)
 
 	public:
 

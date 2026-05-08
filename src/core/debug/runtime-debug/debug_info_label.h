@@ -15,6 +15,13 @@ namespace Borealis::Runtime::Debug
 			: isActive(isActive), labelName(labelName), pFont(pFont), size(size), bg_color(bg_color), text_color(text_color)
 		{ }
 
+		~DebugInfoLabel() = default;
+
+		BOREALIS_DELETE_COPY_CONSTRUCT(DebugInfoLabel)
+		BOREALIS_DELETE_MOVE_CONSTRUCT(DebugInfoLabel)
+		BOREALIS_DELETE_COPY_ASSIGN(DebugInfoLabel)
+		BOREALIS_DELETE_MOVE_ASSIGN(DebugInfoLabel)
+
 		virtual void Draw()
 		{
 			ImGui::SameLine();

@@ -1,5 +1,6 @@
 #pragma once
 #include "../../../config.h"
+#include "../../helpers/macros.h"
 #include "../../types/string_id.h"
 #include "../../graphics/helpers/helpers.h"
 
@@ -72,6 +73,11 @@ namespace Borealis::Runtime::Debug
 
 			debugLabels.clear();
 		}
+
+		BOREALIS_DELETE_COPY_CONSTRUCT(RuntimeDebugger)
+		BOREALIS_DELETE_MOVE_CONSTRUCT(RuntimeDebugger)
+		BOREALIS_DELETE_COPY_ASSIGN(RuntimeDebugger)
+		BOREALIS_DELETE_MOVE_ASSIGN(RuntimeDebugger)
 
 	public:
 		void Attatch(GLFWwindow* pWindow);

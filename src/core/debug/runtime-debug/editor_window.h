@@ -24,6 +24,11 @@ namespace Borealis::Runtime::Debug
 		~EditorWindow()
 		{ }
 
+		BOREALIS_DELETE_COPY_CONSTRUCT(EditorWindow)
+		BOREALIS_DELETE_MOVE_CONSTRUCT(EditorWindow)
+		BOREALIS_DELETE_COPY_ASSIGN(EditorWindow)
+		BOREALIS_DELETE_MOVE_ASSIGN(EditorWindow)
+
 		void UpdateDrawable() override;
 
 	protected:
