@@ -240,6 +240,9 @@ namespace Borealis::Input
 
 	WinInputSystem::WinInputSystem()
 	{
+		// Initialize COM
+		Assert(SUCCEEDED(CoInitializeEx(nullptr, COINIT_MULTITHREADED)), "Failed to initialize COM!");
+
 		// Initialize the GameInput system
 		Assert(GameInputCreate(g_pGameInput.GetAddressOf()) == S_OK,
 			"Failed to create the GameInput instance.");
@@ -255,14 +258,6 @@ namespace Borealis::Input
 
 	WinInputSystem::~WinInputSystem()
 	{
-		// Release keyboard
-		g_pWinKeyboardInternal->Release();
-		g_pWinKeyboardInternal = nullptr;
-
-		// Release mice
-		g_pWinMouseInternal->Release();
-		g_pWinMouseInternal = nullptr;
-
 		// Release gamepads
 		for (Types::uint8 idx = 0; idx < g_pWinGamepadsInternal.size(); ++idx)
 		{
@@ -271,8 +266,13 @@ namespace Borealis::Input
 		}
 
 		// Release game input
-		g_pGameInput->UnregisterCallback(g_gameInputCallbackToken, 0);
+		if(g_pGameInput)
+			g_pGameInput->UnregisterCallback(g_gameInputCallbackToken, 0);
+
 		g_pGameInput.Reset();
+
+		// Uninitialize COM
+		CoUninitialize();
 
 		// Free Dual Sense device context
 		for(auto& ctxt : g_DualSenseDeviceContexts)
@@ -463,6 +463,8 @@ namespace Borealis::Input
 			g_Mouse->InputState.WheelY = state.wheelY;
 
 			g_Mouse->InputState.buttonState = state.buttons;
+
+			reading->Release();
 		}
 
 		if (SUCCEEDED(g_pGameInput->GetCurrentReading(GameInputKindKeyboard, g_pWinKeyboardInternal, &reading)))
@@ -474,6 +476,8 @@ namespace Borealis::Input
 			reading->GetKeyState(reading->GetKeyCount(), &state);
 
 			//g_Keyboard->InputState.keyStates.set(state.scanCode);
+
+			reading->Release();
 		}
 		
 
@@ -487,7 +491,6 @@ namespace Borealis::Input
 
 			const GameInputDeviceInfo* pInfo = currentIGameInputGamepad->GetDeviceInfo();
 			pInfo->deviceId;
-
 
 			Gamepad* currentBorealisGamepad = (*it);
 
@@ -520,6 +523,7 @@ namespace Borealis::Input
 				reading->GetMotionState(&motionState);
 				currentBorealisGamepad->InputState.Accelerometer = { motionState.accelerationX, motionState.accelerationY, motionState.accelerationZ };
 				
+				reading->Release();
 			}
 		
 		}
