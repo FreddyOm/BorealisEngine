@@ -1,6 +1,10 @@
 #pragma once
 #include "../../config.h"
+#include "../helpers/macros.h"
+#include "../types/types.h"
 #include "input_device.h"
+#include "borealis_devices.h"
+
 #include <set>
 
 #ifdef BOREALIS_WIN
@@ -15,6 +19,11 @@ namespace Borealis::Input
     {
 		IInputSystemBase() = default;
 		virtual ~IInputSystemBase() = default;
+
+        BOREALIS_DELETE_COPY_CONSTRUCT(IInputSystemBase)
+        BOREALIS_DELETE_MOVE_CONSTRUCT(IInputSystemBase)
+        BOREALIS_DELETE_COPY_ASSIGN(IInputSystemBase)
+        BOREALIS_DELETE_MOVE_ASSIGN(IInputSystemBase)
 
         virtual void UpdateInputState() = 0;
 
@@ -33,6 +42,11 @@ namespace Borealis::Input
     {
         WinInputSystem();
         ~WinInputSystem() override;
+
+        BOREALIS_DELETE_COPY_CONSTRUCT(WinInputSystem)
+        BOREALIS_DELETE_MOVE_CONSTRUCT(WinInputSystem)
+        BOREALIS_DELETE_COPY_ASSIGN(WinInputSystem)
+        BOREALIS_DELETE_MOVE_ASSIGN(WinInputSystem)
 
 		void UpdateInputState() override;
 
@@ -59,6 +73,11 @@ namespace Borealis::Input
     {
         LinuxInputSystem();
         ~LinuxInputSystem() override;
+
+        BOREALIS_DEFAULT_COPY_CONSTRUCT(LinuxInputSystem)
+        BOREALIS_DEFAULT_MOVE_CONSTRUCT(LinuxInputSystem)
+        BOREALIS_DEFAULT_COPY_ASSIGN(LinuxInputSystem)
+        BOREALIS_DEFAULT_MOVE_ASSIGN(LinuxInputSystem)
 
         void UpdateInputState() override;
 

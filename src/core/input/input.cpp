@@ -4,8 +4,11 @@
 #include "../types/string_id.h"
 #include "../types/types.h"
 #include "../helpers/object_pool.h"
+#include "input_device.h"
+#include "borealis_devices.h"
 
 #include <unordered_map>
+#include <set>
 
 #ifdef BOREALIS_WIN
 // DualSense
@@ -50,7 +53,7 @@ namespace Borealis::Input
 	uint32 g_DualSenseDeviceCount = 0;
 
 
-	const StringId GetDeviceTypeString(GameInputDeviceInfo const* deviceInfo)
+	const static StringId GetDeviceTypeString(GameInputDeviceInfo const* deviceInfo)
 	{
 		switch (deviceInfo->deviceFamily)
 		{
@@ -82,7 +85,7 @@ namespace Borealis::Input
 	/// </summary>
 	/// <param name="deviceId">The deviceId</param>
 	/// <returns>A unsigned integer that represents the sum of all byte elements.</returns>
-	uint64 HashDeviceID(const BYTE deviceId [32])
+	static uint64 HashDeviceID(const BYTE deviceId [32])
 	{
 		uint64 hash = 0;
 		
@@ -101,7 +104,7 @@ namespace Borealis::Input
 	/// <param name="timestamp"></param>
 	/// <param name="currentStatus"></param>
 	/// <param name="previousStatus"></param>
-	void CALLBACK OnDeviceStatusChanged(
+	static void CALLBACK OnDeviceStatusChanged(
 		_In_ GameInputCallbackToken token,
 		_In_ void* context,
 		_In_ IGameInputDevice* device,

@@ -1,12 +1,15 @@
 #pragma once
 #include "../../../config.h"
+#include "../../helpers/macros.h"
 #include "../../types/string_id.h"
 #include "../../graphics/helpers/helpers.h"
 
 #include "IGUI_drawable.h"
 #include "debug_category_button.h"
 #include "debug_info_label.h"
+
 #include "input_debugger.h"
+#include "memory_debugger.h"
 
 #include "imgui/imgui.h"
 
@@ -28,6 +31,7 @@ namespace Borealis::Runtime::Debug
 
 			// First, register all debug windows (deriving from IGUIDrawable)
 			runtimeGUIDrawables.push_back(new InputDebugger(pInputSystem));
+			runtimeGUIDrawables.push_back(new MemoryDebugger());
 			//runtimeGUIDrawables.push_back(new InputDebugger());
 
 			// Then, register category buttons, passing the runtimeGUIDrawables for "click" events
@@ -72,6 +76,11 @@ namespace Borealis::Runtime::Debug
 
 			debugLabels.clear();
 		}
+
+		BOREALIS_DELETE_COPY_CONSTRUCT(RuntimeDebugger)
+		BOREALIS_DELETE_MOVE_CONSTRUCT(RuntimeDebugger)
+		BOREALIS_DELETE_COPY_ASSIGN(RuntimeDebugger)
+		BOREALIS_DELETE_MOVE_ASSIGN(RuntimeDebugger)
 
 	public:
 		void Attatch(GLFWwindow* pWindow);

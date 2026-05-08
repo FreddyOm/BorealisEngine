@@ -32,11 +32,10 @@ namespace Borealis::Helpers
 			alloc->Clear();
 		}
 
-		ObjectPool(const ObjectPool& other) = delete;
-		ObjectPool(ObjectPool&& other) noexcept = delete;
-
-		void operator=(const ObjectPool& other) = delete;
-		void operator=(ObjectPool&& other) noexcept = delete;
+		BOREALIS_DELETE_COPY_CONSTRUCT(ObjectPool)
+		BOREALIS_DELETE_MOVE_CONSTRUCT(ObjectPool)
+		BOREALIS_DELETE_COPY_ASSIGN(ObjectPool)
+		BOREALIS_DELETE_MOVE_ASSIGN(ObjectPool)
 
 		template<typename ...Args>
 		T* Get(Args ... args)

@@ -2,7 +2,7 @@
 
 #include "../../config.h"
 #include "../types/types.h"
-#include <cstring>
+#include "../helpers/macros.h"
 
 namespace Borealis::Memory
 {
@@ -11,7 +11,14 @@ namespace Borealis::Memory
 	class BOREALIS_API IMemoryAllocator
 	{
 	public:
+		IMemoryAllocator() = default;
 		virtual ~IMemoryAllocator() = default;
+
+		BOREALIS_DELETE_COPY_CONSTRUCT(IMemoryAllocator)
+		BOREALIS_DELETE_MOVE_CONSTRUCT(IMemoryAllocator)
+		BOREALIS_DELETE_COPY_ASSIGN(IMemoryAllocator)
+		BOREALIS_DELETE_MOVE_ASSIGN(IMemoryAllocator)
+
 		virtual HandleInfo* Alloc(const Types::uint16 allocSize) = 0;
 		virtual HandleInfo* AllocAligned(const Types::uint16 allocSize) = 0;
 

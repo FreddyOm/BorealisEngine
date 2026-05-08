@@ -1,5 +1,6 @@
 #pragma once
 #include "../debug/logger.h"
+#include "macros.h"
 #include <functional>
 #include <vector>
 #include <type_traits>
@@ -21,6 +22,11 @@ namespace Borealis::Events
 			// Clear all registered callbacks
 			UnsubscribeAll();
 		}
+
+		BOREALIS_DELETE_COPY_CONSTRUCT(Action)
+		BOREALIS_DELETE_MOVE_CONSTRUCT(Action)
+		BOREALIS_DELETE_COPY_ASSIGN(Action)
+		BOREALIS_DELETE_MOVE_ASSIGN(Action)
 
 		void Subscribe(const std::function<R(A)>& callback)
 		{
