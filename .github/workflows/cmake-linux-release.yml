@@ -40,6 +40,8 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Update package lists
+      run: sudo apt-get update
     - name: Install libs
       run: sudo apt install libwayland-dev libxkbcommon-dev xorg-dev doxygen vulkan-validationlayers vulkan-tools libvulkan1
 
