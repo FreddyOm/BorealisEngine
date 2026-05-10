@@ -44,6 +44,16 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glfw)
 
+# Windows
+if(WIN32)
+    FetchContent_Declare(
+    DirectXTK12
+    GIT_REPOSITORY https://github.com/microsoft/DirectXTK12.git
+    GIT_TAG        main
+)
+FetchContent_MakeAvailable(DirectXTK12)
+endif()
+
 # Vulkan
 if(UNIX AND NOT APPLE)
     FetchContent_Declare(
@@ -145,7 +155,6 @@ set(WINDOWS_SOURCES
 
 set(WINDOWS_HEADER
     thirdparty/ds5w/include/ds5w.h
-    thirdparty/directxtk12/include/directxtk12/WICTextureLoader.h
     core/debug/runtime-debug/imgui/imgui_impl_dx11.h
     core/debug/runtime-debug/imgui/imgui_impl_dx12.h
     core/debug/runtime-debug/imgui/imgui_impl_win32.h
@@ -182,7 +191,8 @@ target_include_directories(BorealisEngineLib SYSTEM PRIVATE
     $<$<AND:$<PLATFORM_ID:Linux>,$<NOT:$<PLATFORM_ID:Darwin>>>:${vulkan_headers_SOURCE_DIR}/include>
     ${CMAKE_SOURCE_DIR}/src/thirdparty/ds5w/include
 if(WIN32)
-    ${CMAKE_SOURCE_DIR}/src/thirdparty/directxtk12/include
+    #${CMAKE_SOURCE_DIR}/src/thirdparty/directxtk12/include
+    ${DirectXTK12_SOURCE_DIR}/include
 endif()
 )
 
@@ -204,7 +214,7 @@ if(WIN32)
         d3dcompiler
         glfw
         ${CMAKE_SOURCE_DIR}/src/thirdparty/ds5w/ds5w_x64.lib
-        ${CMAKE_SOURCE_DIR}/src/thirdparty/directxtk12/lib/DirectXTK12.lib
+        DirectXTK12
     )
 elseif(APPLE)
     target_link_libraries(BorealisEngineLib PRIVATE

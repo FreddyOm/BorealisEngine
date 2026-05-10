@@ -2,16 +2,15 @@
 #include "../../debug/logger.h"
 #include "../../memory/memory.h"
 #include "../d3d12/d3d12_common.h"
-#include <string>
 //#include "../../debug/runtime-debug/EditorWindow.h"
 
 using namespace Borealis::Types;
 
 #if defined(BOREALIS_WIN)	// D3D12 only available for Windows OS
 
-#include <directxtk12/WICTextureLoader.h>
-#include <directxtk12/ResourceUploadBatch.h>
-#include <directxtk12/DirectXHelpers.h>
+#include <WICTextureLoader.h>
+#include <ResourceUploadBatch.h>
+#include <DirectXHelpers.h>
 
 using namespace Microsoft::WRL;
 using namespace Borealis::Graphics::Helpers;

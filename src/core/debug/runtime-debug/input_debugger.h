@@ -62,7 +62,6 @@ namespace Borealis::Runtime::Debug
 			ImGui::Text("Select: %s", gamepad.InputState.ButtonState & Input::OPTIONS_LEFT ? "Pressed" : "Released");
 			ImGui::Text("Start: %s", gamepad.InputState.ButtonState & Input::OPTIONS_RIGHT ? "Pressed" : "Released");
 
-			ImGui::Text("Accelerometer: (x: %.2f | y: %.2f | z: %.2f)", gamepad.InputState.Accelerometer.x, gamepad.InputState.Accelerometer.y, gamepad.InputState.Accelerometer.z);
 			ImGui::Text("Battery level: (%f)", gamepad.BatteryChargeLevel);
 		}
 
@@ -94,7 +93,6 @@ namespace Borealis::Runtime::Debug
 			ImGui::Text("Select: %s", gamepad.InputState.ButtonState & Input::OPTIONS_LEFT ? "Pressed" : "Released");
 			ImGui::Text("Start: %s", gamepad.InputState.ButtonState & Input::OPTIONS_RIGHT ? "Pressed" : "Released");
 
-			ImGui::Text("Accelerometer: (x: %.2f | y: %.2f | z: %.2f)", gamepad.InputState.Accelerometer.x, gamepad.InputState.Accelerometer.y, gamepad.InputState.Accelerometer.z);
 			ImGui::Text("Battery level: (%f)", gamepad.BatteryChargeLevel);
 		
 			//ImGui::Image((ImTextureID)debug_Texture->GetGPUHandle(), ImVec2(debug_Texture->GetWidth(), debug_Texture->GetHeight()));
