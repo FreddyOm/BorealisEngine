@@ -3,6 +3,7 @@
 #include "IGUI_drawable.h"
 #include "../../input/input.h"
 #include "../../input/borealis_devices.h"
+#include "../../memory/ref_cnt_auto_ptr.h"
 #include <cstdio>
 
 namespace Borealis::Runtime::Debug
@@ -10,8 +11,8 @@ namespace Borealis::Runtime::Debug
 	class InputDebugger : public IGUIDrawable
 	{
 	public:
-		InputDebugger(Input::InputSystem* pInputSystem)
-			: pInputSystem(pInputSystem), IGUIDrawable(true)
+		InputDebugger(Input::InputSystem* pInputSystem, Memory::RefCntAutoPtr<Graphics::Texture> tex)
+			: pInputSystem(pInputSystem), debug_Texture(tex), IGUIDrawable(true)
 		{ }
 
 		~InputDebugger() = default;
@@ -95,6 +96,8 @@ namespace Borealis::Runtime::Debug
 
 			ImGui::Text("Accelerometer: (x: %.2f | y: %.2f | z: %.2f)", gamepad.InputState.Accelerometer.x, gamepad.InputState.Accelerometer.y, gamepad.InputState.Accelerometer.z);
 			ImGui::Text("Battery level: (%f)", gamepad.BatteryChargeLevel);
+		
+			//ImGui::Image((ImTextureID)debug_Texture->GetGPUHandle(), ImVec2(debug_Texture->GetWidth(), debug_Texture->GetHeight()));
 		}
 
 		void DrawDualShockDebugLayout(const Input::Gamepad& gamepad)
@@ -329,5 +332,7 @@ namespace Borealis::Runtime::Debug
 
 	private:
 		Input::InputSystem* pInputSystem;
+		Memory::RefCntAutoPtr<Graphics::Texture> debug_Texture;
+
 	};
 }

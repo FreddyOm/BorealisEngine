@@ -42,6 +42,10 @@ namespace Borealis::Memory
 		// memory and don't need to be deallocated
 		STATIC = 4,
 
+
+		// The numbers of contexts in the list. Keep this updated!
+		NUM_CONTEXTS = 5,
+
 	};
 	
 	extern BOREALIS_API std::stack<MemAllocatorContext> g_memoryAllocatorContext;
