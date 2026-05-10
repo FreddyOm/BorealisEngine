@@ -74,10 +74,10 @@ namespace Borealis::Input
         LinuxInputSystem();
         ~LinuxInputSystem() override;
 
-        BOREALIS_DEFAULT_COPY_CONSTRUCT(LinuxInputSystem)
-        BOREALIS_DEFAULT_MOVE_CONSTRUCT(LinuxInputSystem)
-        BOREALIS_DEFAULT_COPY_ASSIGN(LinuxInputSystem)
-        BOREALIS_DEFAULT_MOVE_ASSIGN(LinuxInputSystem)
+        BOREALIS_DELETE_COPY_CONSTRUCT(LinuxInputSystem)
+        BOREALIS_DELETE_MOVE_CONSTRUCT(LinuxInputSystem)
+        BOREALIS_DELETE_COPY_ASSIGN(LinuxInputSystem)
+        BOREALIS_DELETE_MOVE_ASSIGN(LinuxInputSystem)
 
         void UpdateInputState() override;
 

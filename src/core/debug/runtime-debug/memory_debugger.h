@@ -63,7 +63,8 @@ namespace Borealis::Runtime::Debug
 				return "Rendering Allocator";
 			case Memory::MemAllocatorContext::RENDERING_DEBUG:
 				return "Rendering Debug Allocator";
-			
+			default:
+				return "Unknown";
 			}
 			return "Unknown";
 		}
