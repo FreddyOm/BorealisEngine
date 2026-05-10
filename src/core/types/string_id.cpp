@@ -16,7 +16,7 @@ namespace Borealis::Types
 		Assert(str != nullptr, "Cannot create string from nullptr!");
 		Assert(std::char_traits<char>::length(str) > 0, "Empty strings are not allowed!");
 
-		StringId sid = Math::HashValue(str, std::char_traits<char>::length(str));
+		StringId sid = Borealis::Math::HashValue(str, std::char_traits<char>::length(str));
 		std::unordered_map<StringId, const char*>::iterator it
 			= g_StringIdTable.find(sid);
 

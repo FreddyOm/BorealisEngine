@@ -103,7 +103,7 @@ namespace Borealis::Runtime::Debug
 			{
 				ImGui::Text("Allocator type: %s", GetMemoryAllocTypeFromContext(allocCtxt));
 
-				ImGui::Text("Memory usage: [%i B / %i B]",
+				ImGui::Text("Memory usage: [%li B / %li B]",
 					Memory::GetMemoryAllocator(allocCtxt)->GetUsedMemorySize(),
 					Memory::GetMemoryAllocator(allocCtxt)->GetAvailableMemorySize());
 				

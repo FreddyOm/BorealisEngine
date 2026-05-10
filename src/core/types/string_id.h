@@ -1,9 +1,9 @@
 #pragma once
 #include "types.h"
 #include "../debug/logger.h"
+#include "../math/crc_hash.h"
 
 #if defined(BOREALIS_RELEASE) || defined(BOREALIS_MINSIZEREL)
-#include "../math/crc_hash.h"
 #include <cstring>
 #endif
 
