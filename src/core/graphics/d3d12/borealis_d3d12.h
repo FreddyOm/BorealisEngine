@@ -3,6 +3,7 @@
 #include "../../types/types.h"
 #include "../../window/window.h"
 #include "../../helpers/macros.h"
+#include "../../memory/ref_cnt_auto_ptr.h"
 
 #ifdef BOREALIS_WIN
 #include <vector>
@@ -55,9 +56,8 @@ namespace Borealis::Graphics
 		Microsoft::WRL::ComPtr<ID3D12Fence> m_CommandQueueFence;
 		Types::uint64 m_LastSignaledFenceValue = 0;
 
-
 		// Functional methods
-		Texture* CreateTexture(const char* path);
+		Memory::RefCntAutoPtr<Texture> CreateTexture(const wchar_t* path);
 
 
 	private:

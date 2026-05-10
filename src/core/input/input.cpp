@@ -17,11 +17,9 @@
 	// Microsoft GameInput Data
 #pragma comment(lib, "GameInput.lib")
 #include <GameInput.h>
-
 #include <wrl.h>
 
 #endif
-
 
 using namespace Borealis::Types;
 using namespace Borealis::Debug;
@@ -40,7 +38,8 @@ namespace Borealis::Input
 #ifdef BOREALIS_WIN
 
 	GameInputCallbackToken g_gameInputCallbackToken{};
-	Microsoft::WRL::ComPtr<IGameInput> g_pGameInput = nullptr;
+	Microsoft::WRL::ComPtr<IGameInput> g_pGameInput{};
+	Microsoft::WRL::ComPtr<IGameInputReading> g_pGameInputReading{};
 
 	IGameInputDevice* g_pWinKeyboardInternal = nullptr;
 	IGameInputDevice* g_pWinMouseInternal = nullptr;
@@ -113,6 +112,10 @@ namespace Borealis::Input
 		_In_ GameInputDeviceStatus previousStatus)
 	{
 		GameInputDeviceInfo const* deviceInfo = device->GetDeviceInfo();
+
+		// TODO: Allocate devices with internal memory allocators!
+
+		WinInputSystem* winInput = (WinInputSystem*)context;
 
 		if (currentStatus & GameInputDeviceConnected)
 		{
@@ -261,16 +264,12 @@ namespace Borealis::Input
 
 	WinInputSystem::~WinInputSystem()
 	{
-		// Release gamepads
-		for (Types::uint8 idx = 0; idx < g_pWinGamepadsInternal.size(); ++idx)
-		{
-			g_pWinGamepadsInternal[idx]->Release();
-			g_pWinGamepadsInternal[idx] = nullptr;
-		}
-
 		// Release game input
 		if(g_pGameInput)
 			g_pGameInput->UnregisterCallback(g_gameInputCallbackToken, 0);
+
+		// Clear gamepads
+		g_pWinGamepadsInternal.clear();
 
 		g_pGameInput.Reset();
 
@@ -326,8 +325,8 @@ namespace Borealis::Input
 			nullptr,															// Don't filter to events from a specific device
 			GameInputKindGamepad | GameInputKindKeyboard | GameInputKindMouse,	// Enumerate gamepads, keyboards, mice
 			GameInputDeviceAnyStatus,											// Any device status
-			GameInputBlockingEnumeration,										// Enumerate synchronously
-			nullptr,															// No callback context parameter
+			GameInputAsyncEnumeration,											// Enumerate asynchronously
+			this,															// No callback context parameter
 			OnDeviceStatusChanged,												// Callback function
 			&g_gameInputCallbackToken)) 										// Generated token
 			, "Failed to register device callback.");
@@ -449,38 +448,36 @@ namespace Borealis::Input
 
 	void WinInputSystem::UpdateGameInputState()
 	{
-		IGameInputReading* reading;
+		HRESULT hRes = {};
 
-		if (SUCCEEDED(g_pGameInput->GetCurrentReading(GameInputKindMouse, g_pWinMouseInternal, &reading)))
+		hRes = g_pGameInput->GetCurrentReading(GameInputKindMouse, /*g_pWinMouseInternal*/nullptr, &g_pGameInputReading);
+		Assert(SUCCEEDED(hRes), "Failed to get the current reading for the Mouse input device!");
+
+		if (SUCCEEDED(hRes))
 		{
-			if (g_pWinMouseInternal)
-				reading->GetDevice(&g_pWinMouseInternal);
-
 			GameInputMouseState state;
-			reading->GetMouseState(&state);
+			if (g_pGameInputReading->GetMouseState(&state))
+			{
+				g_Mouse->InputState.PositionX = state.positionX;
+				g_Mouse->InputState.PositionY = state.positionY;
 
-			g_Mouse->InputState.PositionX = state.positionX;
-			g_Mouse->InputState.PositionY = state.positionY;
+				g_Mouse->InputState.WheelX = state.wheelX;
+				g_Mouse->InputState.WheelY = state.wheelY;
 
-			g_Mouse->InputState.WheelX = state.wheelX;
-			g_Mouse->InputState.WheelY = state.wheelY;
-
-			g_Mouse->InputState.buttonState = state.buttons;
-
-			reading->Release();
+				g_Mouse->InputState.buttonState = state.buttons;
+			}			
 		}
+		
 
-		if (SUCCEEDED(g_pGameInput->GetCurrentReading(GameInputKindKeyboard, g_pWinKeyboardInternal, &reading)))
+		hRes = g_pGameInput->GetCurrentReading(GameInputKindKeyboard, g_pWinKeyboardInternal, &g_pGameInputReading);
+		Assert(SUCCEEDED(hRes), "Failed to get the current reading for the Keyboard input device!");
+
+		if (SUCCEEDED(hRes))
 		{
-			if (g_pWinKeyboardInternal)
-				reading->GetDevice(&g_pWinKeyboardInternal);
-
 			GameInputKeyState state;
-			reading->GetKeyState(reading->GetKeyCount(), &state);
+			g_pGameInputReading->GetKeyState(g_pGameInputReading->GetKeyCount(), &state);
 
 			//g_Keyboard->InputState.keyStates.set(state.scanCode);
-
-			reading->Release();
 		}
 		
 
@@ -497,14 +494,14 @@ namespace Borealis::Input
 
 			Gamepad* currentBorealisGamepad = (*it);
 
-			if (SUCCEEDED(g_pGameInput->GetCurrentReading(GameInputKindGamepad, currentIGameInputGamepad, &reading)))
-			{
-				if (currentIGameInputGamepad)
-					reading->GetDevice(&currentIGameInputGamepad);
+			hRes = g_pGameInput->GetCurrentReading(GameInputKindGamepad, currentIGameInputGamepad, &g_pGameInputReading);
+			Assert(SUCCEEDED(hRes), "Failed to get the current reading for the Gamepad input device!");
 
+			if (SUCCEEDED(hRes))
+			{
 				// Get input state
 				GameInputGamepadState inState;
-				reading->GetGamepadState(&inState);
+				g_pGameInputReading->GetGamepadState(&inState);
 
 				currentBorealisGamepad->InputState.ButtonState = inState.buttons;
 
@@ -523,12 +520,9 @@ namespace Borealis::Input
 				
 				// Get motion state
 				GameInputMotionState motionState;
-				reading->GetMotionState(&motionState);
+				g_pGameInputReading->GetMotionState(&motionState);
 				currentBorealisGamepad->InputState.Accelerometer = { motionState.accelerationX, motionState.accelerationY, motionState.accelerationZ };
-				
-				reading->Release();
 			}
-		
 		}
 	}
 

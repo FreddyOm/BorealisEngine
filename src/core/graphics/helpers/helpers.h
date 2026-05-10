@@ -171,6 +171,10 @@ namespace Borealis::Graphics
 
 #ifdef BOREALIS_WIN
 
+    // TODO: Change this so that the texture creates and destroys itself properly instead of calling BorealisD3D12Renderer::CreateTexture.
+    // This is better since destroying the texture resource would require an extra function call. After changing this, the resource would 
+    // freed when the destructor is called. The texture, in association with the RefCntAutoPtr, would be freed as soon as no ref is not anymore used.
+
     struct BOREALIS_API BorealisD3D12Texture
     {
         BorealisD3D12Texture()
@@ -195,10 +199,23 @@ namespace Borealis::Graphics
             return &m_TextureResource;
         }
 
+        D3D12_CPU_DESCRIPTOR_HANDLE* GetCPUHandle()
+        {
+            return &m_CPUHandle;
+        }
+
+        D3D12_GPU_DESCRIPTOR_HANDLE* GetGPUHandle()
+        {
+            return &m_GPUHandle;
+        }
+
     private:
 
         ID3D12Resource* m_TextureResource = nullptr;
         TextureFormat m_TexFormat = TextureFormat::TEX_FORMAT_UNKNOWN;
+
+        D3D12_CPU_DESCRIPTOR_HANDLE m_CPUHandle{};
+        D3D12_GPU_DESCRIPTOR_HANDLE m_GPUHandle{};
 
         Types::uint16 m_Width = 0;
         Types::uint16 m_Height = 0;

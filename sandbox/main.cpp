@@ -29,13 +29,15 @@ int main()
 		BorealisD3D12Renderer renderer = BorealisD3D12Renderer(desc);
 		InitD3D12LiveObjects();
 		renderer.InitializePipeline();
+
+		Borealis::Memory::RefCntAutoPtr<Borealis::Graphics::Texture> debugTex = renderer.CreateTexture(L"D:\\02_Repositories\\BorealisEngine\\out\\build\\x64-Debug\\sandbox\\resources\\textures\\xbox_debug_graphic.png");
 		
 		InputSystem inputSystem = InputSystem();
 
 #if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
 
 		Helpers::IBorealisRenderer& baseRend = dynamic_cast<Helpers::IBorealisRenderer&>(renderer);
-		RuntimeDebugger runtimeDebugger = RuntimeDebugger(baseRend, &inputSystem);
+		RuntimeDebugger runtimeDebugger = RuntimeDebugger(baseRend, &inputSystem, debugTex);
 		runtimeDebugger.Attatch(sandboxWindow.GetGLFWWindow());
 #endif
 

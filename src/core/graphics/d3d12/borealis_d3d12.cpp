@@ -2,7 +2,7 @@
 #include "../../debug/logger.h"
 #include "../../memory/memory.h"
 #include "../d3d12/d3d12_common.h"
-#include "../../io/file_io.h"
+#include <string>
 //#include "../../debug/runtime-debug/EditorWindow.h"
 
 using namespace Borealis::Types;
@@ -10,6 +10,8 @@ using namespace Borealis::Types;
 #if defined(BOREALIS_WIN)	// D3D12 only available for Windows OS
 
 #include <directxtk12/WICTextureLoader.h>
+#include <directxtk12/ResourceUploadBatch.h>
+#include <directxtk12/DirectXHelpers.h>
 
 using namespace Microsoft::WRL;
 using namespace Borealis::Graphics::Helpers;
@@ -359,20 +361,29 @@ namespace Borealis::Graphics
 		return hResult;
 	}
 
-	Texture* BorealisD3D12Renderer::CreateTexture(const char* path)
+	Memory::RefCntAutoPtr<Texture> BorealisD3D12Renderer::CreateTexture(const wchar_t* path)
 	{
-		Texture tex;
+		Memory::MemAllocJanitor janitor(Memory::MemAllocatorContext::RENDERING);
 
-		
-		uint64 fileSize = 0;
-		Memory::RefCntAutoPtr<char> texData = IO::ReadFile(path, Memory::MemAllocatorContext::RENDERING, fileSize);
+		Memory::RefCntAutoPtr<Texture> tex = Memory::RefCntAutoPtr<Texture>::Allocate();
+		DirectX::ResourceUploadBatch resourceUpload(m_Device.Get());
 
-		std::unique_ptr<uint8_t[]> decodedData{};
-		D3D12_SUBRESOURCE_DATA srData{};
+		resourceUpload.Begin();
 
-		//HRESULT hRes = DirectX::LoadWICTextureFromMemory(m_Device.Get(), texData.RawPtr(), fileSize, tex.GetTexResource(), decodedData, srData);
-		
-		return nullptr;
+		HRESULT hRes = CreateWICTextureFromFile(m_Device.Get(), resourceUpload, path, tex->GetTexResource(), true);
+		Assert(SUCCEEDED(hRes), "Failed to create texture from file \"%s\".", path);
+
+		// Upload the resources to the GPU.
+		auto uploadResourcesFinished = resourceUpload.End(m_CommandQueue.Get());
+
+		// Wait for the upload thread to terminate
+		uploadResourcesFinished.wait();
+
+		// Allocate description and 
+		g_SRVDescHeapAllocator.Alloc(tex->GetCPUHandle(), tex->GetGPUHandle());
+		DirectX::CreateShaderResourceView(m_Device.Get(), *tex->GetTexResource(), *tex->GetCPUHandle());		
+
+		return tex;
 	}
 
 	int64 BorealisD3D12Renderer::SetupPipeline()

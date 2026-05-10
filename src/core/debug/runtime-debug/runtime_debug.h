@@ -3,6 +3,7 @@
 #include "../../helpers/macros.h"
 #include "../../types/string_id.h"
 #include "../../graphics/helpers/helpers.h"
+#include "../../memory/ref_cnt_auto_ptr.h"
 
 #include "IGUI_drawable.h"
 #include "debug_category_button.h"
@@ -25,12 +26,12 @@ namespace Borealis::Runtime::Debug
 	
 	struct BOREALIS_API RuntimeDebugger : protected IGUIDrawable
 	{
-		RuntimeDebugger(Graphics::Helpers::IBorealisRenderer& renderer, Input::InputSystem* pInputSystem)
+		RuntimeDebugger(Graphics::Helpers::IBorealisRenderer& renderer, Input::InputSystem* pInputSystem, Memory::RefCntAutoPtr<Borealis::Graphics::Texture> tex)
 			: m_Renderer(renderer), IGUIDrawable(true)
 		{ 
 
 			// First, register all debug windows (deriving from IGUIDrawable)
-			runtimeGUIDrawables.push_back(new InputDebugger(pInputSystem));
+			runtimeGUIDrawables.push_back(new InputDebugger(pInputSystem, tex));
 			runtimeGUIDrawables.push_back(new MemoryDebugger());
 			//runtimeGUIDrawables.push_back(new InputDebugger());
 
