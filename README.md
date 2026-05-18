@@ -43,7 +43,7 @@ cmake --build . --config <Debug/Release/MinSizeRel/RelWithDebInfo>
   - [x] Warning Log
   - [x] Error Log
   - [x] Assertions
-- [x] Simple Window
+- [x] GLFW Window
 - [ ] [Job System](https://github.com/FreddyOm/BorealisJobs)
 - [x] Custom Memory Allocators
   - [x] Stack Allocator
