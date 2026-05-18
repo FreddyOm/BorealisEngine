@@ -15,7 +15,7 @@
 
 ## Setup 
 
-For the setup of the project you need a installation of **git** and **cmake**.
+For the setup of the project you need an installation of **git** and **cmake**.
 To setup the project, follow the steps below.
 
 1. Navigate to your desired directory
