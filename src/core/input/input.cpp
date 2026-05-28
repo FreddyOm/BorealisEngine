@@ -637,18 +637,18 @@ namespace Borealis::Input
 		Assert(false, "Not implemented yet!");
 	}
 
-	std::set<IInputDevice*>& LinuxInputSystem::GetAllDevices()
+	std::set<Memory::RefCntAutoPtr<IInputDevice>>& LinuxInputSystem::GetAllDevices()
 	{
 		return g_AllDevices;
 	}
 
-	const Mouse* LinuxInputSystem::GetMouse() const
+	const Memory::RefCntAutoPtr<Mouse> LinuxInputSystem::GetMouse() const
 	{
 		Assert(false, "Not implemented yet!");
 		return nullptr;
 	}
 
-	const Keyboard* LinuxInputSystem::GetKeyboard() const
+	const Memory::RefCntAutoPtr<Keyboard> LinuxInputSystem::GetKeyboard() const
 	{
 		Assert(false, "Not implemented yet!");
 		return nullptr;
