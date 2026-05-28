@@ -1,36 +1,42 @@
 #pragma once
 
 #include "../debug/logger.h"
+#include "../memory/ref_cnt_auto_ptr.h"
 #include "../memory/pool_allocator.h"
 #include "../types/types.h"
 
 #include <set>
 #include <type_traits>
-#include <concepts>
+//#include <concepts>
 
 namespace Borealis::Helpers
 {
 	template<typename T> concept IsResettable = std::is_base_of_v<Types::IResettable, T>;
 
+
+	/// <summary>
+	/// The object pool can pool objects that implement the IResettable interface. 
+	/// This is necessary, so that pool elements can be resetted instead of deconstructed.
+	/// </summary>
+	/// <typeparam name="T">The type of the object that should be pooled.</typeparam>
+	/// <typeparam name="N">The size of the object pool.</typeparam>
 	template<typename T, int N> requires IsResettable<T>
 	class ObjectPool
 	{
 	public:
 
-		ObjectPool() :
-			alloc(new Borealis::Memory::PoolAllocator(N, sizeof(T)))
+		ObjectPool()
 		{
+			Memory::MemAllocJanitor janitor{};	// Default janitor allocates in default context
+			
 			// Reserve all allocated elements inside the inactive elements set
 			for (Types::int32 i = 0; i < N; ++i)
 			{
-				inactiveElements.insert( reinterpret_cast<T*>( alloc->RawAlloc( sizeof(T) ) ) );
+				m_inactiveElements.insert( Memory::RefCntAutoPtr<T>( m_memPool.Alloc( sizeof(T) ) ) );
 			}
 		}
 
-		~ObjectPool()
-		{
-			alloc->Clear();
-		}
+		~ObjectPool() = default;
 
 		BOREALIS_DELETE_COPY_CONSTRUCT(ObjectPool)
 		BOREALIS_DELETE_MOVE_CONSTRUCT(ObjectPool)
@@ -38,18 +44,20 @@ namespace Borealis::Helpers
 		BOREALIS_DELETE_MOVE_ASSIGN(ObjectPool)
 
 		template<typename ...Args>
-		T* Get(Args ... args)
+		Memory::RefCntAutoPtr<T> Get(Args ... args)
 		{
-			if (!inactiveElements.empty())
+			if (!m_inactiveElements.empty())
 			{
-				// Construct object
-				T* obj = *inactiveElements.begin();
-				inactiveElements.erase(inactiveElements.begin());
+				// Copy construct "new" object
+				Memory::RefCntAutoPtr<T> obj (*m_inactiveElements.begin());
+				void* targetPtr = obj.RawPtr();
+				m_inactiveElements.erase(m_inactiveElements.begin());
 
-				T* initObj = new (obj) T(args...);
-				activeElements.insert(initObj);
 
-				return initObj;
+				new (obj.RawPtr()) T(args...);	// Init "new" object 
+				m_activeElements.insert(obj);
+
+				return obj;
 			}
 
 			LogError("Unable to allocate more objects in the pool. Returning nullptr.");
@@ -60,13 +68,13 @@ namespace Borealis::Helpers
 		/// Frees a pool element from the pool (returns it back to the available elements).
 		/// </summary>
 		/// <param name="pData">A pointer to the element.</param>
-		void Return(T* pData)
+		void Return(Memory::RefCntAutoPtr<T> data)
 		{
-			if (!activeElements.empty() && activeElements.find(pData) != activeElements.end())
+			if (!m_activeElements.empty() && m_activeElements.find(data) != m_activeElements.end())
 			{
-				dynamic_cast<Types::IResettable*>(pData)->Reset();
-				activeElements.erase(pData);
-				inactiveElements.insert(pData);
+				dynamic_cast<Types::IResettable*>(data.RawPtr())->Reset();
+				m_activeElements.erase(data);
+				m_inactiveElements.insert(data);
 				return;
 			}
 
@@ -75,15 +83,15 @@ namespace Borealis::Helpers
 		}
 
 		// Returns a pointer
-		std::set<T*>& GetActiveElements()
+		std::set<Memory::RefCntAutoPtr<T>>& GetActiveElements()
 		{
-			return activeElements;
+			return m_activeElements;
 		}
 
 	private:
 
-		Borealis::Memory::PoolAllocator* const alloc = nullptr;
-		std::set<T*> activeElements{};
-		std::set<T*> inactiveElements{};
+		Borealis::Memory::PoolAllocator m_memPool = Borealis::Memory::PoolAllocator(N, sizeof(T));
+		std::set<Memory::RefCntAutoPtr<T>> m_activeElements{};
+		std::set<Memory::RefCntAutoPtr<T>> m_inactiveElements{};
 	};
 }

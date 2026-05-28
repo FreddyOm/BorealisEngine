@@ -50,7 +50,7 @@ namespace Borealis::Graphics
 		
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 		{
-			Memory::MemAllocJanitor janitor(Memory::MemAllocatorContext::DEBUG);
+			//Memory::MemAllocJanitor janitor(Memory::MemAllocatorContext::DEBUG);
 			//IBorealisRenderer::pRuntimeDebugger = Memory::Allocate<Borealis::Runtime::Debug::EditorWindow>("Test");
 		}
 		

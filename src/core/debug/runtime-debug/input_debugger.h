@@ -219,8 +219,8 @@ namespace Borealis::Runtime::Debug
 			//ImGui::Text("Input Devices connected: %u", pInputSystem->GetAllDevices().size());
 			ImGui::Spacing();
 
-			ImGui::Text("Mouse connected: %u / 1", pInputSystem->GetMouse() == nullptr ? 0 : 1);
-			ImGui::Text("Keyboards connected: %u / 1", pInputSystem->GetKeyboard() == nullptr ? 0 : 1);
+			ImGui::Text("Mouse connected: %u / 1", pInputSystem->GetMouse().IsValid() ? 1 : 0);
+			ImGui::Text("Keyboards connected: %u / 1", pInputSystem->GetKeyboard().IsValid() ? 1 : 0);
 			ImGui::Text("Gamepads connected: %lu / %u", pInputSystem->GetGamepads().size(), Input::MAX_GAMEPADS());
 			
 			//ImGui::Text("More stuff: %u", 123);
@@ -234,11 +234,11 @@ namespace Borealis::Runtime::Debug
 
 			if (ImGui::TreeNode("All Devices"))
 			{
-				std::set<Input::IInputDevice*> allDevices = pInputSystem->GetAllDevices();
+				std::set<Memory::RefCntAutoPtr<Input::IInputDevice>> allDevices = pInputSystem->GetAllDevices();
 
-				for (std::set<Input::IInputDevice*>::iterator it = allDevices.begin(); it != allDevices.end(); ++it)
+				for (std::set<Memory::RefCntAutoPtr<Input::IInputDevice>>::iterator it = allDevices.begin(); it != allDevices.end(); ++it)
 				{
-					Input::IInputDevice* device = *it;
+					Memory::RefCntAutoPtr<Input::IInputDevice> device = *it;
 
 					std::string displayName = '[' + std::to_string(deviceIdx) + ']' + " " + std::string(Types::ValueFromStringId(device->DisplayName));
 
@@ -269,7 +269,8 @@ namespace Borealis::Runtime::Debug
 							{
 								ImGui::Text("Type: Gamepad");
 
-								Input::Gamepad* gamepad = dynamic_cast<Input::Gamepad*>(device);
+								Input::IInputDevice* inputDevice = device.RawPtr();
+								Input::Gamepad* gamepad = dynamic_cast<Input::Gamepad*>(inputDevice);
 								
 								switch (gamepad->VendorType)
 								{

@@ -31,10 +31,52 @@ namespace Borealis::Input
 
 		virtual ~IInputDevice() { }
 
-		BOREALIS_DELETE_COPY_CONSTRUCT(IInputDevice)
-		BOREALIS_DELETE_MOVE_CONSTRUCT(IInputDevice)
-		BOREALIS_DELETE_COPY_ASSIGN(IInputDevice)
-		BOREALIS_DELETE_MOVE_ASSIGN(IInputDevice)
+		// Copy constructor
+		IInputDevice(const IInputDevice& other)
+			: DeviceType(other.DeviceType)
+			, DisplayName(other.DisplayName)
+		{ 
+			memcpy(DeviceID, &other.DeviceID[0], 32);
+		}
+
+		// Move constructor
+		IInputDevice(IInputDevice&& other) noexcept
+			: DeviceType(other.DeviceType)
+			, DisplayName(other.DisplayName)
+		{
+			memcpy(DeviceID, &other.DeviceID[0], 32);
+
+			// Invalidate data
+			other.DeviceType = InputDeviceCategory::NONE;
+			other.DisplayName = Types::String("N/A");
+			memset(&other.DeviceID[0], 0, 32);
+		}
+
+		// Copy assign
+		IInputDevice& operator=(const IInputDevice& other)
+		{
+			this->DeviceType = other.DeviceType;
+			this->DisplayName = other.DisplayName;
+			memcpy(this->DeviceID, &other.DeviceID[0], 32);
+			
+			return *this;
+		}
+
+		// Move assign
+		IInputDevice& operator=(IInputDevice&& other) noexcept
+		{
+			DeviceType = other.DeviceType;
+			DisplayName = other.DisplayName;
+			memcpy(DeviceID, &other.DeviceID[0], 32);
+
+
+			// Invalidate data
+			other.DeviceType = InputDeviceCategory::NONE;
+			other.DisplayName = Types::String("N/A");
+			memset(&other.DeviceID[0], 0, 32);
+
+			return *this;
+		}
 
 		InputDeviceCategory DeviceType = InputDeviceCategory::NONE;
 		Types::uint8 DeviceID[32] = { 0 };

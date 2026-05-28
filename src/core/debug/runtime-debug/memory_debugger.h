@@ -38,7 +38,7 @@ namespace Borealis::Runtime::Debug
 		{
 			ImGui::Text("Memory Debugging stuff!");
 
-			for (Types::uint8 i = 1; i < (Types::uint8)Memory::MemAllocatorContext::NUM_CONTEXTS; ++i)
+			for (Types::uint8 i = 0; i < (Types::uint8)Memory::MemAllocatorContext::NUM_CONTEXTS; ++i)
 			{
 				DrawMemoryStats((Memory::MemAllocatorContext) i);
 			}
@@ -55,6 +55,8 @@ namespace Borealis::Runtime::Debug
 			{
 			case Memory::MemAllocatorContext::FRAME:
 				return "Frame Allocator";
+			case Memory::MemAllocatorContext::DEFAULT:
+				return "Default Allocator";
 			case Memory::MemAllocatorContext::DEBUG:
 				return "Debug Allocator";
 			case Memory::MemAllocatorContext::STATIC:

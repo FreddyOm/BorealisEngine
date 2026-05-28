@@ -13,6 +13,12 @@ struct TestStruct	// 16 bytes
 	float myFloatArray[2] = {};
 };
 
+struct DerivedStruct : public TestStruct
+{
+	bool derivedBool = false;
+	int derivedInt = 0;
+};
+
 TEST(RefCntAutoPtrTest, GeneralUse)
 {
 	MemAllocJanitor janitor(MemAllocatorContext::DEBUG);
@@ -148,4 +154,49 @@ TEST(RefCntAutoPtrTest, RefPtrMemberAccess)
 	EXPECT_FLOAT_EQ(testStruct->myFloatArray[1], 3.1415f);
 
 	EXPECT_EQ(testStruct->myInt, -403928);
+}
+
+TEST(RefCntAutoPtrTest, IsValid)
+{
+	MemAllocJanitor janitor(MemAllocatorContext::DEFAULT);
+
+	RefCntAutoPtr<TestStruct> testStruct = RefCntAutoPtr<TestStruct>::Allocate();
+
+	testStruct->myBoolArray[0] = true;
+
+	EXPECT_TRUE(testStruct->myBoolArray[0]);
+	EXPECT_TRUE(testStruct.IsValid());
+	EXPECT_TRUE(testStruct.RawPtr() != nullptr);
+
+	testStruct = RefCntAutoPtr<TestStruct>();
+
+	EXPECT_FALSE(testStruct.IsValid());
+}
+
+TEST(RefCntAutoPtrTest, DynamicCast)
+{
+	MemAllocJanitor janitor(MemAllocatorContext::DEFAULT);
+	
+	RefCntAutoPtr<DerivedStruct> derivedStruct = RefCntAutoPtr<DerivedStruct>::Allocate();
+
+	derivedStruct->derivedBool = true;
+	derivedStruct->myInt = 42;
+
+	RefCntAutoPtr<TestStruct> testStruct = RefCntAutoPtr<DerivedStruct>::DynamicCastTo<TestStruct>(derivedStruct);
+
+	EXPECT_TRUE(derivedStruct.IsValid());
+	EXPECT_TRUE(testStruct.IsValid());
+
+	EXPECT_TRUE(testStruct->myInt == 42);
+	EXPECT_TRUE(testStruct.RawPtr() == derivedStruct.RawPtr());
+
+
+	RefCntAutoPtr<DerivedStruct> derivedStruct2 = RefCntAutoPtr<TestStruct>::StaticCastTo<DerivedStruct>(testStruct);
+
+	EXPECT_TRUE(derivedStruct2.IsValid());
+
+	EXPECT_TRUE(derivedStruct2->myInt == 42);
+	EXPECT_TRUE(derivedStruct2.RawPtr() == derivedStruct.RawPtr());
+	EXPECT_TRUE(derivedStruct2.RawPtr() == testStruct.RawPtr());
+	EXPECT_TRUE(derivedStruct2->derivedBool);
 }

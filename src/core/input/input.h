@@ -4,6 +4,7 @@
 #include "../types/types.h"
 #include "input_device.h"
 #include "borealis_devices.h"
+#include "../memory/ref_cnt_auto_ptr.h"
 
 #include <set>
 
@@ -28,11 +29,11 @@ namespace Borealis::Input
         virtual void UpdateInputState() = 0;
 
         // Maybe use set aswell?
-        virtual ::std::set<IInputDevice*>& GetAllDevices() = 0;
+        virtual std::set<Memory::RefCntAutoPtr<IInputDevice>>& GetAllDevices() = 0;
         
-        virtual const Mouse* GetMouse() const = 0;
-		virtual const Keyboard* GetKeyboard() const = 0;
-		virtual const ::std::set<Gamepad*>& GetGamepads() const = 0;
+        virtual const Memory::RefCntAutoPtr<Mouse> GetMouse() const = 0;
+		virtual const Memory::RefCntAutoPtr<Keyboard> GetKeyboard() const = 0;
+		virtual const std::set<Memory::RefCntAutoPtr<Gamepad>>& GetGamepads() const = 0;
     };
 
 
@@ -50,19 +51,20 @@ namespace Borealis::Input
 
 		void UpdateInputState() override;
 
-        static void OnDeviceConnected(IInputDevice& device, InputDeviceCategory category);
-		static void OnDeviceDisconnected(IInputDevice& device, InputDeviceCategory category);
+        static void OnDeviceConnected(Memory::RefCntAutoPtr<IInputDevice> device, InputDeviceCategory category);
+		static void OnDeviceDisconnected(Memory::RefCntAutoPtr<IInputDevice> device, InputDeviceCategory category);
 
-		::std::set<IInputDevice*>& GetAllDevices() override;
+		std::set<Memory::RefCntAutoPtr<IInputDevice>>& GetAllDevices() override;
 
-		const Mouse* GetMouse() const override;
-		const Keyboard* GetKeyboard() const override;
-		const ::std::set<Gamepad*>& GetGamepads() const override;
+		const Memory::RefCntAutoPtr<Mouse> GetMouse() const override;
+		const Memory::RefCntAutoPtr<Keyboard> GetKeyboard() const override;
+		const std::set<Memory::RefCntAutoPtr<Gamepad>>& GetGamepads() const override;
 
     private:
 
         void RegisterDevicesAndCallbacks() noexcept;
         void RegisterDS5WInputDevices();
+        void PollDS5WDeviceConnections();
         void UpdateDS5WInputState();
         void UpdateGameInputState();
 	};
@@ -81,14 +83,14 @@ namespace Borealis::Input
 
         void UpdateInputState() override;
 
-        static void OnDeviceConnected(IInputDevice& device, InputDeviceCategory category);
-        static void OnDeviceDisconnected(IInputDevice& device, InputDeviceCategory category);
+        static void OnDeviceConnected(Memory::RefCntAutoPtr<IInputDevice> device, InputDeviceCategory category);
+        static void OnDeviceDisconnected(Memory::RefCntAutoPtr<IInputDevice> device, InputDeviceCategory category);
 
-        ::std::set<IInputDevice*>& GetAllDevices() override;
+        std::set<Memory::RefCntAutoPtr<IInputDevice>>& GetAllDevices() override;
 
-        const Mouse* GetMouse() const override;
-        const Keyboard* GetKeyboard() const override;
-        const ::std::set<Gamepad*>& GetGamepads() const override;
+        const Memory::RefCntAutoPtr<Mouse> GetMouse() const override;
+        const Memory::RefCntAutoPtr<Keyboard> GetKeyboard() const override;
+        const std::set<Memory::RefCntAutoPtr<Gamepad>>& GetGamepads() const override;
     };
 
 #elif BOREALIS_OSX

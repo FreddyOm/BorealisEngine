@@ -26,8 +26,8 @@ namespace Borealis::Memory
 		// Default none value
 		NONE = -1,
 
-		// Memory dedicated to debug systems, like ...
-		DEBUG = 0,
+		// Default allocations like uncategorized allocs or pool objects
+		DEFAULT = 0,
 
 		// Memory dedicated to rendering
 		RENDERING = 1,
@@ -35,16 +35,18 @@ namespace Borealis::Memory
 		// Memory dedicated to rendering
 		RENDERING_DEBUG = 2,
 
+		// Memory dedicated to debug systems, like ImGui debug data, debug logging, ...
+		DEBUG = 3,
+
 		// Memory dedicated to per-frame allocations
-		FRAME = 3,
+		FRAME = 4,
 
 		// Static and persistent data that reside in 
 		// memory and don't need to be deallocated
-		STATIC = 4,
-
+		STATIC = 5,		
 
 		// The numbers of contexts in the list. Keep this updated!
-		NUM_CONTEXTS = 5,
+		NUM_CONTEXTS = 6,
 
 	};
 	
@@ -55,15 +57,15 @@ namespace Borealis::Memory
 
 	struct HandleInfo	// 16 bytes
 	{
-		explicit HandleInfo(const Types::uint64Ptr handleId, void* const p_data)
-			: HandleId(handleId), /*p_Data(p_data),*/ RefCount(1), MemAllocCntxt(g_memoryAllocatorContext.empty() ? MemAllocatorContext::STATIC : g_memoryAllocatorContext.top())
+		explicit HandleInfo(const Types::uint64Ptr handleId)
+			: HandleId(handleId), RefCount(1), MemAllocCntxt(g_memoryAllocatorContext.empty() ? MemAllocatorContext::DEFAULT : g_memoryAllocatorContext.top())
 		{ }
 
 		~HandleInfo() = default;
 
 		Types::uint64Ptr HandleId = 0;		// 8 bytes
 		Types::int32 RefCount = 0;			// 4 bytes
-		MemAllocatorContext MemAllocCntxt = MemAllocatorContext::DEBUG;	// 1 bytes
+		MemAllocatorContext MemAllocCntxt = MemAllocatorContext::NONE;	// 1 bytes
 		Types::int8 Padding[3]{};			// 3 bytes
 	};
 
@@ -81,7 +83,7 @@ namespace Borealis::Memory
 
 	struct BOREALIS_API MemAllocJanitor
 	{
-		explicit MemAllocJanitor(const MemAllocatorContext context);
+		explicit MemAllocJanitor(const MemAllocatorContext context = MemAllocatorContext::DEFAULT);
 		~MemAllocJanitor();
 	};
 
