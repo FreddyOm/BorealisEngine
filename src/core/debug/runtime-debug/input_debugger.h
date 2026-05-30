@@ -78,6 +78,8 @@ namespace Borealis::Runtime::Debug
 		{			
 			//ImGui::SliderFloat("Scale", &g_debugImageScale, 0.1, 3);
 			
+			#ifdef BOREALIS_WIN	// Currently only D3D12 backend is supported, and the rendering resources are only available for win at the moment
+
 			ImVec2 startCursorPos = ImGui::GetCursorScreenPos();
 			ImVec2 lThumPos = ImVec2(gamepad.InputState.LeftThumbstickX, gamepad.InputState.LeftThumbstickY);
 			ImVec2 rThumPos = ImVec2(gamepad.InputState.RightThumbstickX, gamepad.InputState.RightThumbstickY);
@@ -220,6 +222,8 @@ namespace Borealis::Runtime::Debug
 			// -----------------------------------------------------------------------------------------------------------------------------
 
 			ImGui::SetCursorScreenPos({ startCursorPos.x + 514 * g_debugImageScale, startCursorPos.y + 595 * g_debugImageScale });
+
+			#endif
 		}
 
 		void DrawDualShockDebugLayout(const Input::Gamepad& gamepad)
@@ -231,6 +235,8 @@ namespace Borealis::Runtime::Debug
 
 		void DrawDualSenseDebugLayout(const Input::Gamepad& gamepad)
 		{
+
+			#ifdef BOREALIS_WIN
 			ImGui::SliderFloat("Scale", &g_debugImageScale, 0.1, 3);
 
 			ImVec2 startCursorPos = ImGui::GetCursorScreenPos();
@@ -409,6 +415,9 @@ namespace Borealis::Runtime::Debug
 
 			m_LastTP1 = { gamepad.InputState.Touchpad1X, gamepad.InputState.Touchpad1Y };
 			m_LastTP2 = { gamepad.InputState.Touchpad2X, gamepad.InputState.Touchpad2Y };
+
+
+			#endif
 		}
 
 		void DrawAccelerometerPlot(const Borealis::Input::Gamepad& gamepad)
