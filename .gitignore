@@ -25,3 +25,7 @@ CMakeUserPresets.json
 
 # VSCode files
 .vscode/
+
+# Asset files
+
+*.psd

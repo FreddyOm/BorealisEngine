@@ -7,7 +7,7 @@
 
 #include <d3d12.h>
 
-#elif
+#else
 
 #endif
 
@@ -224,16 +224,21 @@ namespace Borealis::Graphics
         ~BorealisVulkanTexture() = default;
 
         BOREALIS_DEFAULT_COPY_CONSTRUCT(BorealisVulkanTexture)
-            BOREALIS_DEFAULT_MOVE_CONSTRUCT(BorealisVulkanTexture)
-            BOREALIS_DEFAULT_COPY_ASSIGN(BorealisVulkanTexture)
-            BOREALIS_DEFAULT_MOVE_ASSIGN(BorealisVulkanTexture)
+        BOREALIS_DEFAULT_MOVE_CONSTRUCT(BorealisVulkanTexture)
+        BOREALIS_DEFAULT_COPY_ASSIGN(BorealisVulkanTexture)
+        BOREALIS_DEFAULT_MOVE_ASSIGN(BorealisVulkanTexture)
 
-            const Types::uint16 GetWidth() const;
+        const Types::uint16 GetWidth() const;
         const Types::uint16 GetHeight() const;
+
+        VkDescriptorSet& GetTexResource()
+        {
+            return m_TextureResource;
+        }
 
     private:
 
-        void* m_TextureResource = nullptr;  // TODO: Change this to the appropriate Vulkan tex resource
+        VkDescriptorSet m_TextureResource;  // TODO: Change this to the appropriate Vulkan tex resource
         TextureFormat m_TexFormat = TextureFormat::TEX_FORMAT_UNKNOWN;
 
         Types::uint16 m_Width = 0;
