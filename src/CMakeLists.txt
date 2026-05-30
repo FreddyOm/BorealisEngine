@@ -169,12 +169,25 @@ set(WINDOWS_HEADER
     core/graphics/d3d12/d3d12_common.h
 )
 
+set(LINUX_SOURCES
+    core/debug/runtime-debug/imgui/imgui_impl_vulkan.cpp
+    core/graphics/vulkan/borealis_vulkan.cpp
+)
+
+set(LINUX_HEADERS
+    core/debug/runtime-debug/imgui/imgui_impl_vulkan.h
+    core/graphics/vulkan/borealis_vulkan.h
+)
+
+
 # Create library
 add_library(BorealisEngineLib SHARED ${COMMON_SOURCES} ${COMMON_HEADERS})
 
 target_sources(BorealisEngineLib PRIVATE
     $<$<PLATFORM_ID:Windows>:${WINDOWS_SOURCES}>
     $<$<PLATFORM_ID:Windows>:${WINDOWS_HEADERS}>
+    $<$<PLATFORM_ID:Linux>:${LINUX_SOURCES}>
+    $<$<PLATFORM_ID:Linux>:${LINUX_HEADERS}>
 )
 
 
