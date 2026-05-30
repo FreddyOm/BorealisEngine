@@ -2,10 +2,6 @@
 #include <core/graphics/graphics.h>
 #include <core/debug/runtime-debug/runtime_debug.h>
 #include <core/input/input.h>
-//#include <core/helpers/events.h>
-//#include <core/input/input.h>
-//#include <core/types/string_id.h>
-//#include <core/debug/logger.h>
 
 using namespace Borealis::Core;
 using namespace Borealis::Graphics;
@@ -15,7 +11,7 @@ using namespace Borealis::Input;
 
 int main()
 {
-	#ifdef BOREALIS_WIN	// Currently only for windows while window.h doesn't have a UNIX implementation yet!
+	#ifdef BOREALIS_WIN	// Currently only for windows. Linux is currently WIP!
 	
 	{
 		Window sandboxWindow = Window("Borealis Sandbox");
