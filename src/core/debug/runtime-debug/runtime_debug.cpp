@@ -259,9 +259,6 @@ namespace Borealis::Runtime::Debug
 			barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
 			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
-			/*hResult = pD3D12Renderer->GetCommandList()->Reset(frameCtx->CommandAllocator.Get(), nullptr);
-			Assert(hResult == S_OK, StrFromHResult(hResult));*/
-
 			pD3D12Renderer->GetCommandList()->ResourceBarrier(1, &barrier);
 
 			// Render Dear ImGui graphics | record commands

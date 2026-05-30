@@ -4,6 +4,7 @@
 #include "../../window/window.h"
 #include "../../helpers/macros.h"
 #include "../../memory/ref_cnt_auto_ptr.h"
+#include "../helpers/texture.h"
 
 #ifdef BOREALIS_WIN
 #include <vector>

@@ -26,12 +26,16 @@ namespace Borealis::Runtime::Debug
 	
 	struct BOREALIS_API RuntimeDebugger : protected IGUIDrawable
 	{
-		RuntimeDebugger(Graphics::Helpers::IBorealisRenderer& renderer, Input::InputSystem* pInputSystem, Memory::RefCntAutoPtr<Borealis::Graphics::Texture> tex)
+		RuntimeDebugger(
+			Graphics::Helpers::IBorealisRenderer& renderer
+			, Input::InputSystem* pInputSystem
+			, Memory::RefCntAutoPtr<Borealis::Graphics::Texture> debugTexAtlas
+		)
 			: m_Renderer(renderer), IGUIDrawable(true)
 		{ 
 
 			// First, register all debug windows (deriving from IGUIDrawable)
-			runtimeGUIDrawables.push_back(new InputDebugger(pInputSystem, tex));
+			runtimeGUIDrawables.push_back(new InputDebugger(pInputSystem, debugTexAtlas));
 			runtimeGUIDrawables.push_back(new MemoryDebugger());
 			//runtimeGUIDrawables.push_back(new InputDebugger());
 

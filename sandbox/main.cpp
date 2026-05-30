@@ -30,14 +30,14 @@ int main()
 		InitD3D12LiveObjects();
 		renderer.InitializePipeline();
 
-		Borealis::Memory::RefCntAutoPtr<Borealis::Graphics::Texture> debugTex = renderer.CreateTexture(L"D:\\02_Repositories\\BorealisEngine\\out\\build\\x64-Debug\\sandbox\\resources\\textures\\xbox_debug_graphic.png");
+		Borealis::Memory::RefCntAutoPtr<Borealis::Graphics::Texture> debugTexAtlas = renderer.CreateTexture(L"D:\\02_Repositories\\BorealisEngine\\out\\build\\x64-Debug\\sandbox\\resources\\textures\\input-debug-tex-atlas.png");
 		
 		InputSystem inputSystem = InputSystem();
 
 #if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
 
 		Helpers::IBorealisRenderer& baseRend = dynamic_cast<Helpers::IBorealisRenderer&>(renderer);
-		RuntimeDebugger runtimeDebugger = RuntimeDebugger(baseRend, &inputSystem, debugTex);
+		RuntimeDebugger runtimeDebugger = RuntimeDebugger(baseRend, &inputSystem, debugTexAtlas);
 		runtimeDebugger.Attatch(sandboxWindow.GetGLFWWindow());
 #endif
 

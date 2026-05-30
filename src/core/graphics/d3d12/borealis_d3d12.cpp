@@ -369,7 +369,7 @@ namespace Borealis::Graphics
 
 		resourceUpload.Begin();
 
-		HRESULT hRes = CreateWICTextureFromFile(m_Device.Get(), resourceUpload, path, tex->GetTexResource(), true);
+		HRESULT hRes = CreateWICTextureFromFile(m_Device.Get(), resourceUpload, path, tex->GetTexResource(), false);
 		Assert(SUCCEEDED(hRes), "Failed to create texture from file \"%s\".", path);
 
 		// Upload the resources to the GPU.
@@ -381,6 +381,8 @@ namespace Borealis::Graphics
 		// Allocate description and 
 		g_SRVDescHeapAllocator.Alloc(tex->GetCPUHandle(), tex->GetGPUHandle());
 		DirectX::CreateShaderResourceView(m_Device.Get(), *tex->GetTexResource(), *tex->GetCPUHandle());		
+
+		tex->CommitTexture(); // Sets width and height according o the native tex data!
 
 		return tex;
 	}

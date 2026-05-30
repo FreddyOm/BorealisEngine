@@ -86,10 +86,10 @@ namespace Borealis::Input
 		float					RightThumbstickY	= 0.0f;		// Range: -1.0f to 1.0f
 
 		// Touchpad (if supported)
-		float					Touchpad1X			= 0.0f;		// PS: Touchpad point 1 X, Range: -1.0f to 1.0f
-		float					Touchpad1Y			= 0.0f;		// PS: Touchpad point 1 Y, Range: -1.0f to 1.0f
-		float					Touchpad2X			= 0.0f;		// PS: Touchpad point 2 X, Range: -1.0f to 1.0f
-		float					Touchpad2Y			= 0.0f;		// PS: Touchpad point 2 Y, Range: -1.0f to 1.0f
+		float					Touchpad1X			= 0.0f;		// PS: Touchpad point 1 X, Range: 0.0f to 2048.0f
+		float					Touchpad1Y			= 0.0f;		// PS: Touchpad point 1 Y, Range: 0.0f to 2048.0f
+		float					Touchpad2X			= 0.0f;		// PS: Touchpad point 2 X, Range: 0.0f to 2048.0f
+		float					Touchpad2Y			= 0.0f;		// PS: Touchpad point 2 Y, Range: 0.0f to 2048.0f
 
 		// Triggers
 		float					LeftTrigger			= 0.0f;		// PS: L2 / XBOX: LT, Range: 0.0f to 1.0f

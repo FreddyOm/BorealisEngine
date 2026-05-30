@@ -92,6 +92,7 @@ set(COMMON_SOURCES
     core/math/crc_hash.cpp
     core/graphics/vulkan/borealis_vulkan.cpp
     core/graphics/helpers/helpers.cpp
+    core/graphics/helpers/texture.cpp
     core/input/input.cpp
     core/input/keyboard.cpp
     core/io/file_io.cpp
@@ -134,6 +135,7 @@ set(COMMON_HEADERS
     core/graphics/vulkan/borealis_vulkan.h
     core/graphics/helpers/helpers.h
     core/graphics/helpers/gbuffer.h
+    core/graphics/helpers/texture.h
     core/helpers/events.h
     core/helpers/macros.h
     core/helpers/object_pool.h

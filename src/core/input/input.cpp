@@ -459,14 +459,14 @@ namespace Borealis::Input
 			if (DS5W_SUCCESS(res))
 			{
 				// Set values for thumbsticks
-				(*it)->InputState.LeftThumbstickX = inState.leftStick.x;
-				(*it)->InputState.LeftThumbstickY = inState.leftStick.y;
-				(*it)->InputState.RightThumbstickX = inState.rightStick.x;
-				(*it)->InputState.RightThumbstickY = inState.rightStick.y;
+				(*it)->InputState.LeftThumbstickX = inState.leftStick.x / 255.0f;
+				(*it)->InputState.LeftThumbstickY = inState.leftStick.y / 255.0f;
+				(*it)->InputState.RightThumbstickX = inState.rightStick.x / 255.0f;
+				(*it)->InputState.RightThumbstickY = inState.rightStick.y / 255.0f;
 				
 				// Set values for trigger
-				(*it)->InputState.LeftTrigger = inState.leftTrigger;
-				(*it)->InputState.RightTrigger = inState.rightTrigger;
+				(*it)->InputState.LeftTrigger = inState.leftTrigger / 255.0f;
+				(*it)->InputState.RightTrigger = inState.rightTrigger / 255.0f;
 				
 				// Set values for touchpad
 				(*it)->InputState.Touchpad1X = inState.touchPoint1.x;
