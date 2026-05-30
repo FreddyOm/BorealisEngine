@@ -9,6 +9,8 @@
 
 #else
 
+#include <vulkan/vulkan.h>
+
 #endif
 
 
@@ -217,8 +219,8 @@ namespace Borealis::Graphics
         BorealisVulkanTexture()
         {}
 
-        BorealisVulkanTexture(void* pTexResource)
-            : m_TextureResource(pTexResource)
+        BorealisVulkanTexture(VkDescriptorSet& texResource)
+            : m_TextureResource(texResource)
         {}
 
         ~BorealisVulkanTexture() = default;
