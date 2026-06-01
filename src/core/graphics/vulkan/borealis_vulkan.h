@@ -31,6 +31,7 @@ namespace Borealis::Graphics
 
         Types::int64 InitializePipeline() override;
         Types::int64 DeinitializePipeline() override;
+        void WaitForPendingOperations() override;
 
     private:
 

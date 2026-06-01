@@ -26,6 +26,11 @@ namespace Borealis::Graphics
 
         return 0;
     }
+
+    void Borealis::VulkanRenderer::WaitForPendingOperations()
+    {
+        return;
+    }
 }
 
 #endif

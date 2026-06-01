@@ -91,33 +91,43 @@ namespace Borealis::Runtime::Debug
 
 			// LT
 			ImGui::SetCursorScreenPos({ startCursorPos.x + 77 * g_debugImageScale , startCursorPos.y + 36 * g_debugImageScale });
-			ImGui::ImageWithBg((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(68 * g_debugImageScale, 83 * g_debugImageScale), ImVec2(0, 0.592), ImVec2(0.066, 0.673), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, gamepad.InputState.LeftTrigger)); // TODO: Use trigger value to make opaque
+			ImGui::ImageWithBg((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(68 * g_debugImageScale, 83 * g_debugImageScale), 
+				ImVec2(0, 0.592), ImVec2(0.066, 0.673), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, gamepad.InputState.LeftTrigger)); // TODO: Use trigger value to make opaque
 
 			// RT
 			ImGui::SetCursorScreenPos({ startCursorPos.x + 366 * g_debugImageScale , startCursorPos.y + 36 * g_debugImageScale });
-			ImGui::ImageWithBg((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(68 * g_debugImageScale, 83 * g_debugImageScale), ImVec2(0.067, 0.592), ImVec2(0.133, 0.673), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, gamepad.InputState.RightTrigger)); // TODO: Use trigger value to make opaque
+			ImGui::ImageWithBg((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(68 * g_debugImageScale, 83 * g_debugImageScale), 
+				ImVec2(0.067, 0.592), ImVec2(0.133, 0.673), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, gamepad.InputState.RightTrigger)); // TODO: Use trigger value to make opaque
 
 
 			// L
-			ImGui::SetCursorScreenPos({ (startCursorPos.x + 85 * g_debugImageScale) + m_ThumbstickMovementOffset * lThumPos.x * g_debugImageScale, (startCursorPos.y + 320 * g_debugImageScale) - m_ThumbstickMovementOffset * lThumPos.y * g_debugImageScale });
-			ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(80 * g_debugImageScale, 80 * g_debugImageScale), ImVec2(0.408, 0.597), ImVec2(0.486, 0.675));	// Stick itself
+			ImGui::SetCursorScreenPos({ (startCursorPos.x + 85 * g_debugImageScale) + m_ThumbstickMovementOffset * lThumPos.x * g_debugImageScale, 
+				(startCursorPos.y + 320 * g_debugImageScale) - m_ThumbstickMovementOffset * lThumPos.y * g_debugImageScale });
+			ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(80 * g_debugImageScale, 80 * g_debugImageScale), 
+				ImVec2(0.408, 0.597), ImVec2(0.486, 0.675));	// Stick itself
 
 			// L Button
 			if (gamepad.InputState.ButtonState & Input::LEFT_THUMBSTICK)
 			{
-				ImGui::SetCursorScreenPos({ (startCursorPos.x + 100 * g_debugImageScale) + m_ThumbstickMovementOffset * lThumPos.x * g_debugImageScale, (startCursorPos.y + 332 * g_debugImageScale) - m_ThumbstickMovementOffset * lThumPos.y * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(52 * g_debugImageScale, 52 * g_debugImageScale), ImVec2(0, UVFromCoordinate(691)), ImVec2(UVFromCoordinate(52), UVFromCoordinate(745)));	// Pressed tex
+				ImGui::SetCursorScreenPos({ (startCursorPos.x + 100 * g_debugImageScale) + m_ThumbstickMovementOffset * lThumPos.x * g_debugImageScale, 
+					(startCursorPos.y + 332 * g_debugImageScale) - m_ThumbstickMovementOffset * lThumPos.y * g_debugImageScale });
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(52 * g_debugImageScale, 52 * g_debugImageScale), 
+					ImVec2(0, UVFromCoordinate(691)), ImVec2(UVFromCoordinate(52), UVFromCoordinate(745)));	// Pressed tex
 			}
 			
 			// R
-			ImGui::SetCursorScreenPos({ (startCursorPos.x + 280 * g_debugImageScale) + m_ThumbstickMovementOffset * rThumPos.x * g_debugImageScale, (startCursorPos.y + 399 * g_debugImageScale) - m_ThumbstickMovementOffset * rThumPos.y * g_debugImageScale });
-			ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(80 * g_debugImageScale, 80 * g_debugImageScale), ImVec2(0.408, 0.597), ImVec2(0.486, 0.675));	// Stick itself
+			ImGui::SetCursorScreenPos({ (startCursorPos.x + 280 * g_debugImageScale) + m_ThumbstickMovementOffset * rThumPos.x * g_debugImageScale, 
+				(startCursorPos.y + 399 * g_debugImageScale) - m_ThumbstickMovementOffset * rThumPos.y * g_debugImageScale });
+			ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(80 * g_debugImageScale, 80 * g_debugImageScale), 
+				ImVec2(0.408, 0.597), ImVec2(0.486, 0.675));	// Stick itself
 
 			// R Button
 			if (gamepad.InputState.ButtonState & Input::RIGHT_THUMBSTICK)
 			{
-				ImGui::SetCursorScreenPos({ (startCursorPos.x + 295 * g_debugImageScale) + m_ThumbstickMovementOffset * rThumPos.x * g_debugImageScale, (startCursorPos.y + 411 * g_debugImageScale) - m_ThumbstickMovementOffset * rThumPos.y * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(52 * g_debugImageScale, 52 * g_debugImageScale), ImVec2(0, UVFromCoordinate(691)), ImVec2(UVFromCoordinate(52), UVFromCoordinate(745)));	// Pressed tex
+				ImGui::SetCursorScreenPos({ (startCursorPos.x + 295 * g_debugImageScale) + m_ThumbstickMovementOffset * rThumPos.x * g_debugImageScale, 
+					(startCursorPos.y + 411 * g_debugImageScale) - m_ThumbstickMovementOffset * rThumPos.y * g_debugImageScale });
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(52 * g_debugImageScale, 52 * g_debugImageScale), 
+					ImVec2(0, UVFromCoordinate(691)), ImVec2(UVFromCoordinate(52), UVFromCoordinate(745)));	// Pressed tex
 			}
 
 
@@ -126,11 +136,13 @@ namespace Borealis::Runtime::Debug
 			{
 				// LB 1 (top view)
 				ImGui::SetCursorScreenPos({ startCursorPos.x + 70 * g_debugImageScale , startCursorPos.y + 255 * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(112 * g_debugImageScale, 39 * g_debugImageScale), ImVec2(UVFromCoordinate(134), UVFromCoordinate(610)), ImVec2(UVFromCoordinate(246), UVFromCoordinate(649)));	// Pressed tex
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(112 * g_debugImageScale, 39 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(134), UVFromCoordinate(610)), ImVec2(UVFromCoordinate(246), UVFromCoordinate(649)));	// Pressed tex
 
 				// LB 1 (front view)
 				ImGui::SetCursorScreenPos({ startCursorPos.x + 76 * g_debugImageScale , startCursorPos.y + 122 * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(136 * g_debugImageScale, 39 * g_debugImageScale), ImVec2(UVFromCoordinate(136), UVFromCoordinate(651)), ImVec2(UVFromCoordinate(272), UVFromCoordinate(690)));	// Pressed tex
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(136 * g_debugImageScale, 39 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(136), UVFromCoordinate(651)), ImVec2(UVFromCoordinate(272), UVFromCoordinate(690)));	// Pressed tex
 
 			}
 			
@@ -138,12 +150,14 @@ namespace Borealis::Runtime::Debug
 			{
 				// RB 1 (top view)
 				ImGui::SetCursorScreenPos({ startCursorPos.x + 326 * g_debugImageScale , startCursorPos.y + 255 * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(112 * g_debugImageScale, 39 * g_debugImageScale), ImVec2(UVFromCoordinate(249), UVFromCoordinate(610)), ImVec2(UVFromCoordinate(361), UVFromCoordinate(649)));	// Pressed tex
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(112 * g_debugImageScale, 39 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(249), UVFromCoordinate(610)), ImVec2(UVFromCoordinate(361), UVFromCoordinate(649)));	// Pressed tex
 
 
 				// RB 1 (front view)
 				ImGui::SetCursorScreenPos({ startCursorPos.x + 300 * g_debugImageScale , startCursorPos.y + 122 * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(136 * g_debugImageScale, 39 * g_debugImageScale), ImVec2(UVFromCoordinate(273), UVFromCoordinate(651)), ImVec2(UVFromCoordinate(409), UVFromCoordinate(690)));	// Pressed tex
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(136 * g_debugImageScale, 39 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(273), UVFromCoordinate(651)), ImVec2(UVFromCoordinate(409), UVFromCoordinate(690)));	// Pressed tex
 			}
 			
 
@@ -151,28 +165,32 @@ namespace Borealis::Runtime::Debug
 			if (gamepad.InputState.ButtonState & Input::BUTTON_NORTH)
 			{
 				ImGui::SetCursorScreenPos({ startCursorPos.x + 373 * g_debugImageScale , startCursorPos.y + 301 * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(42 * g_debugImageScale, 42 * g_debugImageScale), ImVec2(UVFromCoordinate(55), UVFromCoordinate(691)), ImVec2(UVFromCoordinate(98), UVFromCoordinate(734)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(42 * g_debugImageScale, 42 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(55), UVFromCoordinate(691)), ImVec2(UVFromCoordinate(98), UVFromCoordinate(734)));
 			}
 
 			// A
 			if (gamepad.InputState.ButtonState & Input::BUTTON_SOUTH)
 			{
 				ImGui::SetCursorScreenPos({ startCursorPos.x + 373 * g_debugImageScale , startCursorPos.y + 373 * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(42 * g_debugImageScale, 42 * g_debugImageScale), ImVec2(UVFromCoordinate(187), UVFromCoordinate(691)), ImVec2(UVFromCoordinate(229), UVFromCoordinate(734)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(42 * g_debugImageScale, 42 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(187), UVFromCoordinate(691)), ImVec2(UVFromCoordinate(229), UVFromCoordinate(734)));
 			}
 
 			// X
 			if (gamepad.InputState.ButtonState & Input::BUTTON_WEST)
 			{
 				ImGui::SetCursorScreenPos({ startCursorPos.x + 337 * g_debugImageScale , startCursorPos.y + 337 * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(42 * g_debugImageScale, 42 * g_debugImageScale), ImVec2(UVFromCoordinate(99), UVFromCoordinate(691)), ImVec2(UVFromCoordinate(141), UVFromCoordinate(734)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(42 * g_debugImageScale, 42 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(99), UVFromCoordinate(691)), ImVec2(UVFromCoordinate(141), UVFromCoordinate(734)));
 			}
 
 			// B
 			if (gamepad.InputState.ButtonState & Input::BUTTON_EAST)
 			{
 				ImGui::SetCursorScreenPos({ startCursorPos.x + 409 * g_debugImageScale , startCursorPos.y + 337 * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(42 * g_debugImageScale, 42 * g_debugImageScale), ImVec2(UVFromCoordinate(143), UVFromCoordinate(691)), ImVec2(UVFromCoordinate(185), UVFromCoordinate(734)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(42 * g_debugImageScale, 42 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(143), UVFromCoordinate(691)), ImVec2(UVFromCoordinate(185), UVFromCoordinate(734)));
 			}
 
 
@@ -180,14 +198,16 @@ namespace Borealis::Runtime::Debug
 			if (gamepad.InputState.ButtonState & Input::OPTIONS_LEFT)
 			{
 				ImGui::SetCursorScreenPos({ startCursorPos.x + 202 * g_debugImageScale , startCursorPos.y + 342 * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(30 * g_debugImageScale, 30 * g_debugImageScale), ImVec2(UVFromCoordinate(377), UVFromCoordinate(610)), ImVec2(UVFromCoordinate(407), UVFromCoordinate(640)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(30 * g_debugImageScale, 30 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(377), UVFromCoordinate(610)), ImVec2(UVFromCoordinate(407), UVFromCoordinate(640)));
 			}
 
 			// Start
 			if (gamepad.InputState.ButtonState & Input::OPTIONS_RIGHT)
 			{
 				ImGui::SetCursorScreenPos({ startCursorPos.x + 277 * g_debugImageScale , startCursorPos.y + 342 * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(30 * g_debugImageScale, 30 * g_debugImageScale), ImVec2(UVFromCoordinate(377), UVFromCoordinate(610)), ImVec2(UVFromCoordinate(407), UVFromCoordinate(640)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(30 * g_debugImageScale, 30 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(377), UVFromCoordinate(610)), ImVec2(UVFromCoordinate(407), UVFromCoordinate(640)));
 			}
 
 
@@ -195,28 +215,32 @@ namespace Borealis::Runtime::Debug
 			if (gamepad.InputState.ButtonState & Input::DPAD_UP)
 			{
 				ImGui::SetCursorScreenPos({ startCursorPos.x + 178 * g_debugImageScale , startCursorPos.y + 400 * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(23 * g_debugImageScale, 27 * g_debugImageScale), ImVec2(UVFromCoordinate(230), UVFromCoordinate(697)), ImVec2(UVFromCoordinate(253), UVFromCoordinate(724)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(23 * g_debugImageScale, 27 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(230), UVFromCoordinate(697)), ImVec2(UVFromCoordinate(253), UVFromCoordinate(724)));
 			}
 
 			// DPAD down
 			if (gamepad.InputState.ButtonState & Input::DPAD_DOWN)
 			{
 				ImGui::SetCursorScreenPos({ startCursorPos.x + 178 * g_debugImageScale , startCursorPos.y + 456 * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(23 * g_debugImageScale, 27 * g_debugImageScale), ImVec2(UVFromCoordinate(253), UVFromCoordinate(724)), ImVec2(UVFromCoordinate(230), UVFromCoordinate(697)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(23 * g_debugImageScale, 27 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(253), UVFromCoordinate(724)), ImVec2(UVFromCoordinate(230), UVFromCoordinate(697)));
 			}
 
 			// DPAD right
 			if (gamepad.InputState.ButtonState & Input::DPAD_RIGHT)
 			{
 				ImGui::SetCursorScreenPos({ startCursorPos.x + 204 * g_debugImageScale , startCursorPos.y + 430 * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(27 * g_debugImageScale, 23 * g_debugImageScale), ImVec2(UVFromCoordinate(254), UVFromCoordinate(701)), ImVec2(UVFromCoordinate(281), UVFromCoordinate(724)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(27 * g_debugImageScale, 23 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(254), UVFromCoordinate(701)), ImVec2(UVFromCoordinate(281), UVFromCoordinate(724)));
 			}
 			
 			// DPAD left
 			if (gamepad.InputState.ButtonState & Input::DPAD_LEFT)
 			{
 				ImGui::SetCursorScreenPos({ startCursorPos.x + 149 * g_debugImageScale , startCursorPos.y + 430 * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(27 * g_debugImageScale, 23 * g_debugImageScale), ImVec2(UVFromCoordinate(281), UVFromCoordinate(724)), ImVec2(UVFromCoordinate(254), UVFromCoordinate(701)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(27 * g_debugImageScale, 23 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(281), UVFromCoordinate(724)), ImVec2(UVFromCoordinate(254), UVFromCoordinate(701)));
 			}
 
 			// -----------------------------------------------------------------------------------------------------------------------------
@@ -243,137 +267,163 @@ namespace Borealis::Runtime::Debug
 			ImVec2 lThumPos = ImVec2(gamepad.InputState.LeftThumbstickX, gamepad.InputState.LeftThumbstickY);
 			ImVec2 rThumPos = ImVec2(gamepad.InputState.RightThumbstickX, gamepad.InputState.RightThumbstickY);
 
-			ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(491 * g_debugImageScale, 391 * g_debugImageScale), ImVec2(UVFromCoordinate(533), UVFromCoordinate(202)), ImVec2(UVFromCoordinate(1024), UVFromCoordinate(593) ));
+			ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(491 * g_debugImageScale, 391 * g_debugImageScale), 
+				ImVec2(UVFromCoordinate(533), UVFromCoordinate(202)), ImVec2(UVFromCoordinate(1024), UVFromCoordinate(593) ));
 
 			// --------------------- Drawing individual parts of the same atlas image texture to represent button states ---------------------
 
 			
 			// L
-			ImGui::SetCursorScreenPos({ (startCursorPos.x + 123 * g_debugImageScale) + m_ThumbstickMovementOffset * lThumPos.x * g_debugImageScale, (startCursorPos.y + 205 * g_debugImageScale) - m_ThumbstickMovementOffset * lThumPos.y * g_debugImageScale });
-			ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(60 * g_debugImageScale, 60 * g_debugImageScale), ImVec2(0.408, 0.597), ImVec2(0.486, 0.675));	// Stick itself
+			ImGui::SetCursorScreenPos({ (startCursorPos.x + 123 * g_debugImageScale) + m_ThumbstickMovementOffset * lThumPos.x * g_debugImageScale, 
+				(startCursorPos.y + 205 * g_debugImageScale) - m_ThumbstickMovementOffset * lThumPos.y * g_debugImageScale });
+			ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(60 * g_debugImageScale, 60 * g_debugImageScale), 
+				ImVec2(0.408, 0.597), ImVec2(0.486, 0.675));	// Stick itself
 			
 			// L Button
 			if (gamepad.InputState.ButtonState & Input::LEFT_THUMBSTICK)
 			{
-				ImGui::SetCursorScreenPos({ (startCursorPos.x + 134 * g_debugImageScale) + m_ThumbstickMovementOffset * lThumPos.x * g_debugImageScale, (startCursorPos.y + 214 * g_debugImageScale) - m_ThumbstickMovementOffset * lThumPos.y * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(39 * g_debugImageScale, 39 * g_debugImageScale), ImVec2(0, UVFromCoordinate(691)), ImVec2(UVFromCoordinate(52), UVFromCoordinate(745)));	// Pressed tex
+				ImGui::SetCursorScreenPos({ (startCursorPos.x + 134 * g_debugImageScale) + m_ThumbstickMovementOffset * lThumPos.x * g_debugImageScale, 
+					(startCursorPos.y + 214 * g_debugImageScale) - m_ThumbstickMovementOffset * lThumPos.y * g_debugImageScale });
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(39 * g_debugImageScale, 39 * g_debugImageScale), 
+					ImVec2(0, UVFromCoordinate(691)), ImVec2(UVFromCoordinate(52), UVFromCoordinate(745)));	// Pressed tex
 			}
 			
 			// R
-			ImGui::SetCursorScreenPos({ (startCursorPos.x + 306 * g_debugImageScale) + m_ThumbstickMovementOffset * rThumPos.x * g_debugImageScale, (startCursorPos.y + 204 * g_debugImageScale) - m_ThumbstickMovementOffset * rThumPos.y * g_debugImageScale });
-			ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(60 * g_debugImageScale, 60 * g_debugImageScale), ImVec2(0.408, 0.597), ImVec2(0.486, 0.675));	// Stick itself
+			ImGui::SetCursorScreenPos({ (startCursorPos.x + 306 * g_debugImageScale) + m_ThumbstickMovementOffset * rThumPos.x * g_debugImageScale, 
+				(startCursorPos.y + 204 * g_debugImageScale) - m_ThumbstickMovementOffset * rThumPos.y * g_debugImageScale });
+			ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(60 * g_debugImageScale, 60 * g_debugImageScale), 
+				ImVec2(0.408, 0.597), ImVec2(0.486, 0.675));	// Stick itself
 
 			// R Button
 			if (gamepad.InputState.ButtonState & Input::RIGHT_THUMBSTICK)
 			{
 				ImGui::SetCursorScreenPos({ (startCursorPos.x + 317 * g_debugImageScale) + m_ThumbstickMovementOffset * rThumPos.x * g_debugImageScale, (startCursorPos.y + 213 * g_debugImageScale) - m_ThumbstickMovementOffset * rThumPos.y * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(39 * g_debugImageScale, 39 * g_debugImageScale), ImVec2(0, UVFromCoordinate(691)), ImVec2(UVFromCoordinate(52), UVFromCoordinate(745)));	// Pressed tex
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(39 * g_debugImageScale, 39 * g_debugImageScale), 
+					ImVec2(0, UVFromCoordinate(691)), ImVec2(UVFromCoordinate(52), UVFromCoordinate(745)));	// Pressed tex
 			}
 
 			// PS Logo
 			if (gamepad.InputState.ButtonState & Input::BUTTON_LOGO)
 			{
 				ImGui::SetCursorScreenPos({ (startCursorPos.x + 227 * g_debugImageScale) + m_ThumbstickMovementOffset * rThumPos.x * g_debugImageScale, (startCursorPos.y + 213 * g_debugImageScale) - m_ThumbstickMovementOffset * rThumPos.y * g_debugImageScale });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(37 * g_debugImageScale, 29 * g_debugImageScale), ImVec2(UVFromCoordinate(533), UVFromCoordinate(656)), ImVec2(UVFromCoordinate(570), UVFromCoordinate(685)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(37 * g_debugImageScale, 29 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(533), UVFromCoordinate(656)), ImVec2(UVFromCoordinate(570), UVFromCoordinate(685)));
 			}
 			
 			// DPAD up
 			if (gamepad.InputState.ButtonState & Input::DPAD_UP)
 			{
 				ImGui::SetCursorScreenPos({ (startCursorPos.x + 61 * g_debugImageScale), (startCursorPos.y + 109 * g_debugImageScale) });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(33 * g_debugImageScale, 42 * g_debugImageScale), ImVec2(UVFromCoordinate(640), UVFromCoordinate(645)), ImVec2(UVFromCoordinate(673), UVFromCoordinate(687)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(33 * g_debugImageScale, 42 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(640), UVFromCoordinate(645)), ImVec2(UVFromCoordinate(673), UVFromCoordinate(687)));
 			}
 			
 			// DPAD down
 			if (gamepad.InputState.ButtonState & Input::DPAD_DOWN)
 			{
 				ImGui::SetCursorScreenPos({ (startCursorPos.x + 61 * g_debugImageScale), (startCursorPos.y + 164 * g_debugImageScale) });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(33 * g_debugImageScale, 42 * g_debugImageScale), ImVec2(UVFromCoordinate(673), UVFromCoordinate(687)), ImVec2(UVFromCoordinate(640), UVFromCoordinate(645)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(33 * g_debugImageScale, 42 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(673), UVFromCoordinate(687)), ImVec2(UVFromCoordinate(640), UVFromCoordinate(645)));
 			}
 
 			// DPAD left
 			if (gamepad.InputState.ButtonState & Input::DPAD_LEFT)
 			{
 				ImGui::SetCursorScreenPos({ (startCursorPos.x + 29 * g_debugImageScale), (startCursorPos.y + 141 * g_debugImageScale) });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(42 * g_debugImageScale, 33 * g_debugImageScale), ImVec2(UVFromCoordinate(588), UVFromCoordinate(653)), ImVec2(UVFromCoordinate(630), UVFromCoordinate(686)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(42 * g_debugImageScale, 33 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(588), UVFromCoordinate(653)), ImVec2(UVFromCoordinate(630), UVFromCoordinate(686)));
 			}
 						
 			// DPAD right
 			if (gamepad.InputState.ButtonState & Input::DPAD_RIGHT)
 			{
 				ImGui::SetCursorScreenPos({ (startCursorPos.x + 84 * g_debugImageScale), (startCursorPos.y + 141 * g_debugImageScale) });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(42 * g_debugImageScale, 33 * g_debugImageScale), ImVec2(UVFromCoordinate(630), UVFromCoordinate(686)), ImVec2(UVFromCoordinate(588), UVFromCoordinate(653)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(42 * g_debugImageScale, 33 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(630), UVFromCoordinate(686)), ImVec2(UVFromCoordinate(588), UVFromCoordinate(653)));
 			}
 
 			// Create
 			if (gamepad.InputState.ButtonState & Input::OPTIONS_LEFT)
 			{
 				ImGui::SetCursorScreenPos({ (startCursorPos.x + 109 * g_debugImageScale), (startCursorPos.y + 85 * g_debugImageScale) });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(18 * g_debugImageScale, 28 * g_debugImageScale), ImVec2(UVFromCoordinate(684), UVFromCoordinate(658)), ImVec2(UVFromCoordinate(702), UVFromCoordinate(686)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(18 * g_debugImageScale, 28 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(684), UVFromCoordinate(658)), ImVec2(UVFromCoordinate(702), UVFromCoordinate(686)));
 			}
 			
 			// Options
 			if(gamepad.InputState.ButtonState & Input::OPTIONS_RIGHT)
 			{
 				ImGui::SetCursorScreenPos({ (startCursorPos.x + 365 * g_debugImageScale), (startCursorPos.y + 85 * g_debugImageScale) });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(18 * g_debugImageScale, 28 * g_debugImageScale), ImVec2(UVFromCoordinate(702), UVFromCoordinate(658)), ImVec2(UVFromCoordinate(684), UVFromCoordinate(686)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(18 * g_debugImageScale, 28 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(702), UVFromCoordinate(658)), ImVec2(UVFromCoordinate(684), UVFromCoordinate(686)));
 			}
 			
 			// Triangle
 			if (gamepad.InputState.ButtonState & Input::BUTTON_NORTH)
 			{
 				ImGui::SetCursorScreenPos({ (startCursorPos.x + 395 * g_debugImageScale), (startCursorPos.y + 110 * g_debugImageScale) });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(34 * g_debugImageScale, 34 * g_debugImageScale), ImVec2(UVFromCoordinate(711), UVFromCoordinate(652)), ImVec2(UVFromCoordinate(745), UVFromCoordinate(686)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(34 * g_debugImageScale, 34 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(711), UVFromCoordinate(652)), ImVec2(UVFromCoordinate(745), UVFromCoordinate(686)));
 			}
 			
 			// Square
 			if (gamepad.InputState.ButtonState & Input::BUTTON_WEST)
 			{
 				ImGui::SetCursorScreenPos({ (startCursorPos.x + 364 * g_debugImageScale), (startCursorPos.y + 141 * g_debugImageScale) });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(34 * g_debugImageScale, 34 * g_debugImageScale), ImVec2(UVFromCoordinate(826), UVFromCoordinate(652)), ImVec2(UVFromCoordinate(860), UVFromCoordinate(686)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(34 * g_debugImageScale, 34 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(826), UVFromCoordinate(652)), ImVec2(UVFromCoordinate(860), UVFromCoordinate(686)));
 			}
 
 			// Cross
 			if (gamepad.InputState.ButtonState & Input::BUTTON_SOUTH)
 			{
 				ImGui::SetCursorScreenPos({ (startCursorPos.x + 395 * g_debugImageScale), (startCursorPos.y + 172 * g_debugImageScale) });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(34 * g_debugImageScale, 34 * g_debugImageScale), ImVec2(UVFromCoordinate(788), UVFromCoordinate(652)), ImVec2(UVFromCoordinate(822), UVFromCoordinate(686)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(34 * g_debugImageScale, 34 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(788), UVFromCoordinate(652)), ImVec2(UVFromCoordinate(822), UVFromCoordinate(686)));
 			}
 
 			// Circle
 			if (gamepad.InputState.ButtonState & Input::BUTTON_EAST)
 			{
 				ImGui::SetCursorScreenPos({ (startCursorPos.x + 426 * g_debugImageScale), (startCursorPos.y + 141 * g_debugImageScale) });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(34 * g_debugImageScale, 34 * g_debugImageScale), ImVec2(UVFromCoordinate(750), UVFromCoordinate(652)), ImVec2(UVFromCoordinate(784), UVFromCoordinate(686)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(34 * g_debugImageScale, 34 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(750), UVFromCoordinate(652)), ImVec2(UVFromCoordinate(784), UVFromCoordinate(686)));
 			}
 
 			// L2
 			ImGui::SetCursorScreenPos({ startCursorPos.x + 56 * g_debugImageScale , startCursorPos.y + 1 * g_debugImageScale });
-			ImGui::ImageWithBg((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(58 * g_debugImageScale, 52 * g_debugImageScale), ImVec2(UVFromCoordinate(1006), UVFromCoordinate(635)), ImVec2(UVFromCoordinate(948), UVFromCoordinate(687)), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, gamepad.InputState.LeftTrigger)); // TODO: Use trigger value to make opaque
+			ImGui::ImageWithBg((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(58 * g_debugImageScale, 52 * g_debugImageScale), 
+				ImVec2(UVFromCoordinate(1006), UVFromCoordinate(635)), ImVec2(UVFromCoordinate(948), UVFromCoordinate(687)), 
+				ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, gamepad.InputState.LeftTrigger)); // TODO: Use trigger value to make opaque
 
 			// R2
 			ImGui::SetCursorScreenPos({ startCursorPos.x + 377 * g_debugImageScale , startCursorPos.y + 1 * g_debugImageScale });
-			ImGui::ImageWithBg((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(58 * g_debugImageScale, 52 * g_debugImageScale), ImVec2(UVFromCoordinate(948), UVFromCoordinate(635)), ImVec2(UVFromCoordinate(1006), UVFromCoordinate(687)), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, gamepad.InputState.RightTrigger)); // TODO: Use trigger value to make opaque
+			ImGui::ImageWithBg((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(58 * g_debugImageScale, 52 * g_debugImageScale), 
+				ImVec2(UVFromCoordinate(948), UVFromCoordinate(635)), ImVec2(UVFromCoordinate(1006), UVFromCoordinate(687)), 
+				ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, gamepad.InputState.RightTrigger)); // TODO: Use trigger value to make opaque
 
 			// R1
 			if (gamepad.InputState.ButtonState & Input::RIGHT_SHOULDER)
 			{
 				ImGui::SetCursorScreenPos({ (startCursorPos.x + 372 * g_debugImageScale), (startCursorPos.y + 58 * g_debugImageScale) });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(68 * g_debugImageScale, 22 * g_debugImageScale), ImVec2(UVFromCoordinate(872), UVFromCoordinate(650)), ImVec2(UVFromCoordinate(940), UVFromCoordinate(672)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(68 * g_debugImageScale, 22 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(872), UVFromCoordinate(650)), ImVec2(UVFromCoordinate(940), UVFromCoordinate(672)));
 			}
 
 			// L1
 			if (gamepad.InputState.ButtonState & Input::LEFT_SHOULDER)
 			{ 
 				ImGui::SetCursorScreenPos({ (startCursorPos.x + 51 * g_debugImageScale), (startCursorPos.y + 58 * g_debugImageScale) });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(68 * g_debugImageScale, 22 * g_debugImageScale), ImVec2(UVFromCoordinate(940), UVFromCoordinate(650)), ImVec2(UVFromCoordinate(872), UVFromCoordinate(672)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(68 * g_debugImageScale, 22 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(940), UVFromCoordinate(650)), ImVec2(UVFromCoordinate(872), UVFromCoordinate(672)));
 			}
 
 			// Touchpad
 			if (gamepad.InputState.ButtonState & Input::BUTTON_PAD)
 			{
 				ImGui::SetCursorScreenPos({ (startCursorPos.x + 135 * g_debugImageScale), (startCursorPos.y + 61 * g_debugImageScale) });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(221 * g_debugImageScale, 115 * g_debugImageScale), ImVec2(UVFromCoordinate(659), UVFromCoordinate(22)), ImVec2(UVFromCoordinate(880), UVFromCoordinate(137)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(221 * g_debugImageScale, 115 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(659), UVFromCoordinate(22)), ImVec2(UVFromCoordinate(880), UVFromCoordinate(137)));
 			}
 			
 			// Calc touchpoint rendering positions
@@ -400,12 +450,14 @@ namespace Borealis::Runtime::Debug
 			if (m_TouchTimer1 < 60)
 			{
 				ImGui::SetCursorScreenPos({ tp1X, tp1Y });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(34 * g_debugImageScale, 34 * g_debugImageScale), ImVec2(UVFromCoordinate(592), UVFromCoordinate(29)), ImVec2(UVFromCoordinate(626), UVFromCoordinate(63)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(34 * g_debugImageScale, 34 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(592), UVFromCoordinate(29)), ImVec2(UVFromCoordinate(626), UVFromCoordinate(63)));
 			}
 			if (m_TouchTimer2 < 60)
 			{
 				ImGui::SetCursorScreenPos({ tp2X, tp2Y });
-				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(34 * g_debugImageScale, 34 * g_debugImageScale), ImVec2(UVFromCoordinate(592), UVFromCoordinate(29)), ImVec2(UVFromCoordinate(626), UVFromCoordinate(63)));
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(34 * g_debugImageScale, 34 * g_debugImageScale), 
+					ImVec2(UVFromCoordinate(592), UVFromCoordinate(29)), ImVec2(UVFromCoordinate(626), UVFromCoordinate(63)));
 			}
 
 			ImGui::SetCursorScreenPos({ startCursorPos.x + 491 * g_debugImageScale, startCursorPos.y + 391 * g_debugImageScale });
@@ -467,17 +519,60 @@ namespace Borealis::Runtime::Debug
 
 		void DrawMouseDebugLayout(const Input::Mouse& mouse)
 		{
-			// TODO: Draw the image(s) of the mouse and highlight / move the parts accordingly to the actual input
 
-			ImGui::Text("Primary Mouse buttons:(Left: %s | Right: %s)",
-				mouse.InputState.buttonState & Input::BUTTON_LEFT ? "Pressed" : "Release",
-				mouse.InputState.buttonState & Input::BUTTON_RIGHT ? "Pressed" : "Release");
+#ifdef BOREALIS_WIN
+			g_debugImageScale *= 2;
+			ImVec2 startCursorPos = ImGui::GetCursorScreenPos();
 
-			ImGui::Text("Middle Mouse button: (%s | WheelX: %f | WheelY: %f)",
-				mouse.InputState.buttonState & Input::BUTTON_MIDDLE ? "Pressed" : "Release",
-				mouse.InputState.WheelX, mouse.InputState.WheelY);
 
-			ImGui::Text("Mouse Position: (x: %.2f | y: %.2f )", mouse.InputState.PositionX, mouse.InputState.PositionY);
+			ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(188 * g_debugImageScale, 325 * g_debugImageScale),
+				ImVec2(UVFromCoordinate(836), UVFromCoordinate(695)), ImVec2(UVFromCoordinate(1024), UVFromCoordinate(1024)));
+
+			// Left Mouse
+			if (mouse.InputState.buttonState & Input::BUTTON_LEFT)
+			{
+				ImGui::SetCursorScreenPos({ startCursorPos.x + 10 * g_debugImageScale, startCursorPos.y + 5 * g_debugImageScale });
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(82 * g_debugImageScale, 175 * g_debugImageScale),
+					ImVec2(UVFromCoordinate(710), UVFromCoordinate(849)), ImVec2(UVFromCoordinate(792), UVFromCoordinate(1024)));
+			}
+
+			// Right Mouse
+			if (mouse.InputState.buttonState & Input::BUTTON_RIGHT)
+			{
+				ImGui::SetCursorScreenPos({ startCursorPos.x + 97 * g_debugImageScale, startCursorPos.y + 5 * g_debugImageScale });
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(82 * g_debugImageScale, 175 * g_debugImageScale),
+					ImVec2(UVFromCoordinate(792), UVFromCoordinate(849)), ImVec2(UVFromCoordinate(710), UVFromCoordinate(1024)));
+			}
+
+			// Middle Mouse
+			if (mouse.InputState.buttonState & Input::BUTTON_MIDDLE)
+			{
+				ImGui::SetCursorScreenPos({ startCursorPos.x + 84 * g_debugImageScale, startCursorPos.y + 34 * g_debugImageScale });
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(20 * g_debugImageScale, 51 * g_debugImageScale),
+					ImVec2(UVFromCoordinate(793), UVFromCoordinate(973)), ImVec2(UVFromCoordinate(813), UVFromCoordinate(1024)));
+			}
+			
+			if (mouse.InputState.buttonState & Input::BUTTON_EXTRA2)
+			{
+				ImGui::SetCursorScreenPos({ startCursorPos.x + 172 * g_debugImageScale, startCursorPos.y + 107 * g_debugImageScale });
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(14 * g_debugImageScale, 49 * g_debugImageScale),
+					ImVec2(UVFromCoordinate(809), UVFromCoordinate(851)), ImVec2(UVFromCoordinate(823), UVFromCoordinate(900)));
+			}
+			
+			if (mouse.InputState.buttonState & Input::BUTTON_EXTRA1)
+			{
+				ImGui::SetCursorScreenPos({ startCursorPos.x + 166 * g_debugImageScale, startCursorPos.y + 156 * g_debugImageScale });
+				ImGui::Image((ImTextureID)m_DebugTexAtlas->GetGPUHandle()->ptr, ImVec2(17 * g_debugImageScale, 53 * g_debugImageScale),
+					ImVec2(UVFromCoordinate(800), UVFromCoordinate(909)), ImVec2(UVFromCoordinate(817), UVFromCoordinate(962)));
+			}
+
+			//ImGui::Text("Mouse Position: (x: %.2f | y: %.2f )", mouse.InputState.PositionX, mouse.InputState.PositionY);
+
+			ImGui::SetCursorScreenPos({ startCursorPos.x + 376 * g_debugImageScale, startCursorPos.y + 650 * g_debugImageScale });
+
+			g_debugImageScale /= 2;
+
+#endif
 		}
 
 		void DrawKeyboardDebugLayout(const Input::Keyboard& keyboard)

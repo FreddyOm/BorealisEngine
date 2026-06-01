@@ -680,7 +680,8 @@ namespace Borealis::Graphics
 		ComPtr<IDXGIDebug1> debug = nullptr;
 		if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(debug.GetAddressOf()))))
 		{
-			debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_SUMMARY);
+			Assert(SUCCEEDED(debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_SUMMARY)),
+				"Failed to report live objects!");
 		}
 
 #endif

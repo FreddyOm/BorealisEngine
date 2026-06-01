@@ -39,6 +39,8 @@ namespace Borealis::Runtime::Debug
 		{
 			initialized = false;
 
+			m_Renderer.WaitForPendingOperations();
+
 			switch (m_Renderer.m_GraphicsBackend)
 			{
 #ifdef BOREALIS_WIN
