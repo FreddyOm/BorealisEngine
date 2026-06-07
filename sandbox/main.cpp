@@ -49,7 +49,7 @@ int main()
 		}
 
 
-#if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
+#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 		runtimeDebugger.Detatch();
 #endif
 

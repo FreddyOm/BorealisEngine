@@ -6,6 +6,7 @@
 #ifdef BOREALIS_WIN
 
 #include <d3d12.h>
+#include <wrl.h>
 
 #else
 
@@ -182,7 +183,7 @@ namespace Borealis::Graphics
 
         ID3D12Resource** GetTexResource()
         {
-            return &m_TextureResource;
+            return m_TextureResource.GetAddressOf();
         }
 
         D3D12_CPU_DESCRIPTOR_HANDLE* GetCPUHandle()
@@ -201,7 +202,7 @@ namespace Borealis::Graphics
 
     private:
 
-        ID3D12Resource* m_TextureResource = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12Resource> m_TextureResource = nullptr;
         TextureFormat m_TexFormat = TextureFormat::TEX_FORMAT_UNKNOWN;
 
         D3D12_CPU_DESCRIPTOR_HANDLE m_CPUHandle{};

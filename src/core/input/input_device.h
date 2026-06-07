@@ -18,7 +18,8 @@ namespace Borealis::Input
 			: DeviceType(deviceType)
 			,DisplayName(displayName)
 		{ 
-			memcpy(DeviceID, deviceId, 32);
+			if(deviceId != nullptr)
+				memcpy(DeviceID, deviceId, 32);
 		}
 
 		virtual void Reset() noexcept override
@@ -85,7 +86,7 @@ namespace Borealis::Input
 
 	struct Gamepad : public IInputDevice
 	{
-		Gamepad(const Types::uint8* deviceId
+		explicit Gamepad(const Types::uint8* deviceId
 			,const Types::StringId displayName, GamepadType vendorType)
 			: IInputDevice(InputDeviceCategory::GAMEPAD, deviceId, displayName), VendorType(vendorType)
 		{ }

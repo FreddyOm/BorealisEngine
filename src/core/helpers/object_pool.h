@@ -13,7 +13,6 @@ namespace Borealis::Helpers
 {
 	template<typename T> concept IsResettable = std::is_base_of_v<Types::IResettable, T>;
 
-
 	/// <summary>
 	/// The object pool can pool objects that implement the IResettable interface. 
 	/// This is necessary, so that pool elements can be resetted instead of deconstructed.
@@ -25,18 +24,29 @@ namespace Borealis::Helpers
 	{
 	public:
 
-		ObjectPool()
+		// TODO: Fix me! The object pool has to default initialize objects! 
+		// Therefore, arguments are passed for non-default constructable types for now, but a better solution would be preferrable.
+		template<typename ...Args>
+		ObjectPool(Args ... args)
 		{
-			Memory::MemAllocJanitor janitor{};	// Default janitor allocates in default context
-			
 			// Reserve all allocated elements inside the inactive elements set
 			for (Types::int32 i = 0; i < N; ++i)
 			{
-				m_inactiveElements.insert( Memory::RefCntAutoPtr<T>( m_memPool.Alloc( sizeof(T) ) ) );
+				Memory::MemAllocJanitor janitor(Memory::MemAllocatorContext::DEFAULT);
+				m_inactiveElements.insert(Memory::RefCntAutoPtr<T>::Allocate(args...));
+
+				//Memory::HandleInfo* pHandleInfo = m_memPool.Alloc(sizeof(T));
+				//const T* data = new (Memory::AccessHandleData(pHandleInfo->HandleId)) T();
+				//m_inactiveElements.insert( Memory::RefCntAutoPtr<T>(pHandleInfo) );
 			}
 		}
 
-		~ObjectPool() = default;
+		~ObjectPool()
+		{
+			//m_memPool.Clear();
+			m_inactiveElements.clear();
+			m_activeElements.clear();
+		}
 
 		BOREALIS_DELETE_COPY_CONSTRUCT(ObjectPool)
 		BOREALIS_DELETE_MOVE_CONSTRUCT(ObjectPool)
@@ -90,7 +100,7 @@ namespace Borealis::Helpers
 
 	private:
 
-		Borealis::Memory::PoolAllocator m_memPool = Borealis::Memory::PoolAllocator(N, sizeof(T));
+		//Borealis::Memory::PoolAllocator m_memPool = Borealis::Memory::PoolAllocator(N, sizeof(T));
 		std::set<Memory::RefCntAutoPtr<T>> m_activeElements{};
 		std::set<Memory::RefCntAutoPtr<T>> m_inactiveElements{};
 	};

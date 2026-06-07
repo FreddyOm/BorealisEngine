@@ -31,7 +31,7 @@ namespace Borealis::Input
 	// Borealis input devices
 	Memory::RefCntAutoPtr<Keyboard> g_Keyboard{};
 	Memory::RefCntAutoPtr<Mouse> g_Mouse{};
-	Helpers::ObjectPool<Gamepad, MAX_GAMEPADS()> g_GamepadPool = {};
+	Helpers::ObjectPool<Gamepad, MAX_GAMEPADS()> g_GamepadPool = Helpers::ObjectPool<Gamepad, MAX_GAMEPADS()>(nullptr, String("N/A"), GamepadType::UNKNOWN);
 
 	set<Memory::RefCntAutoPtr<IInputDevice>> g_AllDevices = {};
 
@@ -278,7 +278,11 @@ namespace Borealis::Input
 		// Clear gamepads
 		g_pWinGamepadsInternal.clear();
 
-		g_pGameInput.Reset();
+		//g_pGameInput->Release();
+		//g_pGameInput.Reset();
+
+		//g_pGameInputReading->Release();
+		//g_pGameInputReading.Reset();
 
 		// Uninitialize COM
 		CoUninitialize();

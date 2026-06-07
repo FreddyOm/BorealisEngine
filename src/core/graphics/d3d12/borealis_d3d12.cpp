@@ -64,37 +64,38 @@ namespace Borealis::Graphics
 		// Wait for all pending operations to finish before destroying resources
 		WaitForPendingOperations();
 
-		// Set fullscreen state on swap chain
 		if (m_SwapChain)
-		{
 			m_SwapChain->SetFullscreenState(false, nullptr);
-		}
-		
-		if (m_SwapChainWaitable != nullptr) 
-		{ 
-			CloseHandle(m_SwapChainWaitable); 
-		}
 
-		// Release frame contexts
+		if (m_SwapChainWaitable != nullptr)
+			CloseHandle(m_SwapChainWaitable);
+
+		for (auto& rt : m_RenderTargets)
+			rt.Reset();
+			
+		m_RenderTargets.clear();
+
 		for (auto& frameCntx : m_FrameContexts)
-		{
-			//frameCntx.CommandAllocator->Release();	// Not necessary scince ComPtr already calls Release!
+			frameCntx.CommandAllocator.Reset();
 
-			frameCntx.FenceValue = 0;
-		}
+		m_FrameContexts.clear();
 
-		// Release command queue
-		if (m_CommandQueue)
-		{
-			//m_CommandQueue.Get()->Release();
-		}
+		m_CommandList.Reset();
+		m_CommandQueue.Reset();
+		m_CommandQueueFence.Reset();
 		
-		if (m_FenceEvent)
-			CloseHandle(m_FenceEvent);
+		m_SwapChain.Reset();
+		
+		m_SRV_DescriptorHeap.Reset();
+		m_DSV_DescriptorHeap.Reset();
+		m_RTV_DescriptorHeap.Reset();
 
 		g_SRVDescHeapAllocator.Destroy();
 		g_DSVDescHeapAllocator.Destroy();
 		g_RTVDescHeapAllocator.Destroy();
+
+		if (m_FenceEvent)
+			CloseHandle(m_FenceEvent);
 
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 		m_isInitialized = false;
@@ -137,7 +138,7 @@ namespace Borealis::Graphics
 		}
 
 		LogError("Couldn't resolve the correct descriptor heap for type %s. Returning RTV as default value.", descHeapType);
-		return m_RTV_DescriptorHeap.Get();
+		return m_RTV_DescriptorHeap;
 	}
 
 	ID3D12Resource* const BorealisD3D12Renderer::GetRenderTarget(const Types::int32 renderTargetIndex) const
@@ -173,12 +174,6 @@ namespace Borealis::Graphics
 		return frame_context;
 	}
 
-	//void BorealisD3D12Renderer::OnWindowResize(const Borealis::Core::WindowEvent& event)
-	//{
-	//	// Recreate the swap chain and all dependent resources
-	//	LogWarning("Window was resized but no recalculation of the resources were made yet! Need to implement!");
-	//}
-
 	D3D12_CPU_DESCRIPTOR_HANDLE& BorealisD3D12Renderer::GetRTVDescriptor(const Types::int32 rtvDescIdx)
 	{
 		return m_RTV_DescriptorHandles.at(rtvDescIdx);
@@ -188,7 +183,7 @@ namespace Borealis::Graphics
 	/// Initializes the D3D12 Info Queue for debug message handling.
 	/// </summary>
 	/// <param name="m_Device">The rendering pipeline device.</param>
-	void InitD3D12InfoQueue(const ComPtr<ID3D12Device8> m_Device)
+	void InitD3D12InfoQueue(const ComPtr<ID3D12Device8>& m_Device)
 	{
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
@@ -317,17 +312,17 @@ namespace Borealis::Graphics
 		{
 			case D3D12_DESCRIPTOR_HEAP_TYPE_RTV:
 			{
-				g_RTVDescHeapAllocator.Create(m_Device.Get(), descHeap.Get());
+				g_RTVDescHeapAllocator.Create(m_Device, descHeap.Get());
 				break;
 			}
 			case D3D12_DESCRIPTOR_HEAP_TYPE_DSV:
 			{
-				g_DSVDescHeapAllocator.Create(m_Device.Get(), descHeap.Get());
+				g_DSVDescHeapAllocator.Create(m_Device, descHeap.Get());
 				break;
 			}
 			case D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV:
 			{
-				g_SRVDescHeapAllocator.Create(m_Device.Get(), descHeap.Get());
+				g_SRVDescHeapAllocator.Create(m_Device, descHeap.Get());
 				break;
 			}
 			case D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER:
@@ -382,7 +377,7 @@ namespace Borealis::Graphics
 		g_SRVDescHeapAllocator.Alloc(tex->GetCPUHandle(), tex->GetGPUHandle());
 		DirectX::CreateShaderResourceView(m_Device.Get(), *tex->GetTexResource(), *tex->GetCPUHandle());		
 
-		tex->CommitTexture(); // Sets width and height according o the native tex data!
+		tex->CommitTexture(); // Sets width and height according to the native tex data!
 
 		return tex;
 	}
@@ -590,11 +585,6 @@ namespace Borealis::Graphics
 			LogError(StrFromHResult(hResult));
 		}
 
-
-		// Create fence event
-		m_FenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-		Assert(m_FenceEvent != nullptr, "Failed to create fence events: \n(%u)", hResult);
-
 		CreateRenderTargets();
 		return 0;
 	}
@@ -645,7 +635,7 @@ namespace Borealis::Graphics
 	{
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
-		// TODO: Move this to helpers so it can be accessed afzer D3D12 shut down!
+		// TODO: Move this to helpers so it can be accessed after D3D12 shut down!
 		// Enable the debug layer.
 		HRESULT hResult = D3D12GetDebugInterface(IID_PPV_ARGS(&g_DebugController));
 		
@@ -672,16 +662,13 @@ namespace Borealis::Graphics
 
 		Assert(g_ReportLiveObjInitialized, 
 			"Cannot report live objects if the debug layer was not successfully initialized. Make sure to call \"InitD3D12LiveObjects\" before initializing the rendering pipeline!");
-		/*if (g_DXGIDebug)
-		{
-			g_DXGIDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
-		}*/
 
 		ComPtr<IDXGIDebug1> debug = nullptr;
 		if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(debug.GetAddressOf()))))
 		{
-			Assert(SUCCEEDED(debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_SUMMARY)),
-				"Failed to report live objects!");
+			HRESULT hRes = debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_SUMMARY);
+			//Assert(SUCCEEDED());
+			//"Failed to report live objects!");
 		}
 
 #endif

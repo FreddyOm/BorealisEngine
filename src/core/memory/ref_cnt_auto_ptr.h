@@ -55,7 +55,9 @@ namespace Borealis::Memory
 			{
 				if (--m_pHandleInfo->RefCount <= 0)
 				{
-					// Release all memory and clean up!
+					// Call destructor, release all memory and clean up!
+					void* data = AccessHandleData(m_pHandleInfo->HandleId);
+					static_cast<T*>(data)->~T();
 					RemoveHandle(m_pHandleInfo->HandleId, m_pHandleInfo);
 				}
 			}

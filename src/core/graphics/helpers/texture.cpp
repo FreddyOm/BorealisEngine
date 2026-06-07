@@ -22,7 +22,6 @@ namespace Borealis::Graphics
 	BorealisD3D12Texture::~BorealisD3D12Texture()
 	{
 		g_SRVDescHeapAllocator.Free(m_CPUHandle, m_GPUHandle);
-		m_TextureResource->Release();
 	}
 
 	const Types::uint16 Borealis::Graphics::BorealisD3D12Texture::GetHeight() const

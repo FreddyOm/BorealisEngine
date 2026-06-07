@@ -59,6 +59,7 @@ namespace Borealis::Core
 
 	Window::~Window()
 	{
+		glfwDestroyWindow(m_pWindow);
 		glfwTerminate();
 	}
 

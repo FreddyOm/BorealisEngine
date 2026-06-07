@@ -20,7 +20,7 @@ namespace Borealis::Graphics::Helpers
         Types::uint64               HeapHandleIncrement;
         std::vector<Types::int32>            FreeIndices;
 
-        void Create(ID3D12Device* device, ID3D12DescriptorHeap* heap)
+        void Create(Microsoft::WRL::ComPtr<ID3D12Device8>& device, ID3D12DescriptorHeap* heap)
         {
             Assert(Heap == nullptr && FreeIndices.empty(), "Cannot construct an already existing D3D12RTVDescriptorHeapAllocator!");
             
