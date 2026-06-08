@@ -52,13 +52,12 @@ namespace Borealis::Memory
 
 	private:
 
-		Borealis::Types::int32 poolElementCount = 0;
-		Borealis::Types::uint64 poolElementSize = 0;
+		Borealis::Types::uint64Ptr m_pPoolBase = 0;
+		Borealis::Types::uint64 m_poolElementSize = 0;
+		Borealis::Types::int32 m_poolElementCount = 0;
 
-		Borealis::Types::uint64Ptr p_poolBase = 0;
-		//Borealis::Types::uint64Ptr p_allocatorBase = 0;
-		// bool* p_lookupBase = nullptr;
+		std::stack<Borealis::Types::uint64Ptr> m_pFreePoolElementList;
 
-		std::stack<Borealis::Types::uint64Ptr> p_freePoolElementList;
+		Borealis::Types::int8 m_padding[4] = {0};
 	};
 }

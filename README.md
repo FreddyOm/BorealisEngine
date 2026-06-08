@@ -15,7 +15,7 @@
 
 ## Setup 
 
-For the setup of the project you need a installation of **git** and **cmake**.
+For the setup of the project you need an installation of **git** and **cmake**.
 To setup the project, follow the steps below.
 
 1. Navigate to your desired directory
@@ -43,7 +43,7 @@ cmake --build . --config <Debug/Release/MinSizeRel/RelWithDebInfo>
   - [x] Warning Log
   - [x] Error Log
   - [x] Assertions
-- [x] Simple Window
+- [x] GLFW Window
 - [ ] [Job System](https://github.com/FreddyOm/BorealisJobs)
 - [x] Custom Memory Allocators
   - [x] Stack Allocator

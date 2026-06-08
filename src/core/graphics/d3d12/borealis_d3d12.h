@@ -3,6 +3,8 @@
 #include "../../types/types.h"
 #include "../../window/window.h"
 #include "../../helpers/macros.h"
+#include "../../memory/ref_cnt_auto_ptr.h"
+#include "../helpers/texture.h"
 
 #ifdef BOREALIS_WIN
 #include <vector>
@@ -51,20 +53,19 @@ namespace Borealis::Graphics
 		bool ToggleFullscreen();
 		Helpers::FrameContext* const WaitForNextFrameContext();
 		//void OnWindowResize(const Borealis::Core::WindowEvent& event);
+		void WaitForPendingOperations() override;
 
 		Microsoft::WRL::ComPtr<ID3D12Fence> m_CommandQueueFence;
 		Types::uint64 m_LastSignaledFenceValue = 0;
 
-
 		// Functional methods
-		Texture* CreateTexture(const char* path);
+		Memory::RefCntAutoPtr<Texture> CreateTexture(const wchar_t* path);
 
 
 	private:
 
 		Borealis::Types::int64 SetupPipeline();
 		Borealis::Types::int64 SetupAssets();
-		void WaitForPendingOperations();
 		HRESULT RegisterDescriptorHeapAllocator(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& descHeap, const Types::int16 numDescriptors,
 			const D3D12_DESCRIPTOR_HEAP_TYPE heapType, const Types::uint8 nodeMask = 0);
 		HRESULT CreateRenderTargets();

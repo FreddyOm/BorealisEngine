@@ -30,7 +30,7 @@ namespace Borealis::Memory
 		g_HandleTable.insert({ handleID, p_refCntPtr });
 
 		// Return the handle info 
-		return new (g_HandleInfoAllocator.RawAlloc(sizeof(HandleInfo))) HandleInfo(handleID, p_refCntPtr);
+		return new (g_HandleInfoAllocator.RawAlloc(sizeof(HandleInfo))) HandleInfo(handleID);
 	}
 
 	BOREALIS_API void UpdateHandle(const uint64Ptr handleId, void* const p_newData)
@@ -78,8 +78,11 @@ namespace Borealis::Memory
 	StackAllocator g_frameAllocator(1048576);				// 1 MiB
 	StackAllocator g_staticAllocator(134217728);			// 128 MiB
 	PoolAllocator g_debugAllocator(4096, 65536);			// 256 MiB
-	HeapAllocator g_renderingAllocator(134217728 * 8);		// 1 GiB 
+	
 	HeapAllocator g_renderingDebugAllocator(134217728 * 4);	// 512 MiB 
+	HeapAllocator g_renderingAllocator(134217728 * 8);		// 1 GiB 
+
+	HeapAllocator g_defaultAllocator(134217728 * 16);		// 2 GiB
 
 	BOREALIS_API IMemoryAllocator* GetMemoryAllocator(const MemAllocatorContext context)
 	{
@@ -132,7 +135,8 @@ namespace Borealis::Memory
 	
 	MemAllocJanitor::MemAllocJanitor(const MemAllocatorContext context)
 	{
-		Assert(context != MemAllocatorContext::NONE, "Cannot push none memory allocator context!");
+		Assert(context != MemAllocatorContext::NONE && (Types::int8) context < (Types::int8)MemAllocatorContext::NUM_CONTEXTS, 
+			"Cannot push invalid memory allocator context!");
 
 		PushAllocator(context);
 	}

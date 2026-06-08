@@ -17,11 +17,9 @@
 	// Microsoft GameInput Data
 #pragma comment(lib, "GameInput.lib")
 #include <GameInput.h>
-
 #include <wrl.h>
 
 #endif
-
 
 using namespace Borealis::Types;
 using namespace Borealis::Debug;
@@ -31,16 +29,17 @@ namespace Borealis::Input
 {	
 
 	// Borealis input devices
-	Keyboard* g_Keyboard = nullptr;
-	Mouse* g_Mouse = nullptr;
-	Helpers::ObjectPool<Gamepad, MAX_GAMEPADS()> g_GamepadPool = {};
+	Memory::RefCntAutoPtr<Keyboard> g_Keyboard{};
+	Memory::RefCntAutoPtr<Mouse> g_Mouse{};
+	Helpers::ObjectPool<Gamepad, MAX_GAMEPADS()> g_GamepadPool = Helpers::ObjectPool<Gamepad, MAX_GAMEPADS()>(nullptr, String("N/A"), GamepadType::UNKNOWN);
 
-	set<IInputDevice*> g_AllDevices = {};
+	set<Memory::RefCntAutoPtr<IInputDevice>> g_AllDevices = {};
 
 #ifdef BOREALIS_WIN
 
 	GameInputCallbackToken g_gameInputCallbackToken{};
-	Microsoft::WRL::ComPtr<IGameInput> g_pGameInput = nullptr;
+	Microsoft::WRL::ComPtr<IGameInput> g_pGameInput{};
+	Microsoft::WRL::ComPtr<IGameInputReading> g_pGameInputReading{};
 
 	IGameInputDevice* g_pWinKeyboardInternal = nullptr;
 	IGameInputDevice* g_pWinMouseInternal = nullptr;
@@ -49,10 +48,14 @@ namespace Borealis::Input
 
 	// DS5W DualSense input devices
 	DS5W::DeviceEnumInfo g_DualSenseDeviceInfo[MAX_GAMEPADS()];
-	unordered_map<Gamepad*, DS5W::DeviceContext> g_DualSenseDeviceContexts{};
+	unordered_map<Memory::RefCntAutoPtr<Gamepad>, DS5W::DeviceContext> g_DualSenseDeviceContexts{};
 	uint32 g_DualSenseDeviceCount = 0;
 
-
+	/// <summary>
+	/// Returns a string id for a given input device.
+	/// </summary>
+	/// <param name="deviceInfo">The device's info.</param>
+	/// <returns>A string id for for the respective device.</returns>
 	const static StringId GetDeviceTypeString(GameInputDeviceInfo const* deviceInfo)
 	{
 		switch (deviceInfo->deviceFamily)
@@ -96,6 +99,23 @@ namespace Borealis::Input
 	}
 
 	/// <summary>
+	/// Retruns the device that is associated with a hashed device ID. 
+	/// Helper function for handling devices and IDs.
+	/// </summary>
+	/// <param name="hashedDeviceID">The hashed device ID.</param>
+	/// <returns></returns>
+	static Memory::RefCntAutoPtr<IInputDevice> FindDevice(uint64 hashedDeviceID)
+	{
+		for (auto& device : g_AllDevices)
+		{
+			if (HashDeviceID(device->DeviceID) == hashedDeviceID)
+				return device;
+		}
+
+		return Memory::RefCntAutoPtr<IInputDevice>{};
+	}
+
+	/// <summary>
 	/// A callback that is called when an IGameInputDevice (dis-)connects.
 	/// </summary>
 	/// <param name="token"></param>
@@ -114,6 +134,11 @@ namespace Borealis::Input
 	{
 		GameInputDeviceInfo const* deviceInfo = device->GetDeviceInfo();
 
+		// Allocate devices with internal memory allocators!
+		Memory::MemAllocJanitor janitor{}; // Default
+
+		WinInputSystem* winInput = (WinInputSystem*)context;
+
 		if (currentStatus & GameInputDeviceConnected)
 		{
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
@@ -126,20 +151,18 @@ namespace Borealis::Input
 				if (g_pWinKeyboardInternal == nullptr)
 				{
 					g_pWinKeyboardInternal = device;
-					Keyboard* keyboard = new Keyboard(deviceInfo->deviceId.value, GetDeviceTypeString(deviceInfo));
-					g_Keyboard = keyboard;
+					g_Keyboard = Memory::RefCntAutoPtr<Keyboard>::Allocate(deviceInfo->deviceId.value, GetDeviceTypeString(deviceInfo));
 
-					WinInputSystem::OnDeviceConnected(*dynamic_cast<IInputDevice*>(keyboard), InputDeviceCategory::KEYBOARD);
+					WinInputSystem::OnDeviceConnected(Memory::RefCntAutoPtr<Keyboard>::DynamicCastTo<IInputDevice>(g_Keyboard), InputDeviceCategory::KEYBOARD);
 				}
 				break;
 			case GameInputKindMouse:
 				if (g_pWinMouseInternal == nullptr)
 				{
 					g_pWinMouseInternal = device;
-					Mouse* mouse = new Mouse(deviceInfo->deviceId.value, GetDeviceTypeString(deviceInfo));
-					g_Mouse = mouse;
+					g_Mouse = Memory::RefCntAutoPtr<Mouse>::Allocate(deviceInfo->deviceId.value, GetDeviceTypeString(deviceInfo));
 
-					WinInputSystem::OnDeviceConnected(*dynamic_cast<IInputDevice*>(mouse), InputDeviceCategory::MOUSE);
+					WinInputSystem::OnDeviceConnected(Memory::RefCntAutoPtr<Mouse>::DynamicCastTo<IInputDevice>(g_Mouse), InputDeviceCategory::MOUSE);
 				}
 				break;
 			default:
@@ -153,10 +176,10 @@ namespace Borealis::Input
 							g_pWinGamepadsInternal.emplace(HashDeviceID(deviceInfo->deviceId.value), device);
 
 							// Register the Borealis input device							
-							Gamepad* gamepad = g_GamepadPool.Get(deviceInfo->deviceId.value, GetDeviceTypeString(deviceInfo),
+							Memory::RefCntAutoPtr<Gamepad> gamepad = g_GamepadPool.Get(deviceInfo->deviceId.value, GetDeviceTypeString(deviceInfo),
 								deviceInfo->deviceFamily == GameInputFamilyXbox360 ? GamepadType::XBOX_360 : GamepadType::XBOX_ONE);
 
-							WinInputSystem::OnDeviceConnected(*dynamic_cast<IInputDevice*>(gamepad), InputDeviceCategory::GAMEPAD);
+							WinInputSystem::OnDeviceConnected(Memory::RefCntAutoPtr<Gamepad>::DynamicCastTo<IInputDevice>(gamepad), InputDeviceCategory::GAMEPAD);
 						}
 					break;
 					default:
@@ -178,10 +201,8 @@ namespace Borealis::Input
 				// Unregister the keyboard if removed
 				if (HashDeviceID(deviceInfo->deviceId.value) == HashDeviceID(g_Keyboard->DeviceID))
 				{
-					WinInputSystem::OnDeviceDisconnected(*dynamic_cast<IInputDevice*>(g_Keyboard), InputDeviceCategory::KEYBOARD);
-					
-					delete g_Keyboard;
-					g_Keyboard = nullptr;
+					WinInputSystem::OnDeviceDisconnected(FindDevice(HashDeviceID(g_Keyboard->DeviceID)), InputDeviceCategory::KEYBOARD);
+					g_Keyboard = {};
 				}
 				break;
 			}
@@ -190,10 +211,8 @@ namespace Borealis::Input
 				// Unregister the mouse if removed
 				if (HashDeviceID(deviceInfo->deviceId.value) == HashDeviceID(g_Mouse->DeviceID))
 				{
-					WinInputSystem::OnDeviceDisconnected(*dynamic_cast<IInputDevice*>(g_Mouse), InputDeviceCategory::MOUSE);
-
-					delete g_Mouse;
-					g_Mouse = nullptr;
+					WinInputSystem::OnDeviceDisconnected(FindDevice(HashDeviceID(g_Mouse->DeviceID)), InputDeviceCategory::MOUSE);
+					g_Mouse = {};
 				}
 				break;
 			}
@@ -211,17 +230,17 @@ namespace Borealis::Input
 					{
 
 						// Search for device with the given id
-						const set<Gamepad*> gamepads = g_GamepadPool.GetActiveElements();
+						const set<Memory::RefCntAutoPtr<Gamepad>> gamepads = g_GamepadPool.GetActiveElements();
 
-						for (set<Gamepad*>::iterator it = gamepads.begin(); it != gamepads.end(); ++it)
+						for (set<Memory::RefCntAutoPtr<Gamepad>>::iterator it = gamepads.begin(); it != gamepads.end(); ++it)
 						{
 							if ( HashDeviceID( (*it)->DeviceID ) == HashDeviceID( deviceInfo->deviceId.value ) )
 							{
-								Gamepad* _removedBorealisDevice = *it;
+								Memory::RefCntAutoPtr<Gamepad> _removedBorealisDevice = *it;
 
 								// Invoke disconnect callback, remove gamepad from generic gamepad pool and remove the 
 								// GameInput device after removing the generic gamepad. This cannot happen before!
-								WinInputSystem::OnDeviceDisconnected(*(dynamic_cast<IInputDevice*>(_removedBorealisDevice)), InputDeviceCategory::GAMEPAD); 
+								WinInputSystem::OnDeviceDisconnected(FindDevice(HashDeviceID(_removedBorealisDevice->DeviceID)), InputDeviceCategory::GAMEPAD);
 								g_GamepadPool.Return(_removedBorealisDevice);
 								g_pWinGamepadsInternal.erase(removedDevice);
 
@@ -240,6 +259,8 @@ namespace Borealis::Input
 		// Invoke an input device changed event!
 		// onGameInputDevicesChanged.Invoke(GetCurrentInputDevices());
 	}
+
+
 
 	WinInputSystem::WinInputSystem()
 	{
@@ -261,18 +282,12 @@ namespace Borealis::Input
 
 	WinInputSystem::~WinInputSystem()
 	{
-		// Release gamepads
-		for (Types::uint8 idx = 0; idx < g_pWinGamepadsInternal.size(); ++idx)
-		{
-			g_pWinGamepadsInternal[idx]->Release();
-			g_pWinGamepadsInternal[idx] = nullptr;
-		}
-
 		// Release game input
 		if(g_pGameInput)
 			g_pGameInput->UnregisterCallback(g_gameInputCallbackToken, 0);
 
-		g_pGameInput.Reset();
+		// Clear gamepads
+		g_pWinGamepadsInternal.clear();
 
 		// Uninitialize COM
 		CoUninitialize();
@@ -284,41 +299,69 @@ namespace Borealis::Input
 
 	void WinInputSystem::UpdateInputState()
 	{
+		// Manually check for device changes in Dual Sense input
+		PollDS5WDeviceConnections();
+
 		// Update Dual Sense input
 		UpdateDS5WInputState();
 		UpdateGameInputState();
 	}
 
-	void WinInputSystem::OnDeviceConnected(IInputDevice& device, InputDeviceCategory category)
+	/// <summary>
+	/// Callback that is called when a device is connected. 
+	/// </summary>
+	/// <param name="device">The device that was just connected.</param>
+	/// <param name="category">The device category (Keyboard, Mouse, Gamepad) of the connected device.</param>
+	void WinInputSystem::OnDeviceConnected(Memory::RefCntAutoPtr<IInputDevice> device, InputDeviceCategory category)
 	{
-		g_AllDevices.insert(&device);
+		g_AllDevices.insert(device);
 	}
 
-	void WinInputSystem::OnDeviceDisconnected(IInputDevice& device, InputDeviceCategory category)
+	/// <summary>
+	/// Callback that is called when a device is disconnected. 
+	/// </summary>
+	/// <param name="device">The device that was just connected.</param>
+	/// <param name="category">The device category (Keyboard, Mouse, Gamepad) of the connected device.</param>
+	void WinInputSystem::OnDeviceDisconnected(Memory::RefCntAutoPtr<IInputDevice> device, InputDeviceCategory category)
 	{
-		g_AllDevices.erase(&device);
+		g_AllDevices.erase(device);
 	}
 
-	std::set<IInputDevice*>& WinInputSystem::GetAllDevices()
+	/// <summary>
+	/// Returns all devices that are currently connected.
+	/// </summary>
+	/// <returns>A set of unique IInputDevices.</returns>
+	std::set< Memory::RefCntAutoPtr<IInputDevice>>& WinInputSystem::GetAllDevices()
 	{
 		return g_AllDevices;
 	}
 
-	const Mouse* WinInputSystem::GetMouse() const
+	/// <summary>
+	/// Returns the connected mouse and its data.
+	/// </summary>
+	/// <returns>A pointer to the connected mouse.</returns>
+	const Memory::RefCntAutoPtr<Mouse> WinInputSystem::GetMouse() const
 	{
 		return g_Mouse;
 	}
 
-	const Keyboard* WinInputSystem::GetKeyboard() const
+	/// <summary>
+	/// Returns the connected keyboard.
+	/// </summary>
+	/// <returns>A pointer to the connected keyboard.</returns>
+	const Memory::RefCntAutoPtr<Keyboard> WinInputSystem::GetKeyboard() const
 	{
 		return g_Keyboard;
 	}
 
-	const std::set<Gamepad*>& WinInputSystem::GetGamepads() const
+	const std::set<Memory::RefCntAutoPtr<Gamepad>>& WinInputSystem::GetGamepads() const
 	{
 		return g_GamepadPool.GetActiveElements();
 	}
 
+	/// <summary>
+	/// Registers the win input callback for device (dis-)connection.
+	/// </summary>
 	void WinInputSystem::RegisterDevicesAndCallbacks() noexcept
 	{
 		GameInputCallbackToken token{};
@@ -326,23 +369,29 @@ namespace Borealis::Input
 			nullptr,															// Don't filter to events from a specific device
 			GameInputKindGamepad | GameInputKindKeyboard | GameInputKindMouse,	// Enumerate gamepads, keyboards, mice
 			GameInputDeviceAnyStatus,											// Any device status
-			GameInputBlockingEnumeration,										// Enumerate synchronously
-			nullptr,															// No callback context parameter
+			GameInputAsyncEnumeration,											// Enumerate asynchronously
+			this,															// No callback context parameter
 			OnDeviceStatusChanged,												// Callback function
 			&g_gameInputCallbackToken)) 										// Generated token
 			, "Failed to register device callback.");
 	}
 
+	/// <summary>
+	/// Registers the DualSense input devices.
+	/// </summary>
 	void WinInputSystem::RegisterDS5WInputDevices()
 	{
 		// TODO: Use this enumeration each frame in order to invoke an event for when a DualSense controller was connected!
-		switch (DS5W::enumDevices(g_DualSenseDeviceInfo, MAX_GAMEPADS(), reinterpret_cast<unsigned int*>(&g_DualSenseDeviceCount)))
+		DS5W_ReturnValue enumDevices = DS5W::enumDevices(g_DualSenseDeviceInfo, MAX_GAMEPADS(), reinterpret_cast<unsigned int*>(&g_DualSenseDeviceCount));
+		switch (enumDevices)
 		{
 			case DS5W_OK:
 				break;
 			case DS5W_E_INSUFFICIENT_BUFFER:
 				LogError("DualSenseInfoBuffer not big enough for the amount of connected devices!");
 				break;
+			default:
+				LogError("An error occured while trying to enumerate the connected devices!");
 		}
 
 		// Reserve dual sense device ctxs to the amount of max connected devices
@@ -358,38 +407,109 @@ namespace Borealis::Input
 				continue;
 			}
 			
-			Gamepad* gamepad = g_GamepadPool.Get(reinterpret_cast<BYTE*>(g_DualSenseDeviceInfo[deviceIdx]._internal.path),
+			Memory::RefCntAutoPtr<Gamepad> gamepad = g_GamepadPool.Get(reinterpret_cast<BYTE*>(g_DualSenseDeviceInfo[deviceIdx]._internal.path),
 				String("Sony DualSense Controller"), GamepadType::DUAL_SENSE);
 
-			g_DualSenseDeviceContexts.emplace(gamepad, ctxt);
-
-			WinInputSystem::OnDeviceConnected(*dynamic_cast<IInputDevice*>(gamepad), InputDeviceCategory::GAMEPAD);
+			g_DualSenseDeviceContexts.emplace(gamepad, std::move(ctxt));
+			WinInputSystem::OnDeviceConnected(Memory::RefCntAutoPtr<Gamepad>::DynamicCastTo<IInputDevice>(gamepad), InputDeviceCategory::GAMEPAD);
 		}
 				
 	}
 
+	/// <summary>
+	/// Updates the DualSense input devices connection.
+	/// </summary>
+	void WinInputSystem::PollDS5WDeviceConnections()
+	{
+		const int32 lastNumDualSenseDevices = g_DualSenseDeviceCount;	// Store the previous device count to compare if any device was connected!		
+		DS5W_ReturnValue enumDevices = DS5W::enumDevices(g_DualSenseDeviceInfo, MAX_GAMEPADS(), reinterpret_cast<unsigned int*>(&g_DualSenseDeviceCount));
+		
+		if (lastNumDualSenseDevices == g_DualSenseDeviceCount || enumDevices != DS5W_OK)
+			return;
+
+		// Now do somethig if devices have been (dis-)connected
+		if (lastNumDualSenseDevices < g_DualSenseDeviceCount) // A new device was connected!
+		{	
+			// Given that new devices are added to the end of the g_DualSenseDeviceInfo array, we iterate all new devices with [lastNumDualSenseDevices, g_DualSenseDeviceCount)
+			for (int8 deviceIdx = lastNumDualSenseDevices; deviceIdx < g_DualSenseDeviceCount; ++deviceIdx)
+			{
+				DS5W::DeviceContext ctxt{};
+
+				if (DS5W_FAILED(DS5W::initDeviceContext(&g_DualSenseDeviceInfo[deviceIdx], &ctxt)))
+				{
+					LogError("Failed to init Dual Sense device context!");
+					continue;
+				}
+
+				Memory::RefCntAutoPtr<Gamepad> gamepad = g_GamepadPool.Get(reinterpret_cast<BYTE*>(g_DualSenseDeviceInfo[deviceIdx]._internal.path),
+					String("Sony DualSense Controller"), GamepadType::DUAL_SENSE);
+
+				g_DualSenseDeviceContexts.emplace(gamepad, std::move(ctxt));
+
+				WinInputSystem::OnDeviceConnected(Memory::RefCntAutoPtr<Gamepad>::DynamicCastTo<IInputDevice>(gamepad), InputDeviceCategory::GAMEPAD);
+			}
+		}
+		else if (lastNumDualSenseDevices > g_DualSenseDeviceCount)	// Device was disconnected!
+		{
+			// Find removed device
+			set<uint64> newDualSenseDeviceIDs{};
+			
+			for (int8 deviceIdx = 0; deviceIdx < g_DualSenseDeviceCount; ++deviceIdx)
+			{
+				newDualSenseDeviceIDs.insert(HashDeviceID(reinterpret_cast<BYTE*>(g_DualSenseDeviceInfo[deviceIdx]._internal.path)));
+			}
+
+			Memory::RefCntAutoPtr<Gamepad> gamepad{};	// This device is going to be removed!
+
+			for (auto& device : g_DualSenseDeviceContexts)
+			{
+				if (newDualSenseDeviceIDs.find(HashDeviceID(device.first->DeviceID)) == newDualSenseDeviceIDs.end())
+				{
+					gamepad = device.first;
+					break;
+				}
+			}
+
+			Assert(gamepad.IsValid(), "Couldn't find removed DualSense gamepad in device context map!");
+
+			// Remove all data and free resources
+
+			WinInputSystem::OnDeviceDisconnected(Memory::RefCntAutoPtr<Gamepad>::DynamicCastTo<IInputDevice>(gamepad), InputDeviceCategory::GAMEPAD);
+			DS5W::freeDeviceContext(&g_DualSenseDeviceContexts[gamepad]);
+			g_DualSenseDeviceContexts.erase(gamepad);
+			g_GamepadPool.Return(gamepad);
+		}
+	}
+
+	/// <summary>
+	/// Updates the DualSense input device state.
+	/// </summary>
 	void WinInputSystem::UpdateDS5WInputState()
 	{
-		DS5W::DS5InputState inState;
+		DS5W::DS5InputState inState{};
 
-		std::set<Gamepad*> gamepads = g_GamepadPool.GetActiveElements();
+		std::set<Memory::RefCntAutoPtr<Gamepad>> gamepads = g_GamepadPool.GetActiveElements();
 
-		for (std::set<Gamepad*>::iterator it = gamepads.begin(); it != gamepads.end(); ++it)
+		for (std::set<Memory::RefCntAutoPtr<Gamepad>>::iterator it = gamepads.begin(); it != gamepads.end(); ++it)
 		{
 			if ((*it)->VendorType != GamepadType::DUAL_SENSE)
 				continue;
+			auto res = DS5W::getDeviceInputState(&g_DualSenseDeviceContexts[*it], &inState);
+			
+			//if (res == DS5W_E_DEVICE_REMOVED)
+			//	DS5W::initDeviceContext(&g_DualSenseDeviceInfo[0], &g_DualSenseDeviceContexts[*it]);// IMPORTANT: This will not work with multiple DualSense devices!
 
-			if (DS5W_SUCCESS(DS5W::getDeviceInputState(&g_DualSenseDeviceContexts[*it], &inState)))
+			if (DS5W_SUCCESS(res))
 			{
 				// Set values for thumbsticks
-				(*it)->InputState.LeftThumbstickX = inState.leftStick.x;
-				(*it)->InputState.LeftThumbstickY = inState.leftStick.y;
-				(*it)->InputState.RightThumbstickX = inState.rightStick.x;
-				(*it)->InputState.RightThumbstickY = inState.rightStick.y;
+				(*it)->InputState.LeftThumbstickX = inState.leftStick.x / 255.0f;
+				(*it)->InputState.LeftThumbstickY = inState.leftStick.y / 255.0f;
+				(*it)->InputState.RightThumbstickX = inState.rightStick.x / 255.0f;
+				(*it)->InputState.RightThumbstickY = inState.rightStick.y / 255.0f;
 				
 				// Set values for trigger
-				(*it)->InputState.LeftTrigger = inState.leftTrigger;
-				(*it)->InputState.RightTrigger = inState.rightTrigger;
+				(*it)->InputState.LeftTrigger = inState.leftTrigger / 255.0f;
+				(*it)->InputState.RightTrigger = inState.rightTrigger / 255.0f;
 				
 				// Set values for touchpad
 				(*it)->InputState.Touchpad1X = inState.touchPoint1.x;
@@ -444,47 +564,52 @@ namespace Borealis::Input
 				// Send output to the controller
 				//DS5W::setDeviceOutputState(&g_DualSenseDeviceContexts[*it], &outState);
 			}
+			else // Couldn't get device context. Try to reconnect!
+			{
+				DS5W::reconnectDevice(&g_DualSenseDeviceContexts[*it]);
+			}
 		}		
 	}
 
+	/// <summary>
+	/// Updates the GameInput device state.
+	/// </summary>
 	void WinInputSystem::UpdateGameInputState()
 	{
-		IGameInputReading* reading;
+		HRESULT hRes = {};
 
-		if (SUCCEEDED(g_pGameInput->GetCurrentReading(GameInputKindMouse, g_pWinMouseInternal, &reading)))
+		hRes = g_pGameInput->GetCurrentReading(GameInputKindMouse, /*g_pWinMouseInternal*/nullptr, &g_pGameInputReading);
+		Assert(SUCCEEDED(hRes), "Failed to get the current reading for the Mouse input device!");
+
+		if (SUCCEEDED(hRes))
 		{
-			if (g_pWinMouseInternal)
-				reading->GetDevice(&g_pWinMouseInternal);
-
 			GameInputMouseState state;
-			reading->GetMouseState(&state);
+			if (g_pGameInputReading->GetMouseState(&state))
+			{
+				g_Mouse->InputState.PositionX = state.positionX;
+				g_Mouse->InputState.PositionY = state.positionY;
 
-			g_Mouse->InputState.PositionX = state.positionX;
-			g_Mouse->InputState.PositionY = state.positionY;
+				g_Mouse->InputState.WheelX = state.wheelX;
+				g_Mouse->InputState.WheelY = state.wheelY;
 
-			g_Mouse->InputState.WheelX = state.wheelX;
-			g_Mouse->InputState.WheelY = state.wheelY;
-
-			g_Mouse->InputState.buttonState = state.buttons;
-
-			reading->Release();
-		}
-
-		if (SUCCEEDED(g_pGameInput->GetCurrentReading(GameInputKindKeyboard, g_pWinKeyboardInternal, &reading)))
-		{
-			if (g_pWinKeyboardInternal)
-				reading->GetDevice(&g_pWinKeyboardInternal);
-
-			GameInputKeyState state;
-			reading->GetKeyState(reading->GetKeyCount(), &state);
-
-			//g_Keyboard->InputState.keyStates.set(state.scanCode);
-
-			reading->Release();
+				g_Mouse->InputState.buttonState = state.buttons;
+			}			
 		}
 		
 
-		for (std::set<Gamepad*>::iterator it = g_GamepadPool.GetActiveElements().begin(); it != g_GamepadPool.GetActiveElements().end(); ++it)
+		hRes = g_pGameInput->GetCurrentReading(GameInputKindKeyboard, g_pWinKeyboardInternal, &g_pGameInputReading);
+		Assert(SUCCEEDED(hRes), "Failed to get the current reading for the Keyboard input device!");
+
+		if (SUCCEEDED(hRes))
+		{
+			GameInputKeyState state;
+			g_pGameInputReading->GetKeyState(g_pGameInputReading->GetKeyCount(), &state);
+
+			//g_Keyboard->InputState.keyStates.set(state.scanCode);
+		}
+		
+
+		for (std::set<Memory::RefCntAutoPtr<Gamepad>>::iterator it = g_GamepadPool.GetActiveElements().begin(); it != g_GamepadPool.GetActiveElements().end(); ++it)
 		{
 			// Skip non-Microsoft gamepads
 			if ((*it)->VendorType == GamepadType::DUAL_SHOCK || (*it)->VendorType == GamepadType::DUAL_SENSE)
@@ -495,16 +620,16 @@ namespace Borealis::Input
 			const GameInputDeviceInfo* pInfo = currentIGameInputGamepad->GetDeviceInfo();
 			pInfo->deviceId;
 
-			Gamepad* currentBorealisGamepad = (*it);
+			Memory::RefCntAutoPtr<Gamepad> currentBorealisGamepad = (*it);
 
-			if (SUCCEEDED(g_pGameInput->GetCurrentReading(GameInputKindGamepad, currentIGameInputGamepad, &reading)))
+			hRes = g_pGameInput->GetCurrentReading(GameInputKindGamepad, currentIGameInputGamepad, &g_pGameInputReading);
+			//Assert(SUCCEEDED(hRes), "Failed to get the current reading for the Gamepad input device!");
+
+			if (SUCCEEDED(hRes))
 			{
-				if (currentIGameInputGamepad)
-					reading->GetDevice(&currentIGameInputGamepad);
-
 				// Get input state
 				GameInputGamepadState inState;
-				reading->GetGamepadState(&inState);
+				g_pGameInputReading->GetGamepadState(&inState);
 
 				currentBorealisGamepad->InputState.ButtonState = inState.buttons;
 
@@ -523,12 +648,9 @@ namespace Borealis::Input
 				
 				// Get motion state
 				GameInputMotionState motionState;
-				reading->GetMotionState(&motionState);
+				g_pGameInputReading->GetMotionState(&motionState);
 				currentBorealisGamepad->InputState.Accelerometer = { motionState.accelerationX, motionState.accelerationY, motionState.accelerationZ };
-				
-				reading->Release();
 			}
-		
 		}
 	}
 
@@ -551,34 +673,34 @@ namespace Borealis::Input
 		Assert(false, "Not implemented yet!");
 	}
 
-	void LinuxInputSystem::OnDeviceConnected(IInputDevice& device, InputDeviceCategory category)
+	void LinuxInputSystem::OnDeviceConnected(Memory::RefCntAutoPtr<IInputDevice> device, InputDeviceCategory category)
 	{
 		Assert(false, "Not implemented yet!");
 	}
 
-	void LinuxInputSystem::OnDeviceDisconnected(IInputDevice& device, InputDeviceCategory category)
+	void LinuxInputSystem::OnDeviceDisconnected(Memory::RefCntAutoPtr<IInputDevice> device, InputDeviceCategory category)
 	{
 		Assert(false, "Not implemented yet!");
 	}
 
-	std::set<IInputDevice*>& LinuxInputSystem::GetAllDevices()
+	std::set<Memory::RefCntAutoPtr<IInputDevice>>& LinuxInputSystem::GetAllDevices()
 	{
 		return g_AllDevices;
 	}
 
-	const Mouse* LinuxInputSystem::GetMouse() const
+	const Memory::RefCntAutoPtr<Mouse> LinuxInputSystem::GetMouse() const
 	{
 		Assert(false, "Not implemented yet!");
 		return nullptr;
 	}
 
-	const Keyboard* LinuxInputSystem::GetKeyboard() const
+	const Memory::RefCntAutoPtr<Keyboard> LinuxInputSystem::GetKeyboard() const
 	{
 		Assert(false, "Not implemented yet!");
 		return nullptr;
 	}
 
-	const std::set<Gamepad*>& LinuxInputSystem::GetGamepads() const
+	const std::set<Memory::RefCntAutoPtr<Gamepad>>& LinuxInputSystem::GetGamepads() const
 	{
 		return g_GamepadPool.GetActiveElements();
 	}

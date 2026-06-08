@@ -44,6 +44,16 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glfw)
 
+# Windows
+if(WIN32)
+    FetchContent_Declare(
+    DirectXTK12
+    GIT_REPOSITORY https://github.com/microsoft/DirectXTK12.git
+    GIT_TAG        main
+)
+FetchContent_MakeAvailable(DirectXTK12)
+endif()
+
 # Vulkan
 if(UNIX AND NOT APPLE)
     FetchContent_Declare(
@@ -51,6 +61,8 @@ if(UNIX AND NOT APPLE)
         GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers.git
         GIT_TAG        v1.4.345
     )
+
+    FetchContent_MakeAvailable(vulkan_headers)
 endif()
 
 message(STATUS "Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
@@ -82,6 +94,7 @@ set(COMMON_SOURCES
     core/math/crc_hash.cpp
     core/graphics/vulkan/borealis_vulkan.cpp
     core/graphics/helpers/helpers.cpp
+    core/graphics/helpers/texture.cpp
     core/input/input.cpp
     core/input/keyboard.cpp
     core/io/file_io.cpp
@@ -124,6 +137,7 @@ set(COMMON_HEADERS
     core/graphics/vulkan/borealis_vulkan.h
     core/graphics/helpers/helpers.h
     core/graphics/helpers/gbuffer.h
+    core/graphics/helpers/texture.h
     core/helpers/events.h
     core/helpers/macros.h
     core/helpers/object_pool.h
@@ -145,7 +159,6 @@ set(WINDOWS_SOURCES
 
 set(WINDOWS_HEADER
     thirdparty/ds5w/include/ds5w.h
-    thirdparty/directxtk12/include/directxtk12/WICTextureLoader.h
     core/debug/runtime-debug/imgui/imgui_impl_dx11.h
     core/debug/runtime-debug/imgui/imgui_impl_dx12.h
     core/debug/runtime-debug/imgui/imgui_impl_win32.h
@@ -156,12 +169,25 @@ set(WINDOWS_HEADER
     core/graphics/d3d12/d3d12_common.h
 )
 
+set(LINUX_SOURCES
+    core/debug/runtime-debug/imgui/imgui_impl_vulkan.cpp
+    core/graphics/vulkan/borealis_vulkan.cpp
+)
+
+set(LINUX_HEADERS
+    core/debug/runtime-debug/imgui/imgui_impl_vulkan.h
+    core/graphics/vulkan/borealis_vulkan.h
+)
+
+
 # Create library
-add_library(BorealisEngineLib SHARED ${COMMON_SOURCES} ${COMMON_HEADERS}) #${CMAKE_CURRENT_SOURCE_DIR}/core/graphics/d3d12/DirectX-Headers/include)
+add_library(BorealisEngineLib SHARED ${COMMON_SOURCES} ${COMMON_HEADERS})
 
 target_sources(BorealisEngineLib PRIVATE
     $<$<PLATFORM_ID:Windows>:${WINDOWS_SOURCES}>
     $<$<PLATFORM_ID:Windows>:${WINDOWS_HEADERS}>
+    $<$<PLATFORM_ID:Linux>:${LINUX_SOURCES}>
+    $<$<PLATFORM_ID:Linux>:${LINUX_HEADERS}>
 )
 
 
@@ -175,20 +201,31 @@ target_compile_definitions(BorealisEngineLib PRIVATE
 )
 
 # Include directories
-#message(STATUS "GLFW Include Dir: ${glfw_SOURCE_DIR}/include")
+message(STATUS "Vulkan include dir: ${vulkan_headers_SOURCE_DIR}/include")
 
-target_include_directories(BorealisEngineLib SYSTEM PRIVATE 
+if(WIN32) # WINDOWS platform includes
+
+target_include_directories(BorealisEngineLib SYSTEM PUBLIC 
     ${glfw_SOURCE_DIR}/include
-    $<$<AND:$<PLATFORM_ID:Linux>,$<NOT:$<PLATFORM_ID:Darwin>>>:${vulkan_headers_SOURCE_DIR}/include>
     ${CMAKE_SOURCE_DIR}/src/thirdparty/ds5w/include
-if(WIN32)
-    ${CMAKE_SOURCE_DIR}/src/thirdparty/directxtk12/include
-endif()
+    ${DirectXTK12_SOURCE_DIR}/include
 )
 
+elseif(UNIX AND NOT APPLE) # LINUX platform includes
+
+target_include_directories(BorealisEngineLib SYSTEM PUBLIC 
+    ${glfw_SOURCE_DIR}/include
+    ${vulkan_headers_SOURCE_DIR}/include
+)
+
+else() # MACOS platform includes
+
+endif()
+
+
 # Link libraries for each target platform
-if(WIN32)
-    target_link_libraries(BorealisEngineLib PRIVATE 
+if(WIN32) # WINDOWS
+    target_link_libraries(BorealisEngineLib PUBLIC 
         d3d12
         dxgi
         dxguid
@@ -204,25 +241,29 @@ if(WIN32)
         d3dcompiler
         glfw
         ${CMAKE_SOURCE_DIR}/src/thirdparty/ds5w/ds5w_x64.lib
-        ${CMAKE_SOURCE_DIR}/src/thirdparty/directxtk12/lib/DirectXTK12.lib
+        DirectXTK12
     )
-elseif(APPLE)
-    target_link_libraries(BorealisEngineLib PRIVATE
-    glfw
-    ${Vulkan_LIBRARIES}
-    "-framework Cocoa"
-    "-framework IOKit"
-    "-framework QuartzCore"
-    )
-elseif(UNIX)
 
-    target_link_libraries(BorealisEngineLib PRIVATE
+elseif(UNIX AND NOT APPLE) # LINUX
+
+message(STATUS "Vulkan libraries: ${vulkan_headers_LIBRARIES}")
+
+    target_link_libraries(BorealisEngineLib PUBLIC
         glfw
-        ${Vulkan_LIBRARIES}
+        ${vulkan_headers_LIBRARIES}
         X11
         Xrandr
         Xinerama
         Xcursor
         Xi
+    )
+
+else() # APPLE
+    target_link_libraries(BorealisEngineLib PRIVATE
+    glfw
+    ${vulkan_headers_LIBRARIES}
+    "-framework Cocoa"
+    "-framework IOKit"
+    "-framework QuartzCore"
     )
 endif()

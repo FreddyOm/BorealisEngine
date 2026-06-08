@@ -18,7 +18,8 @@ namespace Borealis::Input
 			: DeviceType(deviceType)
 			,DisplayName(displayName)
 		{ 
-			memcpy(DeviceID, deviceId, 32);
+			if(deviceId != nullptr)
+				memcpy(DeviceID, deviceId, 32);
 		}
 
 		virtual void Reset() noexcept override
@@ -31,10 +32,52 @@ namespace Borealis::Input
 
 		virtual ~IInputDevice() { }
 
-		BOREALIS_DELETE_COPY_CONSTRUCT(IInputDevice)
-		BOREALIS_DELETE_MOVE_CONSTRUCT(IInputDevice)
-		BOREALIS_DELETE_COPY_ASSIGN(IInputDevice)
-		BOREALIS_DELETE_MOVE_ASSIGN(IInputDevice)
+		// Copy constructor
+		IInputDevice(const IInputDevice& other)
+			: DeviceType(other.DeviceType)
+			, DisplayName(other.DisplayName)
+		{ 
+			memcpy(DeviceID, &other.DeviceID[0], 32);
+		}
+
+		// Move constructor
+		IInputDevice(IInputDevice&& other) noexcept
+			: DeviceType(other.DeviceType)
+			, DisplayName(other.DisplayName)
+		{
+			memcpy(DeviceID, &other.DeviceID[0], 32);
+
+			// Invalidate data
+			other.DeviceType = InputDeviceCategory::NONE;
+			other.DisplayName = Types::String("N/A");
+			memset(&other.DeviceID[0], 0, 32);
+		}
+
+		// Copy assign
+		IInputDevice& operator=(const IInputDevice& other)
+		{
+			this->DeviceType = other.DeviceType;
+			this->DisplayName = other.DisplayName;
+			memcpy(this->DeviceID, &other.DeviceID[0], 32);
+			
+			return *this;
+		}
+
+		// Move assign
+		IInputDevice& operator=(IInputDevice&& other) noexcept
+		{
+			DeviceType = other.DeviceType;
+			DisplayName = other.DisplayName;
+			memcpy(DeviceID, &other.DeviceID[0], 32);
+
+
+			// Invalidate data
+			other.DeviceType = InputDeviceCategory::NONE;
+			other.DisplayName = Types::String("N/A");
+			memset(&other.DeviceID[0], 0, 32);
+
+			return *this;
+		}
 
 		InputDeviceCategory DeviceType = InputDeviceCategory::NONE;
 		Types::uint8 DeviceID[32] = { 0 };
@@ -43,7 +86,7 @@ namespace Borealis::Input
 
 	struct Gamepad : public IInputDevice
 	{
-		Gamepad(const Types::uint8* deviceId
+		explicit Gamepad(const Types::uint8* deviceId
 			,const Types::StringId displayName, GamepadType vendorType)
 			: IInputDevice(InputDeviceCategory::GAMEPAD, deviceId, displayName), VendorType(vendorType)
 		{ }

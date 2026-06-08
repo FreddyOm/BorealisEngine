@@ -2,10 +2,6 @@
 #include <core/graphics/graphics.h>
 #include <core/debug/runtime-debug/runtime_debug.h>
 #include <core/input/input.h>
-//#include <core/helpers/events.h>
-//#include <core/input/input.h>
-//#include <core/types/string_id.h>
-//#include <core/debug/logger.h>
 
 using namespace Borealis::Core;
 using namespace Borealis::Graphics;
@@ -15,7 +11,7 @@ using namespace Borealis::Input;
 
 int main()
 {
-	#ifdef BOREALIS_WIN	// Currently only for windows while window.h doesn't have a UNIX implementation yet!
+	#ifdef BOREALIS_WIN	// Currently only for windows. Linux is currently WIP!
 	
 	{
 		Window sandboxWindow = Window("Borealis Sandbox");
@@ -29,13 +25,15 @@ int main()
 		BorealisD3D12Renderer renderer = BorealisD3D12Renderer(desc);
 		InitD3D12LiveObjects();
 		renderer.InitializePipeline();
+
+		Borealis::Memory::RefCntAutoPtr<Borealis::Graphics::Texture> debugTexAtlas = renderer.CreateTexture(L"D:\\02_Repositories\\BorealisEngine\\out\\build\\x64-Debug\\sandbox\\resources\\textures\\input-debug-tex-atlas.png");
 		
 		InputSystem inputSystem = InputSystem();
 
 #if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
 
 		Helpers::IBorealisRenderer& baseRend = dynamic_cast<Helpers::IBorealisRenderer&>(renderer);
-		RuntimeDebugger runtimeDebugger = RuntimeDebugger(baseRend, &inputSystem);
+		RuntimeDebugger runtimeDebugger = RuntimeDebugger(baseRend, &inputSystem, debugTexAtlas);
 		runtimeDebugger.Attatch(sandboxWindow.GetGLFWWindow());
 #endif
 
@@ -50,7 +48,8 @@ int main()
 #endif			
 		}
 
-#if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
+
+#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 		runtimeDebugger.Detatch();
 #endif
 

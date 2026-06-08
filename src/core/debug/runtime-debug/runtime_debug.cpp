@@ -39,6 +39,8 @@ namespace Borealis::Runtime::Debug
 		{
 			initialized = false;
 
+			m_Renderer.WaitForPendingOperations();
+
 			switch (m_Renderer.m_GraphicsBackend)
 			{
 #ifdef BOREALIS_WIN
@@ -66,6 +68,7 @@ namespace Borealis::Runtime::Debug
 			}
 			
 			ImGui_ImplGlfw_Shutdown();
+			ImGui::DestroyContext();
 
 			//guiDrawables.clear();
 		}
@@ -133,6 +136,7 @@ namespace Borealis::Runtime::Debug
 		// For now, fall-through because windows impl is always reliant on win32
 		switch (m_Renderer.m_GraphicsBackend)
 		{
+#ifdef BOREALIS_WIN
 			case GraphicsBackend::D3D11:
 			{
 				/*Assert(ImGui_ImplDX11_Init(Graphics::g_pDevice.Get(), Graphics::g_pContext.Get()),
@@ -141,7 +145,6 @@ namespace Borealis::Runtime::Debug
 			}
 			case GraphicsBackend::D3D12:
 			{
-#ifdef BOREALIS_WIN
 				BorealisD3D12Renderer* const pD3D12Renderer = dynamic_cast<BorealisD3D12Renderer* const>(&m_Renderer);
 				Assert(pD3D12Renderer != nullptr, "Failed to cast generic IBorealisRenderer to BorealisD3D12Renderer renderer!");
 
@@ -156,9 +159,9 @@ namespace Borealis::Runtime::Debug
 				d3d12InitInfo.SrvDescriptorFreeFn = [](ImGui_ImplDX12_InitInfo*, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle) { return g_SRVDescHeapAllocator.Free(cpu_handle, gpu_handle); };
 
 				Assert(ImGui_ImplDX12_Init(&d3d12InitInfo), "Failed to initialize the runtime debugger GUI with D3D12.");
-#endif
 				break;
 			}
+#endif
 			case GraphicsBackend::VULKAN:
 			{
 				//Assert(ImGui_ImplSDL2_InitForVulkan(), "Failed to initialize the runtime debugger GUI with Vulkan.");
@@ -231,10 +234,9 @@ namespace Borealis::Runtime::Debug
 			// TODO: Push common rendering code to BorealisD3D12Renderer
 			// TODO: Move ImGui specific code from BorealisD3D12Renderer to here
 
-			/*static*/ BorealisD3D12Renderer* pD3D12Renderer = dynamic_cast<BorealisD3D12Renderer* const>(&m_Renderer);
+			BorealisD3D12Renderer* pD3D12Renderer = dynamic_cast<BorealisD3D12Renderer* const>(&m_Renderer);
 			Assert(pD3D12Renderer != nullptr, "Failed to cast the renderer to BorealisD3D12Renderer.");
-			static HRESULT hResult;
-			hResult = S_OK;
+			HRESULT hResult = S_OK;
 
 			// Get back buffer index
 			const UINT backBufferIdx = pD3D12Renderer->GetSwapChain()->GetCurrentBackBufferIndex();
@@ -258,9 +260,6 @@ namespace Borealis::Runtime::Debug
 			barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 			barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
 			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-
-			/*hResult = pD3D12Renderer->GetCommandList()->Reset(frameCtx->CommandAllocator.Get(), nullptr);
-			Assert(hResult == S_OK, StrFromHResult(hResult));*/
 
 			pD3D12Renderer->GetCommandList()->ResourceBarrier(1, &barrier);
 
