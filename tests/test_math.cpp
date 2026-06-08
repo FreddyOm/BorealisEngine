@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/core/math/math.h"
+#include <core/math/math.h>
 
 using namespace Borealis::Math;
 
@@ -458,7 +458,8 @@ TEST(Vector3Test, DotProductWithZeroVector) {
 
 
 
-TEST(Vector4Test, DefaultConstructor) {
+TEST(Vector4Test, DefaultConstructor) 
+{
     Vector4<int> v;
     EXPECT_EQ(v.x, 0);
     EXPECT_EQ(v.y, 0);
@@ -466,7 +467,8 @@ TEST(Vector4Test, DefaultConstructor) {
     EXPECT_EQ(v.w, 0);
 }
 
-TEST(Vector4Test, ParameterizedConstructor) {
+TEST(Vector4Test, ParameterizedConstructor) 
+{
     Vector4<double> v(1.0, 2.0, 3.0, 4.0);
     EXPECT_DOUBLE_EQ(v.x, 1.0);
     EXPECT_DOUBLE_EQ(v.y, 2.0);
@@ -474,7 +476,8 @@ TEST(Vector4Test, ParameterizedConstructor) {
     EXPECT_DOUBLE_EQ(v.w, 4.0);
 }
 
-TEST(Vector4Test, Addition) {
+TEST(Vector4Test, Addition) 
+{
     Vector4<int> v1(1, 2, 3, 4);
     Vector4<int> v2(4, 5, 6, 7);
     Vector4<int> result = v1 + v2;
@@ -484,7 +487,8 @@ TEST(Vector4Test, Addition) {
     EXPECT_EQ(result.w, 11);
 }
 
-TEST(Vector4Test, Subtraction) {
+TEST(Vector4Test, Subtraction) 
+{
     Vector4<int> v1(10, 20, 30, 40);
     Vector4<int> v2(5, 10, 15, 20);
     Vector4<int> result = v1 - v2;
@@ -494,7 +498,8 @@ TEST(Vector4Test, Subtraction) {
     EXPECT_EQ(result.w, 20);
 }
 
-TEST(Vector4Test, ScalarMultiplication) {
+TEST(Vector4Test, ScalarMultiplication) 
+{
     Vector4<int> v(1, 2, 3, 4);
     Vector4<int> result = v * 2.f;
     EXPECT_EQ(result.x, 2);
@@ -503,19 +508,22 @@ TEST(Vector4Test, ScalarMultiplication) {
     EXPECT_EQ(result.w, 8);
 }
 
-TEST(Vector4Test, Equality) {
+TEST(Vector4Test, Equality) 
+{
     Vector4<int> v1(1, 2, 3, 4);
     Vector4<int> v2(1, 2, 3, 4);
     EXPECT_TRUE(v1 == v2);
 }
 
-TEST(Vector4Test, Inequality) {
+TEST(Vector4Test, Inequality) 
+{
     Vector4<int> v1(1, 2, 3, 4);
     Vector4<int> v2(4, 3, 2, 1);
     EXPECT_FALSE(v1 == v2);
 }
 
-TEST(Vector4Test, AdditionWithZero) {
+TEST(Vector4Test, AdditionWithZero) 
+{
     Vector4<int> v(1, 2, 3, 4);
     Vector4<int> zero;
     Vector4<int> result = v + zero;
@@ -525,7 +533,8 @@ TEST(Vector4Test, AdditionWithZero) {
     EXPECT_EQ(result.w, 4);
 }
 
-TEST(Vector4Test, SubtractionWithItself) {
+TEST(Vector4Test, SubtractionWithItself) 
+{
     Vector4<int> v(1, 2, 3, 4);
     Vector4<int> result = v - v;
     EXPECT_EQ(result.x, 0);
@@ -534,11 +543,207 @@ TEST(Vector4Test, SubtractionWithItself) {
     EXPECT_EQ(result.w, 0);
 }
 
-TEST(Vector4Test, ScalarMultiplicationByZero) {
+TEST(Vector4Test, ScalarMultiplicationByZero) 
+{
     Vector4<int> v(2, 3, 4, 5);
     Vector4<int> result = v * 0.f;
     EXPECT_EQ(result.x, 0);
     EXPECT_EQ(result.y, 0);
     EXPECT_EQ(result.z, 0);
     EXPECT_EQ(result.w, 0);
+}
+
+
+// ------------------------- MIN / MAX / CLAMP ------------------------- //
+
+#include <cmath>
+#include <limits>
+#include <random>
+
+static std::mt19937 rng(42);
+
+TEST(MathApi, Clamp)
+{
+    EXPECT_FLOAT_EQ(Clamp(0.5f, 0.0f, 1.0f), 0.5f);
+    EXPECT_FLOAT_EQ(Clamp(5.0f, 1.0f, 10.0f), 5.0f);
+
+    EXPECT_FLOAT_EQ(Clamp(0.0f, 0.0f, 1.0f), 0.0f);
+    EXPECT_FLOAT_EQ(Clamp(-5.0f, -5.0f, 5.0f), -5.0f);
+
+    EXPECT_FLOAT_EQ(Clamp(1.0f, 0.0f, 1.0f), 1.0f);
+    EXPECT_FLOAT_EQ(Clamp(5.0f, -5.0f, 5.0f), 5.0f);
+
+    EXPECT_FLOAT_EQ(Clamp(-1.0f, 0.0f, 1.0f), 0.0f);
+    EXPECT_FLOAT_EQ(Clamp(-999.0f, -10.0f, 10.0f), -10.0f);
+
+    EXPECT_FLOAT_EQ(Clamp(2.0f, 0.0f, 1.0f), 1.0f);
+    EXPECT_FLOAT_EQ(Clamp(999.0f, -10.0f, 10.0f), 10.0f);
+
+    EXPECT_FLOAT_EQ(Clamp(0.0f, 3.0f, 3.0f), 3.0f);
+    EXPECT_FLOAT_EQ(Clamp(3.0f, 3.0f, 3.0f), 3.0f);
+    EXPECT_FLOAT_EQ(Clamp(10.0f, 3.0f, 3.0f), 3.0f);
+
+    EXPECT_FLOAT_EQ(Clamp(-3.0f, -5.0f, -1.0f), -3.0f);
+    EXPECT_FLOAT_EQ(Clamp(0.0f, -5.0f, -1.0f), -1.0f);
+    EXPECT_FLOAT_EQ(Clamp(-9.0f, -5.0f, -1.0f), -5.0f);
+
+    EXPECT_FLOAT_EQ(Clamp(1e-7f, 0.0f, 1e-6f), 1e-7f);
+    EXPECT_FLOAT_EQ(Clamp(1e10f, 0.0f, 1e9f), 1e9f);
+
+    EXPECT_FLOAT_EQ(Clamp(std::numeric_limits<float>::infinity(), 0.0f, 1.0f), 1.0f);
+    EXPECT_FLOAT_EQ(Clamp(-std::numeric_limits<float>::infinity(), 0.0f, 1.0f), 0.0f);
+
+    std::uniform_real_distribution<float> dist(-1000.0f, 1000.0f);
+    for (int i = 0; i < 500; ++i)
+    {
+        float a = dist(rng), b = dist(rng);
+        float lo = std::min(a, b), hi = std::max(a, b);
+        float v = dist(rng);
+        float r = Clamp(v, lo, hi);
+        EXPECT_GE(r, lo) << "Clamp(" << v << ", " << lo << ", " << hi << ") < lo";
+        EXPECT_LE(r, hi) << "Clamp(" << v << ", " << lo << ", " << hi << ") > hi";
+    }
+}
+
+TEST(MathApi, Clamp01)
+{
+    EXPECT_FLOAT_EQ(Clamp01(0.5f), 0.5f);
+    EXPECT_FLOAT_EQ(Clamp01(0.0f), 0.0f);
+    EXPECT_FLOAT_EQ(Clamp01(1.0f), 1.0f);
+
+    EXPECT_FLOAT_EQ(Clamp01(-0.001f), 0.0f);
+    EXPECT_FLOAT_EQ(Clamp01(-1.0f), 0.0f);
+    EXPECT_FLOAT_EQ(Clamp01(-1e10f), 0.0f);
+
+    EXPECT_FLOAT_EQ(Clamp01(1.001f), 1.0f);
+    EXPECT_FLOAT_EQ(Clamp01(2.0f), 1.0f);
+    EXPECT_FLOAT_EQ(Clamp01(1e10f), 1.0f);
+
+    EXPECT_FLOAT_EQ(Clamp01(std::nextafter(0.0f, -1.0f)), 0.0f);
+    EXPECT_FLOAT_EQ(Clamp01(std::nextafter(1.0f, 2.0f)), 1.0f);
+
+    EXPECT_FLOAT_EQ(Clamp01(std::numeric_limits<float>::infinity()), 1.0f);
+    EXPECT_FLOAT_EQ(Clamp01(-std::numeric_limits<float>::infinity()), 0.0f);
+
+    std::uniform_real_distribution<float> dist(-2.0f, 2.0f);
+    for (int i = 0; i < 500; ++i)
+    {
+        float v = dist(rng);
+        EXPECT_FLOAT_EQ(Clamp01(v), Clamp(v, 0.0f, 1.0f))
+            << "Clamp01(" << v << ") != Clamp(" << v << ", 0, 1)";
+    }
+
+    std::uniform_real_distribution<float> wide(-1e6f, 1e6f);
+    for (int i = 0; i < 500; ++i)
+    {
+        float v = wide(rng);
+        float r = Clamp01(v);
+        EXPECT_GE(r, 0.0f) << "Clamp01(" << v << ") < 0";
+        EXPECT_LE(r, 1.0f) << "Clamp01(" << v << ") > 1";
+    }
+}
+
+TEST(MathApi, Min)
+{
+    EXPECT_FLOAT_EQ(Min(1.0f, 5.0f), 1.0f);
+    EXPECT_FLOAT_EQ(Min(-3.0f, 0.0f), -3.0f);
+    EXPECT_FLOAT_EQ(Min(-5.0f, -2.0f), -5.0f);
+    EXPECT_FLOAT_EQ(Min(0.0f, 1e9f), 0.0f);
+
+    EXPECT_FLOAT_EQ(Min(5.0f, 1.0f), 1.0f);
+    EXPECT_FLOAT_EQ(Min(0.0f, -3.0f), -3.0f);
+    EXPECT_FLOAT_EQ(Min(-2.0f, -5.0f), -5.0f);
+    EXPECT_FLOAT_EQ(Min(1e9f, 0.0f), 0.0f);
+
+    EXPECT_FLOAT_EQ(Min(0.0f, 0.0f), 0.0f);
+    EXPECT_FLOAT_EQ(Min(-7.0f, -7.0f), -7.0f);
+    EXPECT_FLOAT_EQ(Min(42.0f, 42.0f), 42.0f);
+
+    EXPECT_FLOAT_EQ(Min(3.0f, 7.0f), Min(7.0f, 3.0f));
+    EXPECT_FLOAT_EQ(Min(-1.0f, -9.0f), Min(-9.0f, -1.0f));
+
+    EXPECT_FLOAT_EQ(Min(-std::numeric_limits<float>::max(), 0.0f),
+        -std::numeric_limits<float>::max());
+    EXPECT_FLOAT_EQ(Min(std::numeric_limits<float>::max(), 0.0f), 0.0f);
+
+    EXPECT_FLOAT_EQ(Min(-std::numeric_limits<float>::infinity(), 1.0f),
+        -std::numeric_limits<float>::infinity());
+    EXPECT_FLOAT_EQ(Min(std::numeric_limits<float>::infinity(), 1.0f), 1.0f);
+    EXPECT_FLOAT_EQ(Min(-std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity()),
+        -std::numeric_limits<float>::infinity());
+
+    std::uniform_real_distribution<float> dist(-1000.0f, 1000.0f);
+    for (int i = 0; i < 500; ++i)
+    {
+        float a = dist(rng), b = dist(rng);
+        float expected = (a < b) ? a : b;
+        float result = Min(a, b);
+        EXPECT_FLOAT_EQ(result, expected)
+            << "Min(" << a << ", " << b << "): got " << result
+            << ", expected " << expected;
+        EXPECT_LE(result, a) << "Min(" << a << ", " << b << ") > a";
+        EXPECT_LE(result, b) << "Min(" << a << ", " << b << ") > b";
+    }
+}
+
+TEST(MathApi, Max)
+{
+    EXPECT_FLOAT_EQ(Max(5.0f, 1.0f), 5.0f);
+    EXPECT_FLOAT_EQ(Max(0.0f, -3.0f), 0.0f);
+    EXPECT_FLOAT_EQ(Max(-2.0f, -5.0f), -2.0f);
+    EXPECT_FLOAT_EQ(Max(1e9f, 0.0f), 1e9f);
+
+    EXPECT_FLOAT_EQ(Max(1.0f, 5.0f), 5.0f);
+    EXPECT_FLOAT_EQ(Max(-3.0f, 0.0f), 0.0f);
+    EXPECT_FLOAT_EQ(Max(-5.0f, -2.0f), -2.0f);
+    EXPECT_FLOAT_EQ(Max(0.0f, 1e9f), 1e9f);
+
+    EXPECT_FLOAT_EQ(Max(0.0f, 0.0f), 0.0f);
+    EXPECT_FLOAT_EQ(Max(-7.0f, -7.0f), -7.0f);
+    EXPECT_FLOAT_EQ(Max(42.0f, 42.0f), 42.0f);
+
+    EXPECT_FLOAT_EQ(Max(3.0f, 7.0f), Max(7.0f, 3.0f));
+    EXPECT_FLOAT_EQ(Max(-1.0f, -9.0f), Max(-9.0f, -1.0f));
+
+    EXPECT_FLOAT_EQ(Max(std::numeric_limits<float>::max(), 0.0f),
+        std::numeric_limits<float>::max());
+    EXPECT_FLOAT_EQ(Max(-std::numeric_limits<float>::max(), 0.0f), 0.0f);
+
+    EXPECT_FLOAT_EQ(Max(std::numeric_limits<float>::infinity(), 1.0f),
+        std::numeric_limits<float>::infinity());
+    EXPECT_FLOAT_EQ(Max(-std::numeric_limits<float>::infinity(), 1.0f), 1.0f);
+    EXPECT_FLOAT_EQ(Max(-std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity()),
+        std::numeric_limits<float>::infinity());
+
+    std::uniform_real_distribution<float> dist(-1000.0f, 1000.0f);
+    for (int i = 0; i < 500; ++i)
+    {
+        float a = dist(rng), b = dist(rng);
+        EXPECT_FLOAT_EQ(Max(a, b), -Min(-a, -b))
+            << "Duality violated for a=" << a << " b=" << b;
+    }
+
+    for (int i = 0; i < 500; ++i)
+    {
+        float a = dist(rng), b = dist(rng);
+        float expected = (a > b) ? a : b;
+        float result = Max(a, b);
+        EXPECT_FLOAT_EQ(result, expected)
+            << "Max(" << a << ", " << b << "): got " << result
+            << ", expected " << expected;
+        EXPECT_GE(result, a) << "Max(" << a << ", " << b << ") < a";
+        EXPECT_GE(result, b) << "Max(" << a << ", " << b << ") < b";
+    }
+
+    std::uniform_real_distribution<float> vDist(-500.0f, 500.0f);
+    for (int i = 0; i < 300; ++i)
+    {
+        float a = vDist(rng), b = vDist(rng);
+        float lo = std::min(a, b), hi = std::max(a, b);
+        float v = vDist(rng);
+        EXPECT_FLOAT_EQ(Min(Max(v, lo), hi), Clamp(v, lo, hi))
+            << "Min(Max(" << v << ", " << lo << "), " << hi << ") != Clamp";
+    }
 }

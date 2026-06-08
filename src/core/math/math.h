@@ -1,4 +1,5 @@
 #pragma once
+#include "../../config.h"
 #include "../types/types.h"
 #include <math.h>
 
@@ -705,7 +706,7 @@ namespace Borealis::Math
 		T w;
 	};
 
-	struct BitMask
+	struct BOREALIS_API BitMask
 	{
 		BitMask() :
 			bitMask(0)
@@ -841,5 +842,45 @@ namespace Borealis::Math
 	private:
 		Borealis::Types::uint64 bitMask;
 	};
+
+	/// <summary>
+	/// Clamps the given input value within the interval [min;max] and returns the result.
+	/// Min and max are inclusive.
+	/// </summary>
+	/// <param name="value">The value to clamp.</param>
+	/// <param name="min">The minimum value that will be returned.</param>
+	/// <param name="max">The maximum value that will be returned.</param>
+	/// <returns>The clamped value.</returns>
+	BOREALIS_API float Clamp(float value, float min, float max);
+
+	/// <summary>
+	/// Clamps the given input value within the interval [0;1] and returns the result.
+	/// Min and max are inclusive.
+	/// </summary>
+	/// <param name="value">The value to clamp.</param>
+	/// <returns>The clamped value.</returns>
+	BOREALIS_API float Clamp01(float value);
+	
+	/// <summary>
+	/// Returns the smaller of two values.
+	/// </summary>
+	/// <param name="a">The first value.</param>
+	/// <param name="b">The second value.</param>
+	/// <returns>a if a < b, otherwise b.</returns>
+	constexpr float Min(float a, float b)
+	{
+		return a < b ? a : b;
+	}
+	
+	/// <summary>
+	/// Returns the greater of two values.
+	/// </summary>
+	/// <param name="a">The first value.</param>
+	/// <param name="b">The second value.</param>
+	/// <returns>a if a > b, otherwise b.</returns>
+	constexpr float Max(float a, float b)
+	{
+		return a > b ? a : b;
+	}
 
 }
