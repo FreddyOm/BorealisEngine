@@ -51,6 +51,11 @@ namespace Borealis::Input
 	unordered_map<Memory::RefCntAutoPtr<Gamepad>, DS5W::DeviceContext> g_DualSenseDeviceContexts{};
 	uint32 g_DualSenseDeviceCount = 0;
 
+	/// <summary>
+	/// Returns a string id for a given input device.
+	/// </summary>
+	/// <param name="deviceInfo">The device's info.</param>
+	/// <returns>A string id for for the respective device.</returns>
 	const static StringId GetDeviceTypeString(GameInputDeviceInfo const* deviceInfo)
 	{
 		switch (deviceInfo->deviceFamily)
@@ -93,6 +98,12 @@ namespace Borealis::Input
 		return hash;
 	}
 
+	/// <summary>
+	/// Retruns the device that is associated with a hashed device ID. 
+	/// Helper function for handling devices and IDs.
+	/// </summary>
+	/// <param name="hashedDeviceID">The hashed device ID.</param>
+	/// <returns></returns>
 	static Memory::RefCntAutoPtr<IInputDevice> FindDevice(uint64 hashedDeviceID)
 	{
 		for (auto& device : g_AllDevices)
@@ -278,12 +289,6 @@ namespace Borealis::Input
 		// Clear gamepads
 		g_pWinGamepadsInternal.clear();
 
-		//g_pGameInput->Release();
-		//g_pGameInput.Reset();
-
-		//g_pGameInputReading->Release();
-		//g_pGameInputReading.Reset();
-
 		// Uninitialize COM
 		CoUninitialize();
 
@@ -302,26 +307,48 @@ namespace Borealis::Input
 		UpdateGameInputState();
 	}
 
+	/// <summary>
+	/// Callback that is called when a device is connected. 
+	/// </summary>
+	/// <param name="device">The device that was just connected.</param>
+	/// <param name="category">The device category (Keyboard, Mouse, Gamepad) of the connected device.</param>
 	void WinInputSystem::OnDeviceConnected(Memory::RefCntAutoPtr<IInputDevice> device, InputDeviceCategory category)
 	{
 		g_AllDevices.insert(device);
 	}
 
+	/// <summary>
+	/// Callback that is called when a device is disconnected. 
+	/// </summary>
+	/// <param name="device">The device that was just connected.</param>
+	/// <param name="category">The device category (Keyboard, Mouse, Gamepad) of the connected device.</param>
 	void WinInputSystem::OnDeviceDisconnected(Memory::RefCntAutoPtr<IInputDevice> device, InputDeviceCategory category)
 	{
 		g_AllDevices.erase(device);
 	}
 
+	/// <summary>
+	/// Returns all devices that are currently connected.
+	/// </summary>
+	/// <returns>A set of unique IInputDevices.</returns>
 	std::set< Memory::RefCntAutoPtr<IInputDevice>>& WinInputSystem::GetAllDevices()
 	{
 		return g_AllDevices;
 	}
 
+	/// <summary>
+	/// Returns the connected mouse and its data.
+	/// </summary>
+	/// <returns>A pointer to the connected mouse.</returns>
 	const Memory::RefCntAutoPtr<Mouse> WinInputSystem::GetMouse() const
 	{
 		return g_Mouse;
 	}
 
+	/// <summary>
+	/// Returns the connected keyboard.
+	/// </summary>
+	/// <returns>A pointer to the connected keyboard.</returns>
 	const Memory::RefCntAutoPtr<Keyboard> WinInputSystem::GetKeyboard() const
 	{
 		return g_Keyboard;
@@ -332,6 +359,9 @@ namespace Borealis::Input
 		return g_GamepadPool.GetActiveElements();
 	}
 
+	/// <summary>
+	/// Registers the win input callback for device (dis-)connection.
+	/// </summary>
 	void WinInputSystem::RegisterDevicesAndCallbacks() noexcept
 	{
 		GameInputCallbackToken token{};
@@ -346,6 +376,9 @@ namespace Borealis::Input
 			, "Failed to register device callback.");
 	}
 
+	/// <summary>
+	/// Registers the DualSense input devices.
+	/// </summary>
 	void WinInputSystem::RegisterDS5WInputDevices()
 	{
 		// TODO: Use this enumeration each frame in order to invoke an event for when a DualSense controller was connected!
@@ -383,6 +416,9 @@ namespace Borealis::Input
 				
 	}
 
+	/// <summary>
+	/// Updates the DualSense input devices connection.
+	/// </summary>
 	void WinInputSystem::PollDS5WDeviceConnections()
 	{
 		const int32 lastNumDualSenseDevices = g_DualSenseDeviceCount;	// Store the previous device count to compare if any device was connected!		
@@ -445,6 +481,9 @@ namespace Borealis::Input
 		}
 	}
 
+	/// <summary>
+	/// Updates the DualSense input device state.
+	/// </summary>
 	void WinInputSystem::UpdateDS5WInputState()
 	{
 		DS5W::DS5InputState inState{};
@@ -532,6 +571,9 @@ namespace Borealis::Input
 		}		
 	}
 
+	/// <summary>
+	/// Updates the GameInput device state.
+	/// </summary>
 	void WinInputSystem::UpdateGameInputState()
 	{
 		HRESULT hRes = {};
