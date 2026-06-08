@@ -5,6 +5,7 @@
 #include "../../input/borealis_devices.h"
 #include "../../memory/ref_cnt_auto_ptr.h"
 #include "../../graphics/helpers/texture.h"
+#include "../../math/math.h"
 #include <cstdio>
 
 namespace Borealis::Runtime::Debug
@@ -76,8 +77,6 @@ namespace Borealis::Runtime::Debug
 
 		void DrawXBOX360DebugLayout(const Input::Gamepad& gamepad)
 		{			
-			//ImGui::SliderFloat("Scale", &g_debugImageScale, 0.1, 3);
-			
 			#ifdef BOREALIS_WIN	// Currently only D3D12 backend is supported, and the rendering resources are only available for win at the moment
 
 			ImVec2 startCursorPos = ImGui::GetCursorScreenPos();
@@ -130,8 +129,7 @@ namespace Borealis::Runtime::Debug
 					ImVec2(0, UVFromCoordinate(691)), ImVec2(UVFromCoordinate(52), UVFromCoordinate(745)));	// Pressed tex
 			}
 
-
-
+			// LT
 			if (gamepad.InputState.ButtonState & Input::LEFT_SHOULDER)
 			{
 				// LB 1 (top view)
@@ -146,6 +144,7 @@ namespace Borealis::Runtime::Debug
 
 			}
 			
+			// RT
 			if (gamepad.InputState.ButtonState & Input::RIGHT_SHOULDER)
 			{
 				// RB 1 (top view)
@@ -261,7 +260,6 @@ namespace Borealis::Runtime::Debug
 		{
 
 			#ifdef BOREALIS_WIN
-			ImGui::SliderFloat("Scale", &g_debugImageScale, 0.1, 3);
 
 			ImVec2 startCursorPos = ImGui::GetCursorScreenPos();
 			ImVec2 lThumPos = ImVec2(gamepad.InputState.LeftThumbstickX, gamepad.InputState.LeftThumbstickY);
@@ -568,10 +566,12 @@ namespace Borealis::Runtime::Debug
 
 			//ImGui::Text("Mouse Position: (x: %.2f | y: %.2f )", mouse.InputState.PositionX, mouse.InputState.PositionY);
 
-			ImGui::SetCursorScreenPos({ startCursorPos.x + 376 * g_debugImageScale, startCursorPos.y + 650 * g_debugImageScale });
+			ImGui::SetCursorScreenPos({ startCursorPos.x + 188 * g_debugImageScale, startCursorPos.y + 325 * g_debugImageScale });
+
+			ImGui::Spacing();
+			ImGui::Spacing();
 
 			g_debugImageScale /= 2;
-
 #endif
 		}
 
@@ -585,6 +585,9 @@ namespace Borealis::Runtime::Debug
 
 		void OnGui() override
 		{
+			// Calc scale factor for all debug graphics.
+			g_debugImageScale = Math::Min(1.0f - Math::Clamp01(150.0f / ImGui::GetContentRegionAvail().x), 0.35f);
+			
 			ImGui::SeparatorText("Device Connections");
 
 			//ImGui::Text("Input Devices connected: %u", pInputSystem->GetAllDevices().size());
@@ -594,8 +597,6 @@ namespace Borealis::Runtime::Debug
 			ImGui::Text("Keyboards connected: %u / 1", pInputSystem->GetKeyboard().IsValid() ? 1 : 0);
 			ImGui::Text("Gamepads connected: %lu / %u", pInputSystem->GetGamepads().size(), Input::MAX_GAMEPADS());
 			
-			//ImGui::Text("More stuff: %u", 123);
-
 			ImGui::Spacing();
 			ImGui::Spacing();
 
