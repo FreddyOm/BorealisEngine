@@ -15,6 +15,13 @@ struct GLFWwindow;
 namespace Borealis::Core
 {
 
+	enum class BOREALIS_API WindowMode
+	{
+		WINDOW,
+		EXCLUSIVE_FULLSCREEN,
+		FULLSCREEN
+	};
+
 	class BOREALIS_API Window
 	{
 		public: 
@@ -25,6 +32,7 @@ namespace Borealis::Core
 			~Window();
 
 			void OpenWindow();
+			void OpenWindow(const Types::uint32 width, const Types::uint32 height);
 			void CloseWindow();
 
 			void UpdateWindow() const;
@@ -33,18 +41,22 @@ namespace Borealis::Core
 			bool IsMaximized() const;
 			bool IsOpen() const;
 			
-			Types::uint16 GetWindowWidth() const;
-			Types::uint16 GetWindowHeight() const;
+			Types::uint32 GetWindowWidth() const;
+			Types::uint32 GetWindowHeight() const;
 
 			Types::uint64 GetNativeWindowHandle() const;
 			GLFWwindow* GetGLFWWindow() const;
 			
-			void SetWindowName(std::string name);
+			void SetWindowName(const std::string name);
 			Types::StringId GetWindowName() const;
+
+			void SetWindowMode(const WindowMode);
+			const WindowMode GetWindowMode() const;
 
 		private:
 			
-			std::string windowName{};
+			std::string m_windowName{};
 			GLFWwindow* m_pWindow = nullptr;
+			WindowMode m_WindowMode = WindowMode::WINDOW;
 	};
 }

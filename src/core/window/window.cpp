@@ -64,9 +64,17 @@ namespace Borealis::Core
 	}
 
 	/// <summary>
-	/// Opens up the window with the specified window name.
+	/// Opens up the window with the default window size.
 	/// </summary>
 	void Window::OpenWindow()
+	{
+		OpenWindow(1920, 1080);
+	}
+
+	/// <summary>
+	/// Opens up the window with the specified window size.
+	/// </summary>
+	void Window::OpenWindow(const Types::uint32 width, const Types::uint32 height)
 	{
 
 #ifdef BOREALIS_WIN
@@ -78,10 +86,11 @@ namespace Borealis::Core
 		// TODO: For UNIX and OSX we currently assume that Vulkan will be used!
 #endif
 
-		m_pWindow = glfwCreateWindow(1280, 720, m_windowName.c_str(), NULL, NULL);
+		m_pWindow = glfwCreateWindow(width, height, m_windowName.c_str(), NULL, NULL);
 		Assert(m_pWindow, 
 			"Failed to create the GLFW window!");
 	}
+
 
 	/// <summary>
 	/// Closes the window.
@@ -108,7 +117,7 @@ namespace Borealis::Core
 	/// Returns the width of the window.
 	/// </summary>
 	/// <returns>The window width.</returns>
-	uint16 Window::GetWindowWidth() const
+	uint32 Window::GetWindowWidth() const
 	{
 		if (!IsOpen())
 			return 0;
@@ -123,7 +132,7 @@ namespace Borealis::Core
 	/// Returns the height of the window.
 	/// </summary>
 	/// <returns>The window height.</returns>
-	uint16 Window::GetWindowHeight() const
+	uint32 Window::GetWindowHeight() const
 	{
 		if (!IsOpen())
 			return 0;
@@ -161,7 +170,7 @@ namespace Borealis::Core
 	/// Sets the window name. This will change the title of the window.
 	/// </summary>
 	/// <param name="name">The new window name.</param>
-	void Window::SetWindowName(std::string name)
+	void Window::SetWindowName(const std::string name)
 	{
 		Assert(IsOpen(), "Cannot set the window name on an uninitialized or terminated window!");
 
@@ -176,6 +185,45 @@ namespace Borealis::Core
 	Types::StringId Window::GetWindowName() const
 	{
 		return String(m_windowName.c_str());
+	}
+
+	void Window::SetWindowMode(const WindowMode mode)
+	{
+		if (m_WindowMode == mode)
+			return;
+
+		GLFWmonitor* p_glfwMonitor = glfwGetPrimaryMonitor();
+		const auto* p_vidMode = glfwGetVideoMode(p_glfwMonitor);
+
+		switch (mode)
+		{
+			case WindowMode::FULLSCREEN:
+			{
+				glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+				glfwSetWindowMonitor(m_pWindow, p_glfwMonitor, 0, 0, p_vidMode->width, p_vidMode->height, GLFW_DONT_CARE);
+				m_WindowMode = WindowMode::FULLSCREEN;
+				break;
+			}
+			case WindowMode::EXCLUSIVE_FULLSCREEN:	// TODO: Fix me! Exclusive window mode does not work correctly yet! There are still some issues!
+			{
+				glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+				glfwSetWindowMonitor(m_pWindow, NULL, 0, 0, p_vidMode->width, p_vidMode->height, GLFW_DONT_CARE);
+				m_WindowMode = WindowMode::EXCLUSIVE_FULLSCREEN;
+				break;
+			}
+			default:
+			case WindowMode::WINDOW:
+			{
+				glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+				glfwSetWindowMonitor(m_pWindow, NULL, 0, 60, 1920, 1080, GLFW_DONT_CARE);
+				m_WindowMode = WindowMode::WINDOW;
+				break;
+			}
+		}
+	}
+	const WindowMode Window::GetWindowMode() const
+	{
+		return m_WindowMode;
 	}
 }
 
