@@ -38,7 +38,7 @@ namespace Borealis::Core
 	}
 
 	Window::Window()
-		: windowName("Default Window")
+		: m_windowName("Default Window")
 	{
 		if (!glfwInit())
 		{
@@ -48,7 +48,7 @@ namespace Borealis::Core
 	}
 
 	Window::Window(std::string windowName)
-		: windowName(windowName)
+		: m_windowName(windowName)
 	{
 		if (!glfwInit())
 		{
@@ -78,7 +78,7 @@ namespace Borealis::Core
 		// TODO: For UNIX and OSX we currently assume that Vulkan will be used!
 #endif
 
-		m_pWindow = glfwCreateWindow(1280, 720, windowName.c_str(), NULL, NULL);
+		m_pWindow = glfwCreateWindow(1280, 720, m_windowName.c_str(), NULL, NULL);
 		Assert(m_pWindow, 
 			"Failed to create the GLFW window!");
 	}
@@ -165,8 +165,8 @@ namespace Borealis::Core
 	{
 		Assert(IsOpen(), "Cannot set the window name on an uninitialized or terminated window!");
 
-		windowName = name;
-		glfwSetWindowTitle(m_pWindow, windowName.c_str());
+		m_windowName = name;
+		glfwSetWindowTitle(m_pWindow, m_windowName.c_str());
 	}
 
 	/// <summary>
@@ -175,7 +175,7 @@ namespace Borealis::Core
 	/// <returns>A string ID with the window name / id. Is only human-readable during debug modes.</returns>
 	Types::StringId Window::GetWindowName() const
 	{
-		return String(windowName.c_str());
+		return String(m_windowName.c_str());
 	}
 }
 
