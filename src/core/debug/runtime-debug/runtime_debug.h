@@ -57,15 +57,12 @@ namespace Borealis::Runtime::Debug
 				//new RuntimePauseLabel("Runtime Pause Label", inter_bold, ImVec2(labelHeight, labelHeight)),
 				Memory::RefCntAutoPtr<FrameTimeDebugInfoLabel>::Allocate(Types::String("Game Update Time"), inter_bold, ImVec2(260, labelHeight)),
 				Memory::RefCntAutoPtr<WindowModeDebugInfoLabel>::Allocate(pWindow, Types::String("Window Mode"), inter_bold, ImVec2(250, labelHeight)),
-				//new FrameTimeDebugInfoLabel(Types::String("Game Update Time"), inter_bold, ImVec2(260, labelHeight)),
-				//new WindowModeDebugInfoLabel(pWindow, Types::String("Window Mode"), inter_bold, ImVec2(250, labelHeight)),
 				//new ImGuiDebugInfoLabel("ImGui Update Time", inter_bold, pImgui_process_time_ms, ImVec2(115, labelHeight)),
 				//new PhysicsTimeDebugInfoLabel("Physics Update Time", inter_bold, ImVec2(115, labelHeight)),
 				//new ConsoleDebugInfoLabel("Console Info", inter_bold, GetGUIDrawablePtrs(), ImVec2(130, labelHeight)),
 				
 				// The filter is always the last one
 				Memory::RefCntAutoPtr<DebugLabelFilter>::Allocate(Types::String("Filter"), inter_bold, &debugLabels, ImVec2(labelHeight, labelHeight)),
-				//new DebugLabelFilter(Types::String("Filter"), inter_bold, &debugLabels, ImVec2(labelHeight, labelHeight)),
 			};
 		}
 		
