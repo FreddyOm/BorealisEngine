@@ -9,6 +9,7 @@
 #include "debug_category_button.h"
 #include "debug_info_label.h"
 
+#include "info_labels.h"
 #include "input_debugger.h"
 #include "memory_debugger.h"
 
@@ -30,22 +31,23 @@ namespace Borealis::Runtime::Debug
 			Graphics::Helpers::IBorealisRenderer& renderer
 			, Input::InputSystem* pInputSystem
 			, Memory::RefCntAutoPtr<Borealis::Graphics::Texture> debugTexAtlas
+			, Core::Window* pWindow
 		)
 			: m_Renderer(renderer), IGUIDrawable(true)
 		{ 
+			Memory::MemAllocJanitor janitor(Memory::MemAllocatorContext::RENDERING_DEBUG);
 
 			// First, register all debug windows (deriving from IGUIDrawable)
-			runtimeGUIDrawables.push_back(new InputDebugger(pInputSystem, debugTexAtlas));
-			runtimeGUIDrawables.push_back(new MemoryDebugger());
-			//runtimeGUIDrawables.push_back(new InputDebugger());
+			runtimeGUIDrawables.push_back(Memory::RefCntAutoPtr<InputDebugger>::Allocate(pInputSystem, debugTexAtlas));
+			runtimeGUIDrawables.push_back(Memory::RefCntAutoPtr<MemoryDebugger>::Allocate());
 
 			// Then, register category buttons, passing the runtimeGUIDrawables for "click" events
 			categoryButtons =
 			{
-				DebugCategoryButton(ImVec2(100,100), &runtimeGUIDrawables, Types::String("CatA")),
-				DebugCategoryButton(ImVec2(100,100), &runtimeGUIDrawables, Types::String("CatB")),
-				DebugCategoryButton(ImVec2(100,100), &runtimeGUIDrawables, Types::String("CatC")),
-				DebugCategoryButton(ImVec2(100,100), &runtimeGUIDrawables, Types::String("CatD")),
+				Memory::RefCntAutoPtr<DebugCategoryButton>::Allocate(ImVec2(100,100), &runtimeGUIDrawables, Types::String("CatA")),
+				Memory::RefCntAutoPtr<DebugCategoryButton>::Allocate(ImVec2(100,100), &runtimeGUIDrawables, Types::String("CatB")),
+				Memory::RefCntAutoPtr<DebugCategoryButton>::Allocate(ImVec2(100,100), &runtimeGUIDrawables, Types::String("CatC")),
+				Memory::RefCntAutoPtr<DebugCategoryButton>::Allocate(ImVec2(100,100), &runtimeGUIDrawables, Types::String("CatD")),
 			};
 
 			//Finally, create labels for better overview and customized statistics
@@ -53,33 +55,27 @@ namespace Borealis::Runtime::Debug
 			debugLabels =
 			{
 				//new RuntimePauseLabel("Runtime Pause Label", inter_bold, ImVec2(labelHeight, labelHeight)),
-				//new FrameTimeDebugInfoLabel("Game Update Time", inter_bold, ImVec2(130, labelHeight)),
+				Memory::RefCntAutoPtr<FrameTimeDebugInfoLabel>::Allocate(Types::String("Game Update Time"), inter_bold, ImVec2(260, labelHeight)),
+				Memory::RefCntAutoPtr<WindowModeDebugInfoLabel>::Allocate(pWindow, Types::String("Window Mode"), inter_bold, ImVec2(250, labelHeight)),
+				//new FrameTimeDebugInfoLabel(Types::String("Game Update Time"), inter_bold, ImVec2(260, labelHeight)),
+				//new WindowModeDebugInfoLabel(pWindow, Types::String("Window Mode"), inter_bold, ImVec2(250, labelHeight)),
 				//new ImGuiDebugInfoLabel("ImGui Update Time", inter_bold, pImgui_process_time_ms, ImVec2(115, labelHeight)),
 				//new PhysicsTimeDebugInfoLabel("Physics Update Time", inter_bold, ImVec2(115, labelHeight)),
 				//new ConsoleDebugInfoLabel("Console Info", inter_bold, GetGUIDrawablePtrs(), ImVec2(130, labelHeight)),
-				//
-				//// The filter is always the last one
-				//new DebugLabelFilter("Filter", inter_bold, &labels, ImVec2(20, labelHeight)),
+				
+				// The filter is always the last one
+				Memory::RefCntAutoPtr<DebugLabelFilter>::Allocate(Types::String("Filter"), inter_bold, &debugLabels, ImVec2(labelHeight, labelHeight)),
+				//new DebugLabelFilter(Types::String("Filter"), inter_bold, &debugLabels, ImVec2(labelHeight, labelHeight)),
 			};
 		}
 		
 		~RuntimeDebugger()
 		{
-			Detatch();
-
-			for (auto* runtimeDebugWindow : runtimeGUIDrawables)
-			{
-				delete runtimeDebugWindow;
-			}
-
 			runtimeGUIDrawables.clear();
-
-			for (auto* label : debugLabels)
-			{
-				delete label;
-			}
-
+			categoryButtons.clear();
 			debugLabels.clear();
+
+			Detatch();
 		}
 
 		BOREALIS_DELETE_COPY_CONSTRUCT(RuntimeDebugger)
@@ -105,13 +101,11 @@ namespace Borealis::Runtime::Debug
 		
 		ImGuiWindowFlags flags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove;
 
+		std::vector<Memory::RefCntAutoPtr<IGUIDrawable>> runtimeGUIDrawables = {};
+		std::vector<Memory::RefCntAutoPtr<Runtime::Debug::DebugCategoryButton>> categoryButtons = { };
+		std::vector<Memory::RefCntAutoPtr<Runtime::Debug::DebugInfoLabel>> debugLabels = { };
 
-		std::vector<IGUIDrawable*> runtimeGUIDrawables = {};
-
-		std::vector<Runtime::Debug::DebugCategoryButton> categoryButtons = { };
-		std::vector<Runtime::Debug::DebugInfoLabel*> debugLabels = { };
-
-		float labelHeight = 18.f;
+		float labelHeight = 34.f;
 		static ImDrawData* p_drawData;
 	};
 }

@@ -28,12 +28,12 @@ int main()
 
 		Borealis::Memory::RefCntAutoPtr<Borealis::Graphics::Texture> debugTexAtlas = renderer.CreateTexture(L"D:\\02_Repositories\\BorealisEngine\\out\\build\\x64-Debug\\sandbox\\resources\\textures\\input-debug-tex-atlas.png");
 		
-		InputSystem inputSystem = InputSystem();
+		InputSystem inputSystem = InputSystem(sandboxWindow.GetGLFWWindow());
 
 #if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
 
 		Helpers::IBorealisRenderer& baseRend = dynamic_cast<Helpers::IBorealisRenderer&>(renderer);
-		RuntimeDebugger runtimeDebugger = RuntimeDebugger(baseRend, &inputSystem, debugTexAtlas);
+		RuntimeDebugger runtimeDebugger = RuntimeDebugger(baseRend, &inputSystem, debugTexAtlas, &sandboxWindow);
 		runtimeDebugger.Attatch(sandboxWindow.GetGLFWWindow());
 #endif
 

@@ -10,7 +10,7 @@
 
 namespace Borealis::Runtime::Debug
 {
-	static float g_debugImageScale = 1.0f;
+	float g_debugImageScale = 1.0f;
 
 	class InputDebugger : public IGUIDrawable
 	{
@@ -564,9 +564,14 @@ namespace Borealis::Runtime::Debug
 					ImVec2(UVFromCoordinate(800), UVFromCoordinate(909)), ImVec2(UVFromCoordinate(817), UVFromCoordinate(962)));
 			}
 
-			//ImGui::Text("Mouse Position: (x: %.2f | y: %.2f )", mouse.InputState.PositionX, mouse.InputState.PositionY);
+			ImGui::SetCursorScreenPos({ startCursorPos.x + 188 * g_debugImageScale, startCursorPos.y + 330 * g_debugImageScale });
+			
+			ImGui::Spacing();
+			ImGui::Spacing();
 
-			ImGui::SetCursorScreenPos({ startCursorPos.x + 188 * g_debugImageScale, startCursorPos.y + 325 * g_debugImageScale });
+			ImGui::Text("Mouse Position: (x: %.2f | y: %.2f )", mouse.InputState.PositionX, mouse.InputState.PositionY);
+			ImGui::Text("Scroll Wheel: (x: %.1f | y: %.1f )", mouse.InputState.WheelX, mouse.InputState.WheelY);
+
 
 			ImGui::Spacing();
 			ImGui::Spacing();
@@ -586,7 +591,7 @@ namespace Borealis::Runtime::Debug
 		void OnGui() override
 		{
 			// Calc scale factor for all debug graphics.
-			g_debugImageScale = Math::Min(1.0f - Math::Clamp01(150.0f / ImGui::GetContentRegionAvail().x), 0.35f);
+			g_debugImageScale = Math::Max(1.0f - Math::Clamp01(150.0f / ImGui::GetContentRegionAvail().x), 0.35f);
 			
 			ImGui::SeparatorText("Device Connections");
 

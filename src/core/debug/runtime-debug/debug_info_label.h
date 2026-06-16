@@ -1,7 +1,7 @@
 #pragma once
-//#include "../../../config.h"
 #include "../../types/string_id.h"
 #include "imgui/imgui.h"
+#include "../../helpers/macros.h"
 
 namespace Borealis::Runtime::Debug
 {
@@ -12,7 +12,7 @@ namespace Borealis::Runtime::Debug
 			ImVec2 size = ImVec2(0, 0),
 			ImVec4 bg_color = ImVec4(0.5f, 0.5f, 0.5f, 0.2f),
 			ImVec4 text_color = ImVec4(1, 1, 1, 0.8f))
-			: isActive(isActive), labelName(labelName), pFont(pFont), size(size), bg_color(bg_color), text_color(text_color)
+			: isActive(isActive), labelName(labelName), m_pFont(pFont), m_Size(size), m_BgColor(bg_color), m_TextColor(text_color)
 		{ }
 
 		~DebugInfoLabel() = default;
@@ -32,9 +32,9 @@ namespace Borealis::Runtime::Debug
 		Types::StringId labelName = Types::String("");
 
 	protected:
-		ImFont* pFont = nullptr;
-		ImVec2 size = {};
-		ImVec4 bg_color = {};
-		ImVec4 text_color = {};
+		ImFont* m_pFont = nullptr;
+		ImVec2 m_Size = {};
+		ImVec4 m_BgColor = {};
+		ImVec4 m_TextColor = {};
 	};
 }

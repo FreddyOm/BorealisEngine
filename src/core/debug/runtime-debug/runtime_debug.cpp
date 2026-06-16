@@ -105,17 +105,13 @@ namespace Borealis::Runtime::Debug
 		// Use CCE Colors
 		ImGui::StyleColorsBorealis();
 
-		// Set Window specs1
-		ImGui::GetStyle().WindowRounding = 4.0f;
-		ImGui::GetStyle().ChildRounding = 4.0f;
-		ImGui::GetStyle().FrameRounding = 1.0f;
+		// Set Window specs
+		ImGui::GetStyle().WindowRounding = 6.0f;
+		ImGui::GetStyle().ChildRounding = 6.0f;
+		ImGui::GetStyle().FrameRounding = 6.0f;
 		ImGui::GetStyle().GrabRounding = 0.0f;
-		ImGui::GetStyle().PopupRounding = 4.0f;
-		ImGui::GetStyle().ScrollbarRounding = 4.0f;
-
-		// TODO: Hook the editors input calls to the engines input
-		//Input::InputCallback = &ImGui_ImplWin32_WndProcHandler;
-		//ImGui_ImplGlfw_InstallCallbacks(pWindow);
+		ImGui::GetStyle().PopupRounding = 6.0f;
+		ImGui::GetStyle().ScrollbarRounding = 6.0f;
 
 		// Setup scaling
 		ImGuiStyle& style = ImGui::GetStyle();
@@ -334,7 +330,7 @@ namespace Borealis::Runtime::Debug
 			
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(30, 20));
 
-			for (auto* runtimeDebugWindow : runtimeGUIDrawables)
+			for (auto& runtimeDebugWindow : runtimeGUIDrawables)
 			{
 				runtimeDebugWindow->UpdateDrawable();
 			}
@@ -345,14 +341,14 @@ namespace Borealis::Runtime::Debug
 
 	void RuntimeDebugger::DrawCategoryButtons()
 	{
-		ImGui::SetNextWindowPos(ImVec2(0, 0));
-		ImGui::SetNextWindowSize(ImVec2(80, 200));
+		ImGui::SetNextWindowPos(ImVec2(0,20));
+		ImGui::SetNextWindowSize(ImVec2(150, 500));
 
 		ImGui::Begin("Debug Categories", &isOpen, flags);
 
 		for (Types::uint16 i = 0; i < categoryButtons.size(); ++i)
 		{
-			categoryButtons[i].Draw(i); 
+			categoryButtons[i]->Draw(i);
 		}
 
 		ImGui::End();
@@ -360,10 +356,10 @@ namespace Borealis::Runtime::Debug
 
 	void RuntimeDebugger::DrawDebugInfoLabels()
 	{
-		ImGui::SetNextWindowPos(ImVec2(50, 0));
-		ImGui::SetNextWindowSize(ImVec2(600, 40));
+		ImGui::SetNextWindowPos(ImVec2(130, 20));
+		ImGui::SetNextWindowSize(ImVec2(1000, 100));
 
-		ImGui::Begin("FPSStats", &isOpen, flags);
+		ImGui::Begin("DebugInfoLabels", &isOpen, flags);
 
 		for (Types::uint16 i = 0; i < debugLabels.size(); ++i)
 		{

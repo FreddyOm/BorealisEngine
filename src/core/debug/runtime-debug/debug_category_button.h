@@ -2,6 +2,7 @@
 #include "../../helpers/macros.h"
 #include "../../types/string_id.h"
 #include "../../types/types.h"
+#include "../../memory/ref_cnt_auto_ptr.h"
 #include "imgui/imgui.h"
 
 #include <vector>
@@ -13,7 +14,7 @@ namespace Borealis::Runtime::Debug
 	struct DebugCategoryButton
 	{
 	public:
-		DebugCategoryButton(ImVec2 size, std::vector<IGUIDrawable*>* pDrawables, Types::StringId id)
+		DebugCategoryButton(ImVec2 size, std::vector<Memory::RefCntAutoPtr<IGUIDrawable>>* pDrawables, Types::StringId id)
 			: size(size), pDrawables(pDrawables), id(id)
 		{ }
 
@@ -28,7 +29,7 @@ namespace Borealis::Runtime::Debug
 
 	private:
 		ImVec2 size{};
-		std::vector<IGUIDrawable*>* pDrawables;
+		std::vector<Memory::RefCntAutoPtr<IGUIDrawable>>* pDrawables;
 		Types::StringId id = Types::String("default");
 
 		static ImVec4 normalColor;

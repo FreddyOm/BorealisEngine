@@ -14,6 +14,8 @@ enum GameInputDeviceStatus;
 struct IGameInputDevice;
 #endif
 
+struct GLFWwindow;
+
 namespace Borealis::Input
 {	
     struct IInputSystemBase
@@ -41,7 +43,7 @@ namespace Borealis::Input
 
     struct BOREALIS_API WinInputSystem : public IInputSystemBase
     {
-        WinInputSystem();
+        WinInputSystem(GLFWwindow* window);
         ~WinInputSystem() override;
 
         BOREALIS_DELETE_COPY_CONSTRUCT(WinInputSystem)
@@ -67,6 +69,10 @@ namespace Borealis::Input
         void PollDS5WDeviceConnections();
         void UpdateDS5WInputState();
         void UpdateGameInputState();
+
+    private:
+
+        GLFWwindow* m_GLFWWindow = nullptr;
 	};
 
 #elif BOREALIS_LINUX

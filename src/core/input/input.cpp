@@ -9,6 +9,7 @@
 
 #include <unordered_map>
 #include <set>
+#include <GLFW/glfw3.h>
 
 #ifdef BOREALIS_WIN
 // DualSense
@@ -261,8 +262,8 @@ namespace Borealis::Input
 	}
 
 
-
-	WinInputSystem::WinInputSystem()
+	WinInputSystem::WinInputSystem(GLFWwindow* window)
+		: m_GLFWWindow(window)
 	{
 		// Initialize COM
 		Assert(SUCCEEDED(CoInitializeEx(nullptr, COINIT_MULTITHREADED)), "Failed to initialize COM!");
@@ -299,6 +300,9 @@ namespace Borealis::Input
 
 	void WinInputSystem::UpdateInputState()
 	{
+		g_Mouse->InputState.WheelX = 0;
+		g_Mouse->InputState.WheelY = 0;
+
 		// Manually check for device changes in Dual Sense input
 		PollDS5WDeviceConnections();
 
@@ -359,6 +363,12 @@ namespace Borealis::Input
 		return g_GamepadPool.GetActiveElements();
 	}
 
+	void GLFWScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+	{
+		g_Mouse->InputState.WheelX = xoffset;
+		g_Mouse->InputState.WheelY = yoffset;
+	}
+
 	/// <summary>
 	/// Registers the win input callback for device (dis-)connection.
 	/// </summary>
@@ -374,6 +384,8 @@ namespace Borealis::Input
 			OnDeviceStatusChanged,												// Callback function
 			&g_gameInputCallbackToken)) 										// Generated token
 			, "Failed to register device callback.");
+
+		glfwSetScrollCallback(m_GLFWWindow, GLFWScrollCallback);
 	}
 
 	/// <summary>
@@ -578,21 +590,54 @@ namespace Borealis::Input
 	{
 		HRESULT hRes = {};
 
-		hRes = g_pGameInput->GetCurrentReading(GameInputKindMouse, /*g_pWinMouseInternal*/nullptr, &g_pGameInputReading);
+		hRes = g_pGameInput->GetCurrentReading(GameInputKindMouse, nullptr, &g_pGameInputReading);
 		Assert(SUCCEEDED(hRes), "Failed to get the current reading for the Mouse input device!");
 
 		if (SUCCEEDED(hRes))
 		{
 			GameInputMouseState state;
-			if (g_pGameInputReading->GetMouseState(&state))
+			if (g_pGameInputReading->GetMouseState(&state) && m_GLFWWindow != nullptr)
 			{
-				g_Mouse->InputState.PositionX = state.positionX;
-				g_Mouse->InputState.PositionY = state.positionY;
 
-				g_Mouse->InputState.WheelX = state.wheelX;
-				g_Mouse->InputState.WheelY = state.wheelY;
+				// Wheel
+				//g_Mouse->InputState.WheelX = state.wheelX;
+				//g_Mouse->InputState.WheelY = state.wheelY;
 
-				g_Mouse->InputState.buttonState = state.buttons;
+				// Using glfw input for mouse for compatibility and ease of use!
+
+				// Cursor position
+				double xpos, ypos;
+				glfwGetCursorPos(m_GLFWWindow, &xpos, &ypos);
+
+				g_Mouse->InputState.PositionX = (float)xpos;
+				g_Mouse->InputState.PositionY = (float)ypos;
+
+				// LMB
+				g_Mouse->InputState.buttonState = 
+					(g_Mouse->InputState.buttonState & ~AbstractMouseButtons::BUTTON_LEFT) | 
+					(glfwGetMouseButton(m_GLFWWindow, GLFW_MOUSE_BUTTON_LEFT) ? AbstractMouseButtons::BUTTON_LEFT : 0);
+				
+				// RMB
+				g_Mouse->InputState.buttonState = 
+					(g_Mouse->InputState.buttonState & ~AbstractMouseButtons::BUTTON_RIGHT) | 
+					(glfwGetMouseButton(m_GLFWWindow, GLFW_MOUSE_BUTTON_RIGHT) ? AbstractMouseButtons::BUTTON_RIGHT : 0);
+
+				// MMB
+				g_Mouse->InputState.buttonState =
+					(g_Mouse->InputState.buttonState & ~AbstractMouseButtons::BUTTON_MIDDLE) |
+					(glfwGetMouseButton(m_GLFWWindow, GLFW_MOUSE_BUTTON_MIDDLE) ? AbstractMouseButtons::BUTTON_MIDDLE : 0);
+
+				// Extra 1
+				g_Mouse->InputState.buttonState =
+					(g_Mouse->InputState.buttonState & ~AbstractMouseButtons::BUTTON_EXTRA1) |
+					(glfwGetMouseButton(m_GLFWWindow, GLFW_MOUSE_BUTTON_4) ? AbstractMouseButtons::BUTTON_EXTRA1 : 0);
+
+				// Extra 2
+				g_Mouse->InputState.buttonState =
+					(g_Mouse->InputState.buttonState & ~AbstractMouseButtons::BUTTON_EXTRA2) |
+					(glfwGetMouseButton(m_GLFWWindow, GLFW_MOUSE_BUTTON_5) ? AbstractMouseButtons::BUTTON_EXTRA2 : 0);
+
+
 			}			
 		}
 		

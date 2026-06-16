@@ -75,7 +75,6 @@ set(COMMON_SOURCES
     core/debug/logger_internal.cpp
     core/debug/runtime-debug/runtime_debug.cpp
     core/debug/runtime-debug/IGUI_drawable.cpp
-    core/debug/runtime-debug/editor_window.cpp
     core/debug/runtime-debug/debug_category_button.cpp
     core/debug/runtime-debug/imgui/imgui.cpp
     core/debug/runtime-debug/imgui/imgui_demo.cpp
@@ -111,9 +110,9 @@ set(COMMON_HEADERS
     core/debug/logger_internal.h
     core/debug/runtime-debug/runtime_debug.h
     core/debug/runtime-debug/debug_info_label.h
+    core/debug/runtime-debug/info_labels.h
     core/debug/runtime-debug/debug_category_button.h
     core/debug/runtime-debug/IGUI_drawable.h
-    core/debug/runtime-debug/editor_window.h
     core/debug/runtime-debug/imgui/imconfig.h
     core/debug/runtime-debug/imgui/imgui.h
     core/debug/runtime-debug/imgui/imgui_impl_vulkan.h
