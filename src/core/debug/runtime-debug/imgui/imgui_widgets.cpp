@@ -1498,7 +1498,7 @@ void ImGui::Bullet()
 }
 
 
-bool ImGui::DynamicTextButton(const char* fmt, ImGuiButtonFlags flags, const ImVec2& size_arg, ...)
+bool ImGui::DynamicTextButton(ImGuiButtonFlags flags, const ImVec2 size_arg, const char* fmt, ...)
 {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems)
@@ -1508,7 +1508,7 @@ bool ImGui::DynamicTextButton(const char* fmt, ImGuiButtonFlags flags, const ImV
     const ImGuiStyle& style = g.Style;
 
     va_list args;
-    va_start(args, &size_arg);
+    va_start(args, fmt);
 
     const char* text, * text_end;
     ImFormatStringToTempBufferV(&text, &text_end, fmt, args);
@@ -1552,7 +1552,7 @@ bool ImGui::DynamicTextButton(const char* fmt, ImGuiButtonFlags flags, const ImV
     return pressed;
 }
 
-bool ImGui::DynamicTextButtonV(const char* fmt, ImGuiButtonFlags flags, const ImVec2& size_arg, va_list args)
+bool ImGui::DynamicTextButtonV(ImGuiButtonFlags flags, const ImVec2& size_arg, const char* fmt, va_list args)
 {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems)

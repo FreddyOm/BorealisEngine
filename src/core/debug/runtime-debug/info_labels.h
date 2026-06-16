@@ -34,7 +34,7 @@ namespace Borealis::Runtime::Debug
 
 			DebugInfoLabel::Draw();
 
-			ImGui::DynamicTextButton("%.1d (%.1fms, avg %.1fms)", 0, m_Size, 0, 0, 0);
+			ImGui::DynamicTextButton(0, m_Size, "%.1d (%.1fms, avg %.1fms)", 0, 0, 0);
 			//ImGui::DynamicTextButton("%.1d (%.1fms, avg %.1fms)", 0, size,
 			//	static_cast<int>((1.0 / Time::deltaTime)), Time::deltaTime * 1000.0, Time::GetAverageFrameTime() * 1000.0);
 			ImGui::SameLine();
@@ -75,7 +75,7 @@ namespace Borealis::Runtime::Debug
 
 			DebugInfoLabel::Draw();
 
-			if (ImGui::DynamicTextButton("Mode: %s", 0, m_Size, m_Modes[m_CurrentMode]))
+			if (ImGui::DynamicTextButton(0, m_Size, "Mode: %s", m_Modes[m_CurrentMode]))
 			{
 				m_CurrentMode = ++m_CurrentMode % 3;
 				m_pWindow->SetWindowMode((Core::WindowMode)m_CurrentMode);
@@ -116,7 +116,7 @@ namespace Borealis::Runtime::Debug
 			ImGui::PushStyleColor(ImGuiCol_Button, m_BgColor);
 
 			DebugInfoLabel::Draw();
-			if (ImGui::DynamicTextButton("+", 0, m_Size))
+			if (ImGui::DynamicTextButton(0, m_Size, "+"))
 				ImGui::OpenPopup("LabelFilter");
 			if (ImGui::BeginPopup("LabelFilter"))
 			{
