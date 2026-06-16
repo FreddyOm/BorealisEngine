@@ -34,7 +34,7 @@ namespace Borealis::Runtime::Debug
 
 			DebugInfoLabel::Draw();
 
-			ImGui::DynamicTextButton(0, m_Size, "%.1d (%.1fms, avg %.1fms)", 0, 0, 0);
+			ImGui::DynamicTextButton(0, m_Size, "%d (%.1fms, avg %.1fms)", 0, 0.0f, 0.0f);
 			//ImGui::DynamicTextButton("%.1d (%.1fms, avg %.1fms)", 0, size,
 			//	static_cast<int>((1.0 / Time::deltaTime)), Time::deltaTime * 1000.0, Time::GetAverageFrameTime() * 1000.0);
 			ImGui::SameLine();
