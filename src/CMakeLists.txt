@@ -135,7 +135,6 @@ set(COMMON_HEADERS
     core/graphics/pipeline_config.h
     core/graphics/vulkan/borealis_vulkan.h
     core/graphics/helpers/helpers.h
-    core/graphics/helpers/gbuffer.h
     core/graphics/helpers/texture.h
     core/helpers/events.h
     core/helpers/macros.h
