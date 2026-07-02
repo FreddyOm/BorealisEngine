@@ -57,6 +57,8 @@ namespace Borealis::Runtime::Debug
 				return "Frame Allocator";
 			case Memory::MemAllocatorContext::DEFAULT:
 				return "Default Allocator";
+				case Memory::MemAllocatorContext::CORESYS:
+				return "Core Sys Allocator";
 			case Memory::MemAllocatorContext::DEBUG:
 				return "Debug Allocator";
 			case Memory::MemAllocatorContext::STATIC:

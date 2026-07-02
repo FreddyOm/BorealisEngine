@@ -265,6 +265,8 @@ namespace Borealis::Input
 	WinInputSystem::WinInputSystem(GLFWwindow* window)
 		: m_GLFWWindow(window)
 	{
+		Assert(window, "GLFWwindow handle is NULL! Make sure to call OpenWindow() before initializing the input system.");
+
 		// Initialize COM
 		Assert(SUCCEEDED(CoInitializeEx(nullptr, COINIT_MULTITHREADED)), "Failed to initialize COM!");
 
@@ -751,5 +753,9 @@ namespace Borealis::Input
 	}
 
 #endif
+
+	// Service locator global static data
+	Memory::RefCntAutoPtr<IInputSystemBase> InputSystemLocator::m_Service;
+	Memory::RefCntAutoPtr<NullInputSystem> InputSystemLocator::m_NullService;
 
 }

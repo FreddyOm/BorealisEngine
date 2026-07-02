@@ -50,17 +50,7 @@ namespace Borealis::Memory
 
 		~RefCntAutoPtr()
 		{
-			// Decrease ref count if possible
-			if (m_pHandleInfo != nullptr)
-			{
-				if (--m_pHandleInfo->RefCount <= 0)
-				{
-					// Call destructor, release all memory and clean up!
-					void* data = AccessHandleData(m_pHandleInfo->HandleId);
-					static_cast<T*>(data)->~T();
-					RemoveHandle(m_pHandleInfo->HandleId, m_pHandleInfo);
-				}
-			}
+			Reset();
 		}
 
 		RefCntAutoPtr& operator=(HandleInfo* const p_hndlInfo)
@@ -204,6 +194,23 @@ namespace Borealis::Memory
 			++ref.m_pHandleInfo->RefCount;
 
 			return RefCntAutoPtr<S>(ref.m_pHandleInfo);
+		}
+
+		void Reset()
+		{
+			// Decrease ref count if possible
+			if (m_pHandleInfo != nullptr)
+			{
+				if (--m_pHandleInfo->RefCount == 0)
+				{
+					// Call destructor, release all memory and clean up!
+					void* data = AccessHandleData(m_pHandleInfo->HandleId);
+					static_cast<T*>(data)->~T();
+					RemoveHandle(m_pHandleInfo->HandleId, m_pHandleInfo);
+					m_pHandleInfo = nullptr;
+				}
+			}
+
 		}
 
 		bool operator==(const RefCntAutoPtr<T> &other) const noexcept

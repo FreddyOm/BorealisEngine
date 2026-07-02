@@ -69,6 +69,7 @@ message(STATUS "Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
 
 # Cross-platform sources & headers
 set(COMMON_SOURCES 
+    core/application/application.cpp
     core/types/string_id.cpp
     core/window/window.cpp
     core/debug/logger.cpp
@@ -91,6 +92,7 @@ set(COMMON_SOURCES
     core/math/math.cpp
     core/math/random.cpp
     core/math/crc_hash.cpp
+    core/graphics/graphics.cpp
     core/graphics/vulkan/borealis_vulkan.cpp
     core/graphics/helpers/helpers.cpp
     core/graphics/helpers/texture.cpp
@@ -103,6 +105,7 @@ set(COMMON_SOURCES
 set(COMMON_HEADERS
     config.h
     borealis_engine.h
+    core/application/application.h
     core/types/types.h
     core/types/string_id.h
     core/window/window.h

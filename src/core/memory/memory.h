@@ -29,24 +29,27 @@ namespace Borealis::Memory
 		// Default allocations like uncategorized allocs or pool objects
 		DEFAULT = 0,
 
-		// Memory dedicated to rendering
-		RENDERING = 1,
+		// Memory dedicated to the core systems created in the app
+		CORESYS = 1,
 
 		// Memory dedicated to rendering
-		RENDERING_DEBUG = 2,
+		RENDERING = 2,
+
+		// Memory dedicated to rendering
+		RENDERING_DEBUG = 3,
 
 		// Memory dedicated to debug systems, like ImGui debug data, debug logging, ...
-		DEBUG = 3,
+		DEBUG = 4,
 
 		// Memory dedicated to per-frame allocations
-		FRAME = 4,
+		FRAME = 5,
 
 		// Static and persistent data that reside in 
 		// memory and don't need to be deallocated
-		STATIC = 5,		
+		STATIC = 6,		
 
 		// The numbers of contexts in the list. Keep this updated!
-		NUM_CONTEXTS = 6,
+		NUM_CONTEXTS = 7,
 
 	};
 	

@@ -30,4 +30,19 @@ namespace Borealis::Graphics::Helpers
 		const Borealis::Graphics::GraphicsBackend m_GraphicsBackend;
 		const Borealis::Graphics::PipelineDesc m_PipelineDesc;
 	};
+
+
+	// Null implementation for service locator fallback 
+	class BOREALIS_API NullRenderer : public IBorealisRenderer
+	{
+	public:
+		NullRenderer()
+			: IBorealisRenderer(Borealis::Graphics::GraphicsBackend::UNDEFINED, Borealis::Graphics::PipelineDesc())
+		{ }
+		virtual ~NullRenderer() { }
+
+		virtual Borealis::Types::int64 InitializePipeline() override { return 0; }
+		virtual Borealis::Types::int64 DeinitializePipeline() override { return 0; }
+		virtual void WaitForPendingOperations() override { }
+	};
 }
