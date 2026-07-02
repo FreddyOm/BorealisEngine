@@ -94,7 +94,7 @@ namespace Borealis::Input
 
     struct LinuxInputSystem : public IInputSystemBase
     {
-        LinuxInputSystem();
+        LinuxInputSystem(GLFWwindow* window);
         ~LinuxInputSystem();
 
         BOREALIS_DELETE_COPY_CONSTRUCT(LinuxInputSystem)

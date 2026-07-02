@@ -705,7 +705,7 @@ namespace Borealis::Input
 
 #ifdef BOREALIS_LINUX
 
-	LinuxInputSystem::LinuxInputSystem()
+	LinuxInputSystem::LinuxInputSystem(GLFWwindow* window)
 	{
 		Assert(false, "Not implemented yet!");
 	}
