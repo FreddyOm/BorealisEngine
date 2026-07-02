@@ -73,18 +73,20 @@ namespace Borealis::Core
 		// Which is probably not regulated by BorealisEngine but rather by GLFW, but how? 
 		// And do I need PipelineDesc::SwapChain anymore?
 
+#ifdef BOREALIS_WIN
 		Log("Creating Rendering Pipeline ...");
 		PipelineDesc desc{};
 		desc.SwapChain.WindowHandle = m_Window->GetNativeWindowHandle();
 		desc.SwapChain.BufferHeight = m_Window->GetWindowHeight();
 		desc.SwapChain.BufferWidth = m_Window->GetWindowWidth();
 		
-
 		Log("Initializing Renderer ...");
 		m_Renderer = RefCntAutoPtr<BorealisD3D12Renderer>::Allocate(desc);
 		RendererLocator::Provide(RefCntAutoPtr<BorealisD3D12Renderer>::DynamicCastTo<Helpers::IBorealisRenderer>(m_Renderer));
 		Assert(m_Renderer.IsValid(), "Failed to create Renderer!");
 		InitD3D12LiveObjects();
+#endif
+
 
 		Log("Initializing Input System ...");
 		m_InputSystem = RefCntAutoPtr<InputSystem>::Allocate(m_Window->GetGLFWWindow());

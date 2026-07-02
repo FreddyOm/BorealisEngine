@@ -32,8 +32,9 @@ namespace Borealis::Core
 
 	private:
 
-		// TODO: What of this should be a RefCntAutoPtr?
+#ifdef BOREALIS_WIN
 		Memory::RefCntAutoPtr<Graphics::BorealisD3D12Renderer> m_Renderer;
+#endif
 		Memory::RefCntAutoPtr<Core::Window> m_Window;
 		Memory::RefCntAutoPtr<Input::InputSystem> m_InputSystem;
 	};
