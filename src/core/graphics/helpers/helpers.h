@@ -27,8 +27,8 @@ namespace Borealis::Graphics::Helpers
 		virtual Borealis::Types::int64 DeinitializePipeline() = 0;
 		virtual void WaitForPendingOperations() = 0;
 		
-		const Borealis::Graphics::GraphicsBackend m_GraphicsBackend;
 		const Borealis::Graphics::PipelineDesc m_PipelineDesc;
+		const Borealis::Graphics::GraphicsBackend m_GraphicsBackend;
 	};
 
 

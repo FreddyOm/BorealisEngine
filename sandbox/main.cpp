@@ -12,7 +12,7 @@ using namespace Borealis::Input;
 
 int main()
 {
-	#ifdef BOREALIS_WIN	// Currently only for windows. Linux is currently WIP!
+	//#ifdef BOREALIS_WIN	// Currently only for windows. Linux is currently WIP!
 	
 	{
 		Borealis::Core::Application app = 
@@ -65,9 +65,10 @@ int main()
 //		renderer.DeinitializePipeline();
 	}
 	
+#ifdef BOREALIS_WIN
 	Borealis::Graphics::ReportD3D12LiveObjects();	// The corresponding initialization is done in Graphics initialization code -> dependency on ID3D12Device!
-	
-	#endif
+#endif
+	//#endif
 
 	return 0;
 }

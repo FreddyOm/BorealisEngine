@@ -1,9 +1,12 @@
 #include "application.h"
+#include "../graphics/graphics.h"
+
 
 using namespace Borealis::Graphics;
 using namespace Borealis::Core;
 using namespace Borealis::Input;
 using namespace Borealis::Memory;
+using namespace Borealis::Graphics::Helpers;
 
 
 namespace Borealis::Core
@@ -81,12 +84,12 @@ namespace Borealis::Core
 		desc.SwapChain.BufferWidth = m_Window->GetWindowWidth();
 		
 		Log("Initializing Renderer ...");
-		m_Renderer = RefCntAutoPtr<BorealisD3D12Renderer>::Allocate(desc);
-		RendererLocator::Provide(RefCntAutoPtr<BorealisD3D12Renderer>::DynamicCastTo<Helpers::IBorealisRenderer>(m_Renderer));
+		RefCntAutoPtr<BorealisD3D12Renderer> renderer = RefCntAutoPtr<BorealisD3D12Renderer>::Allocate(desc);
+		m_Renderer = RefCntAutoPtr<BorealisD3D12Renderer>::DynamicCastTo<Helpers::IBorealisRenderer>(renderer);
+		RendererLocator::Provide(m_Renderer);
 		Assert(m_Renderer.IsValid(), "Failed to create Renderer!");
 		InitD3D12LiveObjects();
 #endif
-
 
 		Log("Initializing Input System ...");
 		m_InputSystem = RefCntAutoPtr<InputSystem>::Allocate(m_Window->GetGLFWWindow());
@@ -94,6 +97,7 @@ namespace Borealis::Core
 		Assert(m_InputSystem.IsValid(), "Failed to create Input System!");
 
 		m_Renderer->InitializePipeline();
+
 
 		//  attatch runtime debugger
 	}
