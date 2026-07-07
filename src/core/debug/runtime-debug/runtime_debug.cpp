@@ -8,6 +8,8 @@
 
 #include "../../graphics/helpers/helpers.h"
 #include "../../graphics/pipeline_config.h"
+#include "../../graphics/graphics.h"
+#include "../../window/window.h"
 
 #ifdef BOREALIS_WIN
 //#include "imgui/imgui_impl_win32.h"
@@ -39,9 +41,9 @@ namespace Borealis::Runtime::Debug
 		{
 			initialized = false;
 
-			m_Renderer.WaitForPendingOperations();
+			RendererLocator::Get()->WaitForPendingOperations();
 
-			switch (m_Renderer.m_GraphicsBackend)
+			switch (RendererLocator::Get()->m_GraphicsBackend)
 			{
 #ifdef BOREALIS_WIN
 				case GraphicsBackend::D3D11:
@@ -79,10 +81,12 @@ namespace Borealis::Runtime::Debug
 	/// <summary>
 	/// Initializes the gui context.
 	/// </summary>
-	void RuntimeDebugger::Attatch(GLFWwindow* pWindow)
+	void RuntimeDebugger::Attatch()
 	{
 		/*ImGui_ImplWin32_EnableDpiAwareness();
 		float main_scale = ImGui_ImplWin32_GetDpiScaleForMonitor(::MonitorFromPoint(POINT{ 0, 0 }, MONITOR_DEFAULTTOPRIMARY));*/
+
+		Memory::RefCntAutoPtr<IBorealisRenderer> m_Renderer = RendererLocator::Get();
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -119,18 +123,18 @@ namespace Borealis::Runtime::Debug
 		
 		// TODO: Make sure the correct graphics backend is used
 		
-		Assert(m_Renderer.m_GraphicsBackend != GraphicsBackend::UNDEFINED,
+		Assert(m_Renderer->m_GraphicsBackend != GraphicsBackend::UNDEFINED,
 			"Cannot initialize Dear Imgui for undefined graphics backend!");
 
 		// Windwos only graphics APIs will always use Win32 in Borealis for now!
-		if (m_Renderer.m_GraphicsBackend == GraphicsBackend::D3D11 || m_Renderer.m_GraphicsBackend == GraphicsBackend::D3D12)
+		if (m_Renderer->m_GraphicsBackend == GraphicsBackend::D3D11 || m_Renderer->m_GraphicsBackend == GraphicsBackend::D3D12)
 		{
-			Assert(ImGui_ImplGlfw_InitForOther(pWindow, true),
+			Assert(ImGui_ImplGlfw_InitForOther(Core::WindowLocator::Get()->GetGLFWWindow(), true),
 				"Failed to initialize the runtime debugger GUI with GLFW.");
 		}
 		
 		// For now, fall-through because windows impl is always reliant on win32
-		switch (m_Renderer.m_GraphicsBackend)
+		switch (m_Renderer->m_GraphicsBackend)
 		{
 #ifdef BOREALIS_WIN
 			case GraphicsBackend::D3D11:
@@ -141,8 +145,8 @@ namespace Borealis::Runtime::Debug
 			}
 			case GraphicsBackend::D3D12:
 			{
-				BorealisD3D12Renderer* const pD3D12Renderer = dynamic_cast<BorealisD3D12Renderer* const>(&m_Renderer);
-				Assert(pD3D12Renderer != nullptr, "Failed to cast generic IBorealisRenderer to BorealisD3D12Renderer renderer!");
+				Memory::RefCntAutoPtr<BorealisD3D12Renderer> pD3D12Renderer = Memory::RefCntAutoPtr<IBorealisRenderer>::DynamicCastTo<BorealisD3D12Renderer>(m_Renderer);
+				Assert(pD3D12Renderer.IsValid(), "Failed to cast generic IBorealisRenderer to BorealisD3D12Renderer renderer!");
 
 				ImGui_ImplDX12_InitInfo d3d12InitInfo{};
 				d3d12InitInfo.Device = pD3D12Renderer->GetDevice();
@@ -185,7 +189,7 @@ namespace Borealis::Runtime::Debug
 	{
 		Assert(initialized, "Cannot draw GUI when not initialized. Call Attatch() during initialization!");
 
-		static Graphics::GraphicsBackend graphicsBackend = m_Renderer.m_GraphicsBackend;
+		static Graphics::GraphicsBackend graphicsBackend = RendererLocator::Get()->m_GraphicsBackend;
 		//static BorealisD3D12Renderer* pRenderer = dynamic_cast renderer;
 
 		switch (graphicsBackend)
@@ -201,7 +205,7 @@ namespace Borealis::Runtime::Debug
 			break;
 #endif
 		case GraphicsBackend::VULKAN:
-			Assert(false, "Not yet implemented!");
+			LogError("Not yet implemented!");
 			break;
 		default:
 			Assert(false, "Unsupported graphics backend for runtime debugger GUI!");
@@ -230,8 +234,8 @@ namespace Borealis::Runtime::Debug
 			// TODO: Push common rendering code to BorealisD3D12Renderer
 			// TODO: Move ImGui specific code from BorealisD3D12Renderer to here
 
-			BorealisD3D12Renderer* pD3D12Renderer = dynamic_cast<BorealisD3D12Renderer* const>(&m_Renderer);
-			Assert(pD3D12Renderer != nullptr, "Failed to cast the renderer to BorealisD3D12Renderer.");
+			Memory::RefCntAutoPtr<BorealisD3D12Renderer> pD3D12Renderer = Memory::RefCntAutoPtr<IBorealisRenderer>::DynamicCastTo<BorealisD3D12Renderer>(RendererLocator::Get());
+			Assert(pD3D12Renderer.IsValid(), "Failed to cast the renderer to BorealisD3D12Renderer.");
 			HRESULT hResult = S_OK;
 
 			// Get back buffer index
@@ -296,11 +300,10 @@ namespace Borealis::Runtime::Debug
 		{
 			break;
 		}
-
 		default:	// NONE, UNKNOWN
 		{
 			// Nothing
-			LogError("Graphics-Backend could not be specified!");
+			Assert(false, "Graphics-Backend could not be specified!");
 			break;
 		}
 		}

@@ -51,11 +51,11 @@ namespace Borealis::Runtime::Debug
 	class WindowModeDebugInfoLabel : public DebugInfoLabel
 	{
 	public:
-		WindowModeDebugInfoLabel(Core::Window* pWindow, Types::StringId labelName,
+		WindowModeDebugInfoLabel(Memory::RefCntAutoPtr<Core::BorealisWindow>& window, Types::StringId labelName,
 			ImFont* pFont, ImVec2 size = ImVec2(0, 0),
 			ImVec4 bg_color = ImVec4(0.5f, 0.5f, 0.5f, 0.2f),
 			ImVec4 text_color = ImVec4(1, 1, 1, 0.8f))
-			: m_CurrentMode((Types::uint8) pWindow->GetWindowMode()), m_pWindow(pWindow), DebugInfoLabel(labelName, pFont, false, size, bg_color, text_color)
+			: m_CurrentMode((Types::uint8) window->GetWindowMode()), m_Window(window), DebugInfoLabel(labelName, pFont, false, size, bg_color, text_color)
 		{}
 
 		~WindowModeDebugInfoLabel() = default;
@@ -78,7 +78,7 @@ namespace Borealis::Runtime::Debug
 			if (ImGui::DynamicTextButton(0, m_Size, "Mode: %s", m_Modes[m_CurrentMode]))
 			{
 				m_CurrentMode = ++m_CurrentMode % 3;
-				m_pWindow->SetWindowMode((Core::WindowMode)m_CurrentMode);
+				m_Window->SetWindowMode((Core::WindowMode)m_CurrentMode);
 			}
 			
 			ImGui::SameLine();
@@ -91,7 +91,7 @@ namespace Borealis::Runtime::Debug
 	private:
 
 		Types::int8 m_CurrentMode = 0;
-		Core::Window* m_pWindow = nullptr;
+		Memory::RefCntAutoPtr<Core::BorealisWindow> m_Window;
 		const char* m_Modes[3] = {"Window", "Excl. Fullscreen", "Fullscreen"};
 	};
 

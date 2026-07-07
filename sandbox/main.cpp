@@ -3,6 +3,7 @@
 #include <core/debug/runtime-debug/runtime_debug.h>
 #include <core/input/input.h>
 #include <borealis_engine.h>
+#include <core/memory/memory.h>
 
 using namespace Borealis::Core;
 using namespace Borealis::Graphics;
@@ -69,6 +70,9 @@ int main()
 	Borealis::Graphics::ReportD3D12LiveObjects();	// The corresponding initialization is done in Graphics initialization code -> dependency on ID3D12Device!
 #endif
 	//#endif
+
+	// This works but is not really helpful right now!
+	Borealis::Memory::ReportLiveHandles();
 
 	return 0;
 }

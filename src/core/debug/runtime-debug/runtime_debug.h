@@ -2,8 +2,16 @@
 #include "../../../config.h"
 #include "../../helpers/macros.h"
 #include "../../types/string_id.h"
-#include "../../graphics/helpers/helpers.h"
 #include "../../memory/ref_cnt_auto_ptr.h"
+#include "../../graphics/graphics.h"
+#include "../../graphics/helpers/texture.h"
+#include "../../graphics/helpers/helpers.h"
+#include "../../input/input.h"
+#include "../../window/window.h"
+
+#ifdef BOREALIS_WIN
+#include "../../graphics/d3d12/borealis_d3d12.h"
+#endif
 
 #include "IGUI_drawable.h"
 #include "debug_category_button.h"
@@ -20,25 +28,22 @@
 // TODO: Figure out how I can setup and use debug gui only in debug and relwithdebinfo builds
 //#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
-struct GLFWwindow;
-
 namespace Borealis::Runtime::Debug
 {
 	
 	struct BOREALIS_API RuntimeDebugger : protected IGUIDrawable
 	{
-		RuntimeDebugger(
-			Graphics::Helpers::IBorealisRenderer& renderer
-			, Input::InputSystem* pInputSystem
-			, Memory::RefCntAutoPtr<Borealis::Graphics::Texture> debugTexAtlas
-			, Core::Window* pWindow
-		)
-			: m_Renderer(renderer), IGUIDrawable(true)
+		RuntimeDebugger()
+			: IGUIDrawable(true)
 		{ 
 			Memory::MemAllocJanitor janitor(Memory::MemAllocatorContext::RENDERING_DEBUG);
 
+			// Load textures for runtime debugger
+			Memory::RefCntAutoPtr<Graphics::BorealisD3D12Renderer> renderer = Memory::RefCntAutoPtr<Graphics::Helpers::IBorealisRenderer>::DynamicCastTo<Graphics::BorealisD3D12Renderer>(Graphics::RendererLocator::Get());
+			Memory::RefCntAutoPtr<Graphics::Texture> debugTexAtlas = renderer->CreateTexture(L"D:\\02_Repositories\\BorealisEngine\\out\\build\\x64-Debug\\sandbox\\resources\\textures\\input-debug-tex-atlas.png");
+
 			// First, register all debug windows (deriving from IGUIDrawable)
-			runtimeGUIDrawables.push_back(Memory::RefCntAutoPtr<InputDebugger>::Allocate(pInputSystem, debugTexAtlas));
+			runtimeGUIDrawables.push_back(Memory::RefCntAutoPtr<InputDebugger>::Allocate(Memory::RefCntAutoPtr<Input::IInputSystemBase>::DynamicCastTo<Input::InputSystem>(Input::InputSystemLocator::Get()), debugTexAtlas));
 			runtimeGUIDrawables.push_back(Memory::RefCntAutoPtr<MemoryDebugger>::Allocate());
 
 			// Then, register category buttons, passing the runtimeGUIDrawables for "click" events
@@ -56,7 +61,7 @@ namespace Borealis::Runtime::Debug
 			{
 				//new RuntimePauseLabel("Runtime Pause Label", inter_bold, ImVec2(labelHeight, labelHeight)),
 				Memory::RefCntAutoPtr<FrameTimeDebugInfoLabel>::Allocate(Types::String("Game Update Time"), inter_bold, ImVec2(260, labelHeight)),
-				Memory::RefCntAutoPtr<WindowModeDebugInfoLabel>::Allocate(pWindow, Types::String("Window Mode"), inter_bold, ImVec2(250, labelHeight)),
+				Memory::RefCntAutoPtr<WindowModeDebugInfoLabel>::Allocate(Core::WindowLocator::Get(), Types::String("Window Mode"), inter_bold, ImVec2(250, labelHeight)),
 				//new ImGuiDebugInfoLabel("ImGui Update Time", inter_bold, pImgui_process_time_ms, ImVec2(115, labelHeight)),
 				//new PhysicsTimeDebugInfoLabel("Physics Update Time", inter_bold, ImVec2(115, labelHeight)),
 				//new ConsoleDebugInfoLabel("Console Info", inter_bold, GetGUIDrawablePtrs(), ImVec2(130, labelHeight)),
@@ -81,7 +86,7 @@ namespace Borealis::Runtime::Debug
 		BOREALIS_DELETE_MOVE_ASSIGN(RuntimeDebugger)
 
 	public:
-		void Attatch(GLFWwindow* pWindow);
+		void Attatch();
 		void Detatch();
 
 		void UpdateDrawable() override;
@@ -94,8 +99,6 @@ namespace Borealis::Runtime::Debug
 	private:
 		bool initialized = false;
 
-		Borealis::Graphics::Helpers::IBorealisRenderer& m_Renderer;
-		
 		ImGuiWindowFlags flags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove;
 
 		std::vector<Memory::RefCntAutoPtr<IGUIDrawable>> runtimeGUIDrawables = {};

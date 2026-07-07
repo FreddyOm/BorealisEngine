@@ -68,6 +68,12 @@ namespace Borealis::Memory
 		return g_HandleTable.find(handleId) == g_HandleTable.end() ? nullptr : g_HandleTable[handleId];
 	}
 
+	BOREALIS_API void ReportLiveHandles()
+	{
+		Log("Reporting %u live handles.", g_HandleTable.size());
+	}
+
+
 #pragma endregion global handle table
 
 #pragma region memory allocation
@@ -109,10 +115,13 @@ namespace Borealis::Memory
 		{
 			return dynamic_cast<IMemoryAllocator*>(&g_frameAllocator);
 		}
-		default:
 		case MemAllocatorContext::STATIC:
 		{
 			return dynamic_cast<IMemoryAllocator*>(&g_staticAllocator);
+		}
+		default:
+		{
+			return dynamic_cast<IMemoryAllocator*>(&g_defaultAllocator);
 		}
 		}
 	}

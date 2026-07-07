@@ -105,7 +105,7 @@ namespace Borealis::Memory
 		}
 
 		template<typename ...Args>
-		static HandleInfo* Allocate(Args ... args)
+		static HandleInfo* Allocate(Args... args)
 		{
 			if (g_memoryAllocatorContext.empty())
 			{
@@ -201,6 +201,13 @@ namespace Borealis::Memory
 			// Decrease ref count if possible
 			if (m_pHandleInfo != nullptr)
 			{
+				if (g_HandleTable.find(m_pHandleInfo->HandleId) == g_HandleTable.end())
+				{
+					// Handle has already been removed (probably destroyed by another cleanup)
+					m_pHandleInfo = nullptr;
+					return;
+				}
+
 				if (--m_pHandleInfo->RefCount == 0)
 				{
 					// Call destructor, release all memory and clean up!

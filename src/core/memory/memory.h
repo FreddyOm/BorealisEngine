@@ -10,7 +10,7 @@
 #include <utility>
 
 // TODO: Fix this! Use memory.h as main include and expose refcntautoptr via this header, and remove the direct allocation capabilities here!
-
+// TODO: Build a memory system that is non-global and can be initialized and deinitialized.
 namespace Borealis::Memory
 {
 #pragma region forward declarations
@@ -79,6 +79,7 @@ namespace Borealis::Memory
 	BOREALIS_API void UpdateHandle(const Types::uint64Ptr handleId, void* const p_newData);
 	BOREALIS_API void RemoveHandle(const Types::uint64Ptr handleId, HandleInfo* const p_hndlInfo);
 	BOREALIS_API void* const AccessHandleData(const Types::uint64Ptr handleId);
+	BOREALIS_API void ReportLiveHandles();
 
 #pragma endregion handle table
 

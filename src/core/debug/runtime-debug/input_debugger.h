@@ -10,13 +10,13 @@
 
 namespace Borealis::Runtime::Debug
 {
-	float g_debugImageScale = 1.0f;
+	inline static float g_debugImageScale = 1.0f;
 
 	class InputDebugger : public IGUIDrawable
 	{
 	public:
-		InputDebugger(Input::InputSystem* pInputSystem, Memory::RefCntAutoPtr<Graphics::Texture> debugTexAtlas)
-			: pInputSystem(pInputSystem), m_DebugTexAtlas(debugTexAtlas), IGUIDrawable(true)
+		InputDebugger(Memory::RefCntAutoPtr<Input::InputSystem>& inputSystem, Memory::RefCntAutoPtr<Graphics::Texture> debugTexAtlas)
+			: m_InputSystem(inputSystem), m_DebugTexAtlas(debugTexAtlas), IGUIDrawable(true)
 		{ }
 
 		~InputDebugger() = default;
@@ -598,9 +598,9 @@ namespace Borealis::Runtime::Debug
 			//ImGui::Text("Input Devices connected: %u", pInputSystem->GetAllDevices().size());
 			ImGui::Spacing();
 
-			ImGui::Text("Mouse connected: %u / 1", pInputSystem->GetMouse().IsValid() ? 1 : 0);
-			ImGui::Text("Keyboards connected: %u / 1", pInputSystem->GetKeyboard().IsValid() ? 1 : 0);
-			ImGui::Text("Gamepads connected: %lu / %u", pInputSystem->GetGamepads().size(), Input::MAX_GAMEPADS());
+			ImGui::Text("Mouse connected: %u / 1", m_InputSystem->GetMouse().IsValid() ? 1 : 0);
+			ImGui::Text("Keyboards connected: %u / 1", m_InputSystem->GetKeyboard().IsValid() ? 1 : 0);
+			ImGui::Text("Gamepads connected: %lu / %u", m_InputSystem->GetGamepads().size(), Input::MAX_GAMEPADS());
 			
 			ImGui::Spacing();
 			ImGui::Spacing();
@@ -611,7 +611,7 @@ namespace Borealis::Runtime::Debug
 
 			if (ImGui::TreeNode("All Devices"))
 			{
-				std::set<Memory::RefCntAutoPtr<Input::IInputDevice>> allDevices = pInputSystem->GetAllDevices();
+				std::set<Memory::RefCntAutoPtr<Input::IInputDevice>> allDevices = m_InputSystem->GetAllDevices();
 
 				for (std::set<Memory::RefCntAutoPtr<Input::IInputDevice>>::iterator it = allDevices.begin(); it != allDevices.end(); ++it)
 				{
@@ -682,13 +682,13 @@ namespace Borealis::Runtime::Debug
 							case Input::InputDeviceCategory::KEYBOARD:
 							{
 								ImGui::Text("Type: Keyboard");
-								DrawKeyboardDebugLayout(*pInputSystem->GetKeyboard());
+								DrawKeyboardDebugLayout(*m_InputSystem->GetKeyboard());
 								break;
 							}
 							case Input::InputDeviceCategory::MOUSE:
 							{
 								ImGui::Text("Type: Mouse");
-								DrawMouseDebugLayout(*pInputSystem->GetMouse());
+								DrawMouseDebugLayout(*m_InputSystem->GetMouse());
 								break;
 							}
 							default:
@@ -707,7 +707,7 @@ namespace Borealis::Runtime::Debug
 		}
 
 	private:
-		Input::InputSystem* pInputSystem;
+		Memory::RefCntAutoPtr<Input::InputSystem> m_InputSystem;
 		Memory::RefCntAutoPtr<Graphics::Texture> m_DebugTexAtlas;
 		Types::int8 m_ThumbstickMovementOffset = 30; // pixels per unit in every direction
 		ImVec2 m_LastTP1;

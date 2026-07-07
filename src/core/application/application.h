@@ -5,6 +5,7 @@
 #include "../window/window.h"
 #include "../input/input.h"
 #include "../graphics/helpers/helpers.h"
+#include "../debug/runtime-debug/runtime_debug.h"
 
 namespace Borealis::Core
 {
@@ -38,5 +39,6 @@ namespace Borealis::Core
 		Memory::RefCntAutoPtr<Graphics::Helpers::IBorealisRenderer> m_Renderer;
 		Memory::RefCntAutoPtr<Core::Window> m_Window;
 		Memory::RefCntAutoPtr<Input::InputSystem> m_InputSystem;
+		Memory::RefCntAutoPtr<Borealis::Runtime::Debug::RuntimeDebugger> m_RuntimeDebugger;
 	};
 }

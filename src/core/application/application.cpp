@@ -1,13 +1,15 @@
 #include "application.h"
 #include "../graphics/graphics.h"
+#ifdef BOREALIS_WIN
+#include "../graphics/d3d12/borealis_d3d12.h"
+#endif
 
-
-using namespace Borealis::Graphics;
 using namespace Borealis::Core;
 using namespace Borealis::Input;
 using namespace Borealis::Memory;
+using namespace Borealis::Graphics;
+using namespace Borealis::Runtime::Debug;
 using namespace Borealis::Graphics::Helpers;
-
 
 namespace Borealis::Core
 {
@@ -48,10 +50,12 @@ namespace Borealis::Core
 			m_InputSystem->UpdateInputState();
 			m_Window->UpdateWindow();
 
-//#if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
-//
-//			runtimeDebugger.UpdateDrawable();
-//#endif			
+#ifdef WIN32
+#if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
+
+			m_RuntimeDebugger->UpdateDrawable();
+#endif		
+#endif
 		}
 	}
 
@@ -98,13 +102,19 @@ namespace Borealis::Core
 
 		m_Renderer->InitializePipeline();
 
-
+#ifdef BOREALIS_WIN
+		Log("Initializing Runtime Debugger ...");
+		m_RuntimeDebugger = RefCntAutoPtr<RuntimeDebugger>::Allocate();
+		m_RuntimeDebugger->Attatch();
+#endif
 		//  attatch runtime debugger
 	}
 	
 	void Application::DeinitializeApp()
 	{
-		// detatch runtime debugger
+#ifdef BOREALIS_WIN
+		m_RuntimeDebugger->Detatch();
+#endif
 		m_Renderer->DeinitializePipeline();
 
 		// Manually reset global data in order to avoid issues with ReportLiveObjects
