@@ -36,12 +36,11 @@ namespace Borealis::Runtime::Debug
 		RuntimeDebugger()
 			: IGUIDrawable(true)
 		{ 
+#ifdef WIN32
 			Memory::MemAllocJanitor janitor(Memory::MemAllocatorContext::RENDERING_DEBUG);
-
 			// Load textures for runtime debugger
 			Memory::RefCntAutoPtr<Graphics::BorealisD3D12Renderer> renderer = Memory::RefCntAutoPtr<Graphics::Helpers::IBorealisRenderer>::DynamicCastTo<Graphics::BorealisD3D12Renderer>(Graphics::RendererLocator::Get());
 			Memory::RefCntAutoPtr<Graphics::Texture> debugTexAtlas = renderer->CreateTexture(L"D:\\02_Repositories\\BorealisEngine\\out\\build\\x64-Debug\\sandbox\\resources\\textures\\input-debug-tex-atlas.png");
-
 			// First, register all debug windows (deriving from IGUIDrawable)
 			runtimeGUIDrawables.push_back(Memory::RefCntAutoPtr<InputDebugger>::Allocate(Memory::RefCntAutoPtr<Input::IInputSystemBase>::DynamicCastTo<Input::InputSystem>(Input::InputSystemLocator::Get()), debugTexAtlas));
 			runtimeGUIDrawables.push_back(Memory::RefCntAutoPtr<MemoryDebugger>::Allocate());
@@ -69,6 +68,7 @@ namespace Borealis::Runtime::Debug
 				// The filter is always the last one
 				Memory::RefCntAutoPtr<DebugLabelFilter>::Allocate(Types::String("Filter"), inter_bold, &debugLabels, ImVec2(labelHeight, labelHeight)),
 			};
+#endif
 		}
 		
 		~RuntimeDebugger()
