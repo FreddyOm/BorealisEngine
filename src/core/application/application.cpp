@@ -63,8 +63,8 @@ namespace Borealis::Core
 			m_RuntimeDebugger->Update();
 #endif		
 #endif
-			HRESULT hResult = m_Renderer->PresentFrame();
-			Assert(hResult == S_OK, StrFromHResult(hResult));
+			Types::int32 hResult = m_Renderer->PresentFrame();
+			Assert(hResult == 0, "Failed to present frame!");
 
 			Time::EndFrameTimer();
 		}

@@ -232,7 +232,7 @@ namespace Borealis::Graphics
 	/// and presents a frame to the display.
 	/// </summary>
 	/// <returns>Result of the present operation. Returns 'S_OK' if successful, error codes if unsuccessful.</returns>
-	HRESULT BorealisD3D12Renderer::PresentFrame()
+	Types::int32 BorealisD3D12Renderer::PresentFrame()
 	{
 		// TODO: See https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/dxgi-status for future feature implementation!
 		HRESULT hResult;
@@ -272,7 +272,7 @@ namespace Borealis::Graphics
 		m_SwapChainOccluded = (hResult == DXGI_STATUS_OCCLUDED);
 		++m_FrameIndex;
 
-		return hResult;
+		return static_cast<Types::int32>(hResult);
 	}
 
 	/// <summary>

@@ -6,7 +6,6 @@
 #include "../helpers/texture.h"
 #include "../../math/math.h"
 
-
 #ifdef BOREALIS_WIN
 #include <vector>
 #include "../helpers/d3d12_helpers.h"
@@ -57,7 +56,7 @@ namespace Borealis::Graphics
 
 
 		// Functional
-		HRESULT PresentFrame() override;
+		Types::int32 PresentFrame() override;
 		Helpers::FrameContext* const WaitForNextFrameContext();
 		//void OnWindowResize(const Borealis::Core::WindowEvent& event);
 		void WaitForPendingOperations() override;
