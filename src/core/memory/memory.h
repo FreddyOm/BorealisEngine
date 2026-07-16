@@ -10,6 +10,7 @@
 #include <stack>
 #include <unordered_map>
 #include <utility>
+#include <typeinfo>
 
 // TODO: Fix this! Use memory.h as main include and expose refcntautoptr via this header, and remove the direct allocation capabilities here!
 // TODO: Build a memory system that is non-global and can be initialized and deinitialized.

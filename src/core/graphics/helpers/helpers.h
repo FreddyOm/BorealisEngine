@@ -50,7 +50,7 @@ namespace Borealis::Graphics::Helpers
 		virtual Borealis::Types::int64 DeinitializePipeline() override { return 0; }
 		virtual void WaitForPendingOperations() override { }
 		virtual void StartFrame(Math::Vector4<float> clearColor) override { }
-		virtual Types::int32 PresentFrame() override { return static_cast<Types::int32>(S_OK); }
+		virtual Types::int32 PresentFrame() override { return 0; }
 		virtual const bool IsVsyncEnabled() const override { return false; }
 		virtual void SetVsyncEnabled(const bool enabled) override { }
 	};
