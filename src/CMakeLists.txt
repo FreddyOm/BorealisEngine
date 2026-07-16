@@ -99,6 +99,7 @@ set(COMMON_SOURCES
     core/input/input.cpp
     core/input/keyboard.cpp
     core/io/file_io.cpp
+    core/time/time.cpp
 )
 
 # Project include files
@@ -147,6 +148,8 @@ set(COMMON_HEADERS
     core/input/borealis_devices.h
     core/input/input_device.h
     core/io/file_io.h
+    core/time/time.h
+    core/time/time_internal.h
 )
 
 # Windows platform specific sources & headers

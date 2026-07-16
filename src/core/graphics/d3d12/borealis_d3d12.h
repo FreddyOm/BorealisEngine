@@ -4,6 +4,8 @@
 #include "../../helpers/macros.h"
 #include "../../memory/ref_cnt_auto_ptr.h"
 #include "../helpers/texture.h"
+#include "../../math/math.h"
+
 
 #ifdef BOREALIS_WIN
 #include <vector>
@@ -46,19 +48,25 @@ namespace Borealis::Graphics
 		ID3D12Resource* const GetRenderTarget(const Types::int32) const;
 		ID3D12Resource* const GetCurrentRenderTarget() const;
 		D3D12_CPU_DESCRIPTOR_HANDLE& GetRTVDescriptor(const Types::int32 rtvDescIdx);
+		Helpers::FrameContext* const GetCurrentFrameContext();
+		const bool IsVsyncEnabled() const override;
+
+		// Setters
+		void SetVsyncEnabled(const bool enabled) override;
+		bool ToggleFullscreen();
+
 
 		// Functional
-		HRESULT PresentFrame();
-		bool ToggleFullscreen();
+		HRESULT PresentFrame() override;
 		Helpers::FrameContext* const WaitForNextFrameContext();
 		//void OnWindowResize(const Borealis::Core::WindowEvent& event);
 		void WaitForPendingOperations() override;
+		Memory::RefCntAutoPtr<Texture> CreateTexture(const wchar_t* path);
+		void StartFrame(Math::Vector4<float> clearColor = Math::Vector4<float>{ 0.1, 0.3, 0.5, 1.0 }) override;
+
 
 		Microsoft::WRL::ComPtr<ID3D12Fence> m_CommandQueueFence;
-		Types::uint64 m_LastSignaledFenceValue = 0;
-
-		// Functional methods
-		Memory::RefCntAutoPtr<Texture> CreateTexture(const wchar_t* path);
+		Types::uint64 m_LastSignaledFenceValue = 0;		
 
 
 	private:
@@ -76,6 +84,7 @@ namespace Borealis::Graphics
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList;
 
 		std::vector<Helpers::FrameContext> m_FrameContexts = {};
+		Helpers::FrameContext* m_CurrentFrameContext = nullptr;
 
 		Microsoft::WRL::ComPtr<ID3D12Device8> m_Device;
 
@@ -97,7 +106,7 @@ namespace Borealis::Graphics
 		// Evaluate if necessary
 		bool m_VSync = true;
 		bool m_SwapChainOccluded = false;
-		bool m_SwapChainTearingSupport = false;
+		bool m_SwapChainTearingSupport = true;
 		Types::uint64 m_FrameIndex = 0;
 		Types::int16 m_CurrentFrameContextIdx = 0;
 
@@ -106,7 +115,7 @@ namespace Borealis::Graphics
 	private:
 		
 		bool m_isInitialized = false;
-#endif
+#endif		
 	};
 }
 

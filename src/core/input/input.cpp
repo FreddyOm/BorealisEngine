@@ -284,13 +284,22 @@ namespace Borealis::Input
 	}
 
 	WinInputSystem::~WinInputSystem()
-	{
+	   {
+		   g_pGameInputReading.Reset();
+
+		   // Clear devices
+		   g_pWinGamepadsInternal.clear();
+		   g_GamepadPool.Clear();
+		g_Keyboard.Reset();
+		g_Mouse.Reset();
+
+		g_AllDevices.clear();
+
 		// Release game input
-		if(g_pGameInput)
+		if (g_pGameInput)
 			g_pGameInput->UnregisterCallback(g_gameInputCallbackToken, 0);
 
-		// Clear gamepads
-		g_pWinGamepadsInternal.clear();
+		g_pGameInput.Reset();
 
 		// Uninitialize COM
 		CoUninitialize();

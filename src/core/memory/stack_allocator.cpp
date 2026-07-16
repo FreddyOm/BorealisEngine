@@ -34,7 +34,9 @@ namespace Borealis::Memory
 		totalMemorySize = 0;
 	}
 
-	HandleInfo* StackAllocator::Alloc(const Types::uint16 allocSize)
+#ifdef BOREALIS_DEBUG
+
+	HandleInfo* StackAllocator::Alloc(const Types::uint16 allocSize, const std::string& debugInfo)
 	{
 		Assert(allocSize <= GetAvailableMemorySize(), 
 			"Allocator does not provide enough memory for the requested allocation process.");
@@ -47,15 +49,51 @@ namespace Borealis::Memory
 		usedMemorySize += static_cast<Borealis::Types::uint64>(allocSize);
 		++allocationCount;
 
-		return RegisterHandle(ptr);
+		return RegisterHandle(ptr, debugInfo);
 	}
 
-	void StackAllocator::FreeMemory(const void* const address)
+	HandleInfo* StackAllocator::AllocAligned(const Types::uint16 allocSize, const std::string& debugInfo)
 	{
-		usedMemorySize -= static_cast<uint64>(stackTopPtr - reinterpret_cast<uint64>(address));
+		const Borealis::Types::uint16 alignedAllocSize = allocSize * 2;	// A maximum of twice the space is needed for properly aligning and storing the offset.
 
-		++freeCount;
-		stackTopPtr = reinterpret_cast<uint64>(address);
+		Assert(allocSize <= GetAvailableMemorySize(), "Allocator does not provide enough memory for the requested allocation process.");
+
+		// Determine offset for proper alignment. Use one byte to store offset information.
+		const Borealis::Types::uint8 offset = allocSize - (stackTopPtr % allocSize);
+		Assert(offset <= 255, "Alignment offset is greater than the available info byte.");
+
+		// Store allocation offset due to alignment in the byte before the actual data.
+		AllocationOffset* pAllocOffset = reinterpret_cast<AllocationOffset*>(stackTopPtr) + offset - 1;
+		*pAllocOffset = offset;
+
+		// Determine pointer and move top of stack up
+		void* ptr = reinterpret_cast<void*>(stackTopPtr + offset);
+		stackTopPtr += static_cast<Borealis::Types::uint64>(allocSize + offset);
+
+		// Update memory statistics
+		usedMemorySize += static_cast<Borealis::Types::uint64>(allocSize) + offset;
+		++allocationCount;
+
+		return RegisterHandle(ptr, debugInfo);
+	}
+
+
+#else
+
+	HandleInfo* StackAllocator::Alloc(const Types::uint16 allocSize)
+	{
+		Assert(allocSize <= GetAvailableMemorySize(),
+			"Allocator does not provide enough memory for the requested allocation process.");
+
+		//void* ptr = new(reinterpret_cast<void*>(stackTopPtr)) T();
+		void* ptr = reinterpret_cast<void*>(stackTopPtr);
+		stackTopPtr += static_cast<Borealis::Types::uint64>(allocSize);
+
+		// Update memory statistics
+		usedMemorySize += static_cast<Borealis::Types::uint64>(allocSize);
+		++allocationCount;
+
+		return RegisterHandle(ptr);
 	}
 
 	HandleInfo* StackAllocator::AllocAligned(const Types::uint16 allocSize)
@@ -81,6 +119,16 @@ namespace Borealis::Memory
 		++allocationCount;
 
 		return RegisterHandle(ptr);
+	}
+
+#endif
+
+	void StackAllocator::FreeMemory(const void* const address)
+	{
+		usedMemorySize -= static_cast<uint64>(stackTopPtr - reinterpret_cast<uint64>(address));
+
+		++freeCount;
+		stackTopPtr = reinterpret_cast<uint64>(address);
 	}
 
 	void StackAllocator::FreeAligned(const void* const address)

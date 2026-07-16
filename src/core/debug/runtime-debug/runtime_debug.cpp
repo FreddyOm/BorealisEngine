@@ -5,6 +5,7 @@
 #include "../logger.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
+#include "../../time/time_internal.h"
 
 #include "../../graphics/helpers/helpers.h"
 #include "../../graphics/pipeline_config.h"
@@ -28,6 +29,7 @@
 using namespace ImGui;
 using namespace Borealis::Graphics::Helpers;
 using namespace Borealis::Graphics;
+using namespace Borealis::Core;
 
 
 namespace Borealis::Runtime::Debug
@@ -37,9 +39,13 @@ namespace Borealis::Runtime::Debug
 	/// </summary>
 	void RuntimeDebugger::Detatch()
 	{
-		if (initialized)
+		if (m_Initialized)
 		{
-			initialized = false;
+			m_Initialized = false;
+
+			m_DebugLabels.clear();
+			m_CategoryButtons.clear();
+			m_RuntimeGUIDrawables.clear();
 
 			RendererLocator::Get()->WaitForPendingOperations();
 
@@ -94,9 +100,13 @@ namespace Borealis::Runtime::Debug
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
+		lexend_bold = io.Fonts->AddFontFromFileTTF("./resources/fonts/Lexend-Bold.ttf", 24.0f);
+		calibri_bold = io.Fonts->AddFontFromFileTTF("./resources/fonts/Calibri-Bold.ttf", 24.0f);
 		inter_bold = io.Fonts->AddFontFromFileTTF("./resources/fonts/Inter-Bold.ttf", 24.0f);
-		inter_light = io.Fonts->AddFontFromFileTTF("./resources/fonts/Inter-Light.ttf", 14.0f);
-		lexend_light = io.Fonts->AddFontFromFileTTF("./resources/fonts/Lexend-Light.ttf", 14.0f);
+		inter_light = io.Fonts->AddFontFromFileTTF("./resources/fonts/Inter-Light.ttf", 24.0f);
+		lexend_light = io.Fonts->AddFontFromFileTTF("./resources/fonts/Lexend-Light.ttf", 24.0f);
+		calibri = io.Fonts->AddFontFromFileTTF("./resources/fonts/Calibri.ttf", 24.0f);
+		calibri_light = io.Fonts->AddFontFromFileTTF("./resources/fonts/Calibri-Light.ttf", 24.0f);
 
 		ImFontConfig config;
 		config.MergeMode = true;
@@ -177,31 +187,37 @@ namespace Borealis::Runtime::Debug
 
 		}
 
-		initialized = true;
+		m_Initialized = true;
 	}
 
 	/// <summary>
 	/// ImGuis draw data. 
 	/// </summary>
-	ImDrawData* RuntimeDebugger::p_drawData = nullptr;
+	ImDrawData* RuntimeDebugger::m_pDrawData = nullptr;
 
-	void RuntimeDebugger::UpdateDrawable()
+	/// <summary>
+	/// Timepoints for the runtime debugger frame time.
+	/// </summary>
+	Time::TimePoint m_RuntimeFrameStart;
+	Time::TimePoint m_RuntimeFrameEnd;
+
+
+	void RuntimeDebugger::Update()
 	{
-		Assert(initialized, "Cannot draw GUI when not initialized. Call Attatch() during initialization!");
+		m_RuntimeFrameStart = Time::Now();
+
+		Assert(m_Initialized, "Cannot draw GUI when not initialized. Call Attatch() during initialization!");
 
 		static Graphics::GraphicsBackend graphicsBackend = RendererLocator::Get()->m_GraphicsBackend;
-		//static BorealisD3D12Renderer* pRenderer = dynamic_cast renderer;
 
 		switch (graphicsBackend)
 		{
 #ifdef BOREALIS_WIN
 		case GraphicsBackend::D3D11:
 			ImGui_ImplDX11_NewFrame();
-			//ImGui_ImplWin32_NewFrame();
 			break;
 		case GraphicsBackend::D3D12:
 			ImGui_ImplDX12_NewFrame();
-			//ImGui_ImplWin32_NewFrame();
 			break;
 #endif
 		case GraphicsBackend::VULKAN:
@@ -218,80 +234,25 @@ namespace Borealis::Runtime::Debug
 		OnGui();
 
 		ImGui::Render();
-		p_drawData = ImGui::GetDrawData();
+		m_pDrawData = ImGui::GetDrawData();
 
 		switch (graphicsBackend)
 		{
 #ifdef BOREALIS_WIN
 		case GraphicsBackend::D3D11:
 		{
-			p_drawData = ImGui::GetDrawData();
-			ImGui_ImplDX11_RenderDrawData(p_drawData);
+			m_pDrawData = ImGui::GetDrawData();
+			ImGui_ImplDX11_RenderDrawData(m_pDrawData);
 			break;
 		}
 		case GraphicsBackend::D3D12:
 		{
-			// TODO: Push common rendering code to BorealisD3D12Renderer
-			// TODO: Move ImGui specific code from BorealisD3D12Renderer to here
-
 			Memory::RefCntAutoPtr<BorealisD3D12Renderer> pD3D12Renderer = Memory::RefCntAutoPtr<IBorealisRenderer>::DynamicCastTo<BorealisD3D12Renderer>(RendererLocator::Get());
 			Assert(pD3D12Renderer.IsValid(), "Failed to cast the renderer to BorealisD3D12Renderer.");
 			HRESULT hResult = S_OK;
-
-			// Get back buffer index
-			const UINT backBufferIdx = pD3D12Renderer->GetSwapChain()->GetCurrentBackBufferIndex();
-
-			// Waiting for the last frame to finish
-			FrameContext* frameCtx = pD3D12Renderer->WaitForNextFrameContext();
-
-			// Reset command allocator
-			hResult = frameCtx->CommandAllocator->Reset();
-			Assert(hResult == S_OK, "Failed to reset command allocator in preparation for the new frame!");
-
-			// Reset command list
-			hResult = pD3D12Renderer->GetCommandList()->Reset(frameCtx->CommandAllocator.Get(), nullptr);
-			Assert(hResult == S_OK, "Failed to reset command list in preparation for the new frame!");
-
-			// TODO: Try to wrap resource barriers in a helper function in BorealisD3D12Renderer
-			D3D12_RESOURCE_BARRIER barrier = {};
-			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-			barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-			barrier.Transition.pResource = pD3D12Renderer->GetCurrentRenderTarget();
-			barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-			barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-
-			pD3D12Renderer->GetCommandList()->ResourceBarrier(1, &barrier);
-
-			// Render Dear ImGui graphics | record commands
-			static float clear_color_with_alpha[4] = { 0.1, 0.3, 0.5, 1 };
-			pD3D12Renderer->GetCommandList()->ClearRenderTargetView(pD3D12Renderer->GetRTVDescriptor(backBufferIdx), clear_color_with_alpha, 0, nullptr);
-			pD3D12Renderer->GetCommandList()->OMSetRenderTargets(1, &pD3D12Renderer->GetRTVDescriptor(backBufferIdx), FALSE, nullptr);
-			pD3D12Renderer->GetCommandList()->SetDescriptorHeaps(1, pD3D12Renderer->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetAddressOf());
-
+			
 			// Draw render data
 			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), pD3D12Renderer->GetCommandList());
-
-			barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-			pD3D12Renderer->GetCommandList()->ResourceBarrier(1, &barrier);
-
-			// Close and execute the command list
-			ID3D12GraphicsCommandList7* const pCommandList = pD3D12Renderer->GetCommandList();
-
-			// Issue is probably pCommandList !!
-			hResult = pCommandList->Close();
-			Assert(hResult == S_OK, StrFromHResult(hResult));
-
-			// Execute the command list
-			pD3D12Renderer->GetCommandQueue()->ExecuteCommandLists(1, (ID3D12CommandList* const*)&pCommandList);
-			hResult = pD3D12Renderer->GetCommandQueue()->Signal(pD3D12Renderer->m_CommandQueueFence.Get(), ++pD3D12Renderer->m_LastSignaledFenceValue);
-			Assert(hResult == S_OK, StrFromHResult(hResult));
-
-			frameCtx->FenceValue = pD3D12Renderer->m_LastSignaledFenceValue;
-
-			hResult = pD3D12Renderer->PresentFrame();
-			Assert(hResult == S_OK, StrFromHResult(hResult));
 
 			break;
 		}
@@ -307,6 +268,9 @@ namespace Borealis::Runtime::Debug
 			break;
 		}
 		}
+
+		m_RuntimeFrameEnd = Time::Now();
+		m_RuntimeFrameDuration = Time::GetDurationInMs(m_RuntimeFrameStart, m_RuntimeFrameEnd);
 	}
 
 	void RuntimeDebugger::OnGui()
@@ -333,9 +297,9 @@ namespace Borealis::Runtime::Debug
 			
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(30, 20));
 
-			for (auto& runtimeDebugWindow : runtimeGUIDrawables)
+			for (auto& runtimeDebugWindow : m_RuntimeGUIDrawables)
 			{
-				runtimeDebugWindow->UpdateDrawable();
+				runtimeDebugWindow->Update();
 			}
 
 			ImGui::PopStyleVar();
@@ -347,11 +311,11 @@ namespace Borealis::Runtime::Debug
 		ImGui::SetNextWindowPos(ImVec2(0,20));
 		ImGui::SetNextWindowSize(ImVec2(150, 500));
 
-		ImGui::Begin("Debug Categories", &isOpen, flags);
+		ImGui::Begin("Debug Categories", &isOpen, m_ImGuiFlags);
 
-		for (Types::uint16 i = 0; i < categoryButtons.size(); ++i)
+		for (Types::uint16 i = 0; i < m_CategoryButtons.size(); ++i)
 		{
-			categoryButtons[i]->Draw(i);
+			m_CategoryButtons[i]->Draw(i);
 		}
 
 		ImGui::End();
@@ -360,13 +324,13 @@ namespace Borealis::Runtime::Debug
 	void RuntimeDebugger::DrawDebugInfoLabels()
 	{
 		ImGui::SetNextWindowPos(ImVec2(130, 20));
-		ImGui::SetNextWindowSize(ImVec2(1000, 100));
+		ImGui::SetNextWindowSize(ImVec2(Core::WindowLocator::Get()->GetWindowWidth(), 100));
 
-		ImGui::Begin("DebugInfoLabels", &isOpen, flags);
+		ImGui::Begin("DebugInfoLabels", &isOpen, m_ImGuiFlags);
 
-		for (Types::uint16 i = 0; i < debugLabels.size(); ++i)
+		for (Types::uint16 i = 0; i < m_DebugLabels.size(); ++i)
 		{
-			debugLabels[i]->Draw();
+			m_DebugLabels[i]->Draw();
 		}
 
 		ImGui::End();

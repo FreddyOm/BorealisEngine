@@ -52,6 +52,9 @@ namespace Borealis::Graphics
 		// Scaling
 		DXGI_MODE_SCALING ScaleMode = DXGI_MODE_SCALING_UNSPECIFIED;
 		DXGI_MODE_SCANLINE_ORDER ScaleOrdering = DXGI_MODE_SCANLINE_ORDER_PROGRESSIVE;
+
+		// Flags
+		DXGI_SWAP_CHAIN_FLAG FullscreenFlags{static_cast<DXGI_SWAP_CHAIN_FLAG>(DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING | DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH)};
 	};
 
 	/// <summary>
@@ -59,7 +62,7 @@ namespace Borealis::Graphics
 	/// </summary>
 	struct BOREALIS_API PipelineDesc
 	{
-		D3D_FEATURE_LEVEL MinimumFeatureLevel = D3D_FEATURE_LEVEL_11_0;
+		D3D_FEATURE_LEVEL MinimumFeatureLevel = D3D_FEATURE_LEVEL_12_0;
 		D3D_FEATURE_LEVEL TargetFeatureLevel = D3D_FEATURE_LEVEL_12_2;
 		
 		SwapChainConfig SwapChain;

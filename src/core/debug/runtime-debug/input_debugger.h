@@ -16,7 +16,7 @@ namespace Borealis::Runtime::Debug
 	{
 	public:
 		InputDebugger(Memory::RefCntAutoPtr<Input::InputSystem>& inputSystem, Memory::RefCntAutoPtr<Graphics::Texture> debugTexAtlas)
-			: m_InputSystem(inputSystem), m_DebugTexAtlas(debugTexAtlas), IGUIDrawable(true)
+			: m_InputSystem(inputSystem), m_DebugTexAtlas(debugTexAtlas), IGUIDrawable(false)
 		{ }
 
 		~InputDebugger() = default;
@@ -27,7 +27,7 @@ namespace Borealis::Runtime::Debug
 		BOREALIS_DELETE_MOVE_ASSIGN(InputDebugger)
 
 
-		void UpdateDrawable() override
+		void Update() override
 		{
 			if (isOpen)
 			{

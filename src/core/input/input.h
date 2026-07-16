@@ -151,7 +151,7 @@ namespace Borealis::Input
             Memory::MemAllocJanitor janitor(Memory::MemAllocatorContext::CORESYS);
 
             m_NullService = Memory::RefCntAutoPtr<NullInputSystem>::Allocate();
-            m_Service = Memory::RefCntAutoPtr<NullInputSystem>::DynamicCastTo<IInputSystemBase>(m_NullService); }
+        }
 
         static Memory::RefCntAutoPtr<IInputSystemBase>& Get() { return m_Service; }
 

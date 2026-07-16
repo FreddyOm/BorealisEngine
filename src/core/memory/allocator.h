@@ -3,6 +3,8 @@
 #include "../../config.h"
 #include "../types/types.h"
 #include "../helpers/macros.h"
+#include <string>
+
 
 namespace Borealis::Memory
 {
@@ -19,8 +21,18 @@ namespace Borealis::Memory
 		BOREALIS_DELETE_COPY_ASSIGN(IMemoryAllocator)
 		BOREALIS_DELETE_MOVE_ASSIGN(IMemoryAllocator)
 
+
+#ifdef BOREALIS_DEBUG
+
+		virtual HandleInfo* Alloc(const Types::uint16 allocSize, const std::string& debugInfo) = 0;
+		virtual HandleInfo* AllocAligned(const Types::uint16 allocSize, const std::string& debugInfo) = 0;
+
+#else
+
 		virtual HandleInfo* Alloc(const Types::uint16 allocSize) = 0;
 		virtual HandleInfo* AllocAligned(const Types::uint16 allocSize) = 0;
+
+#endif
 
 		virtual void FreeMemory(const void* const address) = 0;
 		virtual void FreeAligned(const void* const address) = 0;

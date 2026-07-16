@@ -1,5 +1,9 @@
 #include "application.h"
+
+#include "../time/time_internal.h"
 #include "../graphics/graphics.h"
+#include "../debug/logger.h"
+
 #ifdef BOREALIS_WIN
 #include "../graphics/d3d12/borealis_d3d12.h"
 #endif
@@ -47,22 +51,27 @@ namespace Borealis::Core
 	{
 		while (m_Window->IsOpen())
 		{
+			Time::StartFrameTimer();
+
 			m_InputSystem->UpdateInputState();
 			m_Window->UpdateWindow();
 
+			m_Renderer->StartFrame();
 #ifdef WIN32
 #if (defined BOREALIS_DEBUG || BOREALIS_RELWITHDEBINFO)
 
-			m_RuntimeDebugger->UpdateDrawable();
+			m_RuntimeDebugger->Update();
 #endif		
 #endif
+			HRESULT hResult = m_Renderer->PresentFrame();
+			Assert(hResult == S_OK, StrFromHResult(hResult));
+
+			Time::EndFrameTimer();
 		}
 	}
 
-
 	void Application::InitializeApp(const char* appName)
 	{
-
 		Memory::MemAllocJanitor janitor(Memory::MemAllocatorContext::CORESYS);
 		// Init all relevant systems
 		Log("Initializing app \"%s\"", appName);
@@ -107,15 +116,18 @@ namespace Borealis::Core
 		m_RuntimeDebugger = RefCntAutoPtr<RuntimeDebugger>::Allocate();
 		m_RuntimeDebugger->Attatch();
 #endif
-		//  attatch runtime debugger
 	}
 	
 	void Application::DeinitializeApp()
 	{
 #ifdef BOREALIS_WIN
 		m_RuntimeDebugger->Detatch();
+		m_RuntimeDebugger.Reset();  // Explicitly release the debugger reference
 #endif
 		m_Renderer->DeinitializePipeline();
+		m_Renderer.Reset();          // Explicitly release the renderer reference
+		m_InputSystem.Reset();       // Explicitly release the input system reference
+		m_Window.Reset();            // Explicitly release the window reference
 
 		// Manually reset global data in order to avoid issues with ReportLiveObjects
 		RendererLocator::Reset();

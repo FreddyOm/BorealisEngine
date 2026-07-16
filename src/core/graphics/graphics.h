@@ -32,7 +32,6 @@ namespace Borealis::Graphics
             Memory::MemAllocJanitor janitor(Memory::MemAllocatorContext::CORESYS);
 
             m_NullService = Memory::RefCntAutoPtr<Helpers::NullRenderer>::Allocate();
-            m_Service = Memory::RefCntAutoPtr<Helpers::NullRenderer>::DynamicCastTo<Helpers::IBorealisRenderer>(m_NullService); 
         }
 
         static Memory::RefCntAutoPtr<Helpers::IBorealisRenderer>& Get() { return m_Service; }

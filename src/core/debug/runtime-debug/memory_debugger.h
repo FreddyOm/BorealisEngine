@@ -14,7 +14,7 @@ namespace Borealis::Runtime::Debug
 	public:
 
 		MemoryDebugger()
-			: IGUIDrawable(true)
+			: IGUIDrawable(false)
 		{}
 
 		~MemoryDebugger() = default;
@@ -24,7 +24,7 @@ namespace Borealis::Runtime::Debug
 		BOREALIS_DELETE_COPY_ASSIGN(MemoryDebugger)
 		BOREALIS_DELETE_MOVE_ASSIGN(MemoryDebugger)
 
-		void UpdateDrawable() override
+		void Update() override
 		{
 			if (isOpen)
 			{

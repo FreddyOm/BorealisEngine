@@ -8,11 +8,14 @@ namespace Borealis::Runtime::Debug
 	struct DebugInfoLabel
 	{
 	public:
-		DebugInfoLabel(Types::StringId labelName, ImFont* pFont, bool isActive,
-			ImVec2 size = ImVec2(0, 0),
-			ImVec4 bg_color = ImVec4(0.5f, 0.5f, 0.5f, 0.2f),
-			ImVec4 text_color = ImVec4(1, 1, 1, 0.8f))
-			: isActive(isActive), labelName(labelName), m_pFont(pFont), m_Size(size), m_BgColor(bg_color), m_TextColor(text_color)
+		DebugInfoLabel(const Types::StringId labelName, 
+			ImFont* pFont, bool isActive,
+			const ImVec2 size = ImVec2(0, 0),
+			const ImVec4 bg_color = ImVec4(0.5f, 0.5f, 0.5f, 0.2f),
+			const ImVec4 text_color = ImVec4(1, 1, 1, 0.8f))
+			: m_IsActive(isActive), m_LabelName(labelName), 
+			m_pFont(pFont), m_Size(size), m_BgColor(bg_color), 
+			m_TextColor(text_color)
 		{ }
 
 		~DebugInfoLabel() = default;
@@ -28,13 +31,13 @@ namespace Borealis::Runtime::Debug
 		}
 
 	public:
-		bool isActive = false;
-		Types::StringId labelName = Types::String("");
+		bool m_IsActive = false;
+		const Types::StringId m_LabelName = Types::String("");
 
 	protected:
 		ImFont* m_pFont = nullptr;
-		ImVec2 m_Size = {};
-		ImVec4 m_BgColor = {};
-		ImVec4 m_TextColor = {};
+		const ImVec2 m_Size = {};
+		const ImVec4 m_BgColor = {};
+		const ImVec4 m_TextColor = {};
 	};
 }

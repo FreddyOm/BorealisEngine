@@ -1,32 +1,30 @@
 #include "borealis_d3d12.h"
 #include "../../debug/logger.h"
 #include "../../memory/memory.h"
-#include "../d3d12/d3d12_common.h"
-//#include "../../debug/runtime-debug/EditorWindow.h"
+#include "../../memory/ref_cnt_auto_ptr.h"
 
 using namespace Borealis::Types;
 
 #if defined(BOREALIS_WIN)	// D3D12 only available for Windows OS
-
-#include <WICTextureLoader.h>
-#include <ResourceUploadBatch.h>
-#include <DirectXHelpers.h>
+#include "../d3d12/d3d12_common.h"
 
 using namespace Microsoft::WRL;
 using namespace Borealis::Graphics::Helpers;
+using namespace Borealis::Memory;
 
 namespace Borealis::Graphics
 {
-	Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_RTVDescHeapAllocator{};
-	Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_SRVDescHeapAllocator{};
-	Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_DSVDescHeapAllocator{};
-
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
 	Microsoft::WRL::ComPtr<ID3D12Debug> g_DebugController;
 	bool g_ReportLiveObjInitialized = false;
 
 #endif
+
+	Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_RTVDescHeapAllocator{};
+	Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_SRVDescHeapAllocator{};
+	Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_DSVDescHeapAllocator{};
+	
 
 	BorealisD3D12Renderer::~BorealisD3D12Renderer()
 	{
@@ -171,8 +169,15 @@ namespace Borealis::Graphics
 			::WaitForSingleObject(m_SwapChainWaitable, INFINITE);
 		}
 
+		m_CurrentFrameContext = frame_context;
 		return frame_context;
 	}
+
+	Helpers::FrameContext* const BorealisD3D12Renderer::GetCurrentFrameContext()
+	{
+		return m_CurrentFrameContext;
+	}
+
 
 	D3D12_CPU_DESCRIPTOR_HANDLE& BorealisD3D12Renderer::GetRTVDescriptor(const Types::int32 rtvDescIdx)
 	{
@@ -223,29 +228,51 @@ namespace Borealis::Graphics
 	}
 
 	/// <summary>
-	/// Presents a frame to the display.
+	/// Transitions the render target, closes the command list, executes the command list 
+	/// and presents a frame to the display.
 	/// </summary>
 	/// <returns>Result of the present operation. Returns 'S_OK' if successful, error codes if unsuccessful.</returns>
 	HRESULT BorealisD3D12Renderer::PresentFrame()
 	{
 		// TODO: See https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/dxgi-status for future feature implementation!
+		HRESULT hResult;
 
-		// Present
-		static HRESULT hr;
-		
+		// Create transition barrier for the current render target
+		D3D12_RESOURCE_BARRIER barrier = {};
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Transition.pResource = GetCurrentRenderTarget();
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+		GetCommandList()->ResourceBarrier(1, &barrier);
+
+		// Close and execute the command list
+		ID3D12GraphicsCommandList7* const pCommandList = GetCommandList();
+		hResult = pCommandList->Close();
+		Assert(hResult == S_OK, StrFromHResult(hResult));
+
+		// Execute the command list
+		GetCommandQueue()->ExecuteCommandLists(1, (ID3D12CommandList* const*)&pCommandList);
+		hResult = GetCommandQueue()->Signal(m_CommandQueueFence.Get(), ++m_LastSignaledFenceValue);
+		Assert(hResult == S_OK, StrFromHResult(hResult));
+
+		GetCurrentFrameContext()->FenceValue = m_LastSignaledFenceValue;
+
+		// Present frame to the display		
 		if (m_VSync)
 		{
-			hr = m_SwapChain->Present(1, 0);
+			hResult = m_SwapChain->Present(1, 0);
 		}
 		else
 		{
-			hr = m_SwapChain->Present(0, m_SwapChainTearingSupport ? DXGI_PRESENT_ALLOW_TEARING : 0); // Present without vsync
+			hResult = m_SwapChain->Present(0, m_SwapChainTearingSupport ? DXGI_PRESENT_ALLOW_TEARING : 0); // Present without vsync
 		}
 		
-		m_SwapChainOccluded = (hr == DXGI_STATUS_OCCLUDED);
+		m_SwapChainOccluded = (hResult == DXGI_STATUS_OCCLUDED);
 		++m_FrameIndex;
 
-		return hr;
+		return hResult;
 	}
 
 	/// <summary>
@@ -355,6 +382,55 @@ namespace Borealis::Graphics
 		return hResult;
 	}
 
+	const bool BorealisD3D12Renderer::IsVsyncEnabled() const
+	{
+		return m_VSync;
+	}
+
+	void BorealisD3D12Renderer::SetVsyncEnabled(const bool enabled)
+	{
+		m_VSync = enabled;
+	}
+
+	void BorealisD3D12Renderer::StartFrame(Math::Vector4<float> clearColor)
+	{
+		HRESULT hResult = S_OK;
+
+		const UINT backBufferIdx = GetSwapChain()->GetCurrentBackBufferIndex();
+		
+		// Waiting for the last frame to finish
+		FrameContext* frameCtx = WaitForNextFrameContext();
+
+		// Reset command allocator
+		hResult = frameCtx->CommandAllocator->Reset();
+		Assert(hResult == S_OK, "Failed to reset command allocator in preparation for the new frame!");
+
+		// Reset command list
+		hResult = GetCommandList()->Reset(frameCtx->CommandAllocator.Get(), nullptr);
+		Assert(hResult == S_OK, "Failed to reset command list in preparation for the new frame!");
+
+
+		// TODO: Try to wrap resource barriers in a helper function in BorealisD3D12Renderer
+		// Transition the back buffer to a render target
+		D3D12_RESOURCE_BARRIER barrier = {};
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		barrier.Transition.pResource = GetCurrentRenderTarget();
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+		GetCommandList()->ResourceBarrier(1, &barrier);
+
+		// Clear the render target
+		const UINT currentBackBufferIdx = GetSwapChain()->GetCurrentBackBufferIndex();
+		static float clear_color_with_alpha[4] = { 0.1, 0.3, 0.5, 1 };
+
+		GetCommandList()->ClearRenderTargetView(GetRTVDescriptor(currentBackBufferIdx), clearColor.Data(), 0, nullptr);
+		GetCommandList()->OMSetRenderTargets(1, &GetRTVDescriptor(currentBackBufferIdx), FALSE, nullptr);
+		GetCommandList()->SetDescriptorHeaps(1, GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetAddressOf());
+	}
+
 	Memory::RefCntAutoPtr<Texture> BorealisD3D12Renderer::CreateTexture(const wchar_t* path)
 	{
 		Memory::MemAllocJanitor janitor(Memory::MemAllocatorContext::RENDERING);
@@ -453,7 +529,7 @@ namespace Borealis::Graphics
 			swapChainDesc.AlphaMode = this->m_PipelineDesc.SwapChain.AlphaMode;
 			swapChainDesc.BufferCount = this->m_PipelineDesc.SwapChain.BufferCount;
 			swapChainDesc.BufferUsage = this->m_PipelineDesc.SwapChain.BufferUsage;
-			swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+			swapChainDesc.Flags = this->m_PipelineDesc.SwapChain.FullscreenFlags;
 			swapChainDesc.Format = this->m_PipelineDesc.SwapChain.BufferFormat;
 			swapChainDesc.Height = this->m_PipelineDesc.SwapChain.BufferHeight;
 			swapChainDesc.SampleDesc.Count = this->m_PipelineDesc.SwapChain.SampleCount;
@@ -667,8 +743,6 @@ namespace Borealis::Graphics
 		if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(debug.GetAddressOf()))))
 		{
 			HRESULT hRes = debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_SUMMARY);
-			//Assert(SUCCEEDED());
-			//"Failed to report live objects!");
 		}
 
 #endif

@@ -1,7 +1,6 @@
 #pragma once
 #include "../../config.h"
 #include "../helpers/macros.h"
-//#include "../graphics/graphics.h"
 #include "../window/window.h"
 #include "../input/input.h"
 #include "../graphics/helpers/helpers.h"
@@ -33,9 +32,6 @@ namespace Borealis::Core
 
 	private:
 
-#ifdef BOREALIS_WIN
-		//Memory::RefCntAutoPtr<Graphics::BorealisD3D12Renderer> m_Renderer;
-#endif
 		Memory::RefCntAutoPtr<Graphics::Helpers::IBorealisRenderer> m_Renderer;
 		Memory::RefCntAutoPtr<Core::Window> m_Window;
 		Memory::RefCntAutoPtr<Input::InputSystem> m_InputSystem;

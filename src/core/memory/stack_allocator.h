@@ -24,9 +24,16 @@ namespace Borealis::Memory
 
 	public:
 
+
+#ifdef BOREALIS_DEBUG
+		HandleInfo* Alloc(const Types::uint16 allocSize, const std::string& debugInfo = "") override;
+		HandleInfo* AllocAligned(const Types::uint16 allocSize, const std::string& debugInfo = "") override;
+#else
 		HandleInfo* Alloc(const Types::uint16 allocSize) override;
-		void FreeMemory(const void* const address) override;
 		HandleInfo* AllocAligned(const Types::uint16 allocSize) override;
+#endif
+		
+		void FreeMemory(const void* const address) override;
 		void FreeAligned(const void* const address) override;
 
 		StackAllocMarker GetMarker() const;

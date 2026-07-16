@@ -5,6 +5,11 @@
 #include "../helpers/macros.h"
 #include <list>
 
+#ifdef BOREALIS_DEBUG
+#include <string>
+#endif
+
+
 #ifndef CLEAR_HEAP_ELEMENT_ON_FREE
 #define CLEAR_HEAP_ELEMENT_ON_FREE
 #endif
@@ -12,7 +17,11 @@
 namespace Borealis::Memory
 {
 	struct HandleInfo;
-	BOREALIS_API HandleInfo* RegisterHandle(void* const p_dataPtr);
+	BOREALIS_API HandleInfo* RegisterHandle(void* const p_dataPtr
+#ifdef BOREALIS_DEBUG
+		, const std::string& debugInfo
+#endif
+		);
 	extern BOREALIS_API void* const AccessHandleData(Types::uint64Ptr hndlId);
 
 	//Heap [ HeapDesc | Alignment | Alignment | 1 | 1 | 1 | 1 | 0 | 0 | 0 | .. | HeapDesc | 1 | 1 | 1 ]
@@ -100,6 +109,16 @@ namespace Borealis::Memory
 			return reinterpret_cast<Types::uint64Ptr>(first.p_BlockEnd) == reinterpret_cast<Types::uint64Ptr>(second.p_BlockStart);
 		}
 
+#ifdef BOREALIS_DEBUG
+		/// <summary>
+		/// Splits this memory block into two, and returns the first one for seperate use.
+		/// </summary>
+		/// <param name="blockSize">The requested block size.</param>
+		/// <param name="alignOffset">The alignment size if necessary.</param>
+		/// <param name="debugInfo">The debug info for the current allocation.</param>
+		/// <returns>A new heap description object referencing the newly split memory block.</returns>
+		HandleInfo* AllocMemoryFromBlock(const Types::uint16 blockSize, const bool alignToSize = false, const std::string& debugInfo = "");
+#else
 		/// <summary>
 		/// Splits this memory block into two, and returns the first one for seperate use.
 		/// </summary>
@@ -107,6 +126,8 @@ namespace Borealis::Memory
 		/// <param name="alignOffset">The alignment size if necessary.</param>
 		/// <returns>A new heap description object referencing the newly split memory block.</returns>
 		HandleInfo* AllocMemoryFromBlock(const Types::uint16 blockSize, const bool alignToSize = false);
+
+#endif
 	};
 
 	class BOREALIS_API HeapAllocator : public IMemoryAllocator
@@ -125,9 +146,13 @@ namespace Borealis::Memory
 
 	public:
 
-		// Inherited via IMemoryAllocator
+#ifdef BOREALIS_DEBUG
+		HandleInfo* Alloc(const Types::uint16 allocSize, const std::string& debugInfo = "") override;
+		HandleInfo* AllocAligned(const Types::uint16 allocSize, const std::string& debugInfo = "") override;
+#else
 		HandleInfo* Alloc(const Types::uint16 allocSize) override;
 		HandleInfo* AllocAligned(const Types::uint16 allocSize) override;
+#endif
 
 		void FreeMemory(const void* const address) override;
 		void FreeAligned(const void* const address) override;

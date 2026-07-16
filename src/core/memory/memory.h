@@ -4,6 +4,8 @@
 #include "../types/types.h"
 #include "../debug/logger.h"
 #include "allocator.h"
+#include "../types/string_id.h"
+
 
 #include <stack>
 #include <unordered_map>
@@ -60,8 +62,18 @@ namespace Borealis::Memory
 
 	struct HandleInfo	// 16 bytes
 	{
-		explicit HandleInfo(const Types::uint64Ptr handleId)
-			: HandleId(handleId), RefCount(1), MemAllocCntxt(g_memoryAllocatorContext.empty() ? MemAllocatorContext::DEFAULT : g_memoryAllocatorContext.top())
+		explicit HandleInfo(
+			const Types::uint64Ptr handleId
+#ifdef BOREALIS_DEBUG
+			, const std::string& debugInfo
+#endif
+		)
+			: HandleId(handleId)
+			, RefCount(0)
+			, MemAllocCntxt(g_memoryAllocatorContext.empty() ? MemAllocatorContext::DEFAULT : g_memoryAllocatorContext.top())
+#ifdef BOREALIS_DEBUG
+			, m_DebugInfo(debugInfo)
+#endif
 		{ }
 
 		~HandleInfo() = default;
@@ -69,13 +81,20 @@ namespace Borealis::Memory
 		Types::uint64Ptr HandleId = 0;		// 8 bytes
 		Types::int32 RefCount = 0;			// 4 bytes
 		MemAllocatorContext MemAllocCntxt = MemAllocatorContext::NONE;	// 1 bytes
+#ifdef BOREALIS_DEBUG
+		std::string m_DebugInfo = "";
+#endif
 		Types::int8 Padding[3]{};			// 3 bytes
 	};
 
 	extern BOREALIS_API PoolAllocator g_HandleInfoAllocator;
 	extern BOREALIS_API std::unordered_map<Types::uint64Ptr, void*> g_HandleTable;
 
-	BOREALIS_API HandleInfo* RegisterHandle(void* const p_dataPtr);
+	BOREALIS_API HandleInfo* RegisterHandle(void* const p_dataPtr
+#ifdef BOREALIS_DEBUG
+		, const std::string& debugInfo
+#endif
+		);
 	BOREALIS_API void UpdateHandle(const Types::uint64Ptr handleId, void* const p_newData);
 	BOREALIS_API void RemoveHandle(const Types::uint64Ptr handleId, HandleInfo* const p_hndlInfo);
 	BOREALIS_API void* const AccessHandleData(const Types::uint64Ptr handleId);
@@ -98,6 +117,36 @@ namespace Borealis::Memory
 	BOREALIS_API void PopAllocator();
 	BOREALIS_API void FlushAllocator();
 
+#ifdef BOREALIS_DEBUG
+
+	template<typename T, typename... Args>
+	T* Allocate(Args&&... args)
+	{
+		if (g_memoryAllocatorContext.empty())
+		{
+			LogError("No memory allocator assigned for allocation! Use a MemAllocJanitor to push an allocator context!");
+			return nullptr;
+		}
+
+		HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->Alloc(sizeof(T), typeid(T).name());
+		Assert(p_hndl != nullptr, "Failed to allocate memory!");
+		
+		return p_hndl ? new (AccessHandleData(p_hndl->HandleId)) T(std::forward<Args>(args)...) : nullptr;
+	}
+
+	template<typename T, typename... Args>
+	T* AllocAligned(Args&&... args)
+	{
+		if (g_memoryAllocatorContext.empty())
+			return nullptr;
+
+		HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->AllocAligned(sizeof(T), typeid(T).name());
+		Assert(p_hndl != nullptr, "Failed to allocate memory!");
+		
+		return p_hndl ? new (AccessHandleData(p_hndl->HandleId)) T(std::forward<Args>(args)...) : nullptr;
+	}
+
+#else
 
 	template<typename T, typename... Args>
 	T* Allocate(Args&&... args)
@@ -110,7 +159,7 @@ namespace Borealis::Memory
 
 		HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->Alloc(sizeof(T));
 		Assert(p_hndl != nullptr, "Failed to allocate memory!");
-		
+
 		return p_hndl ? new (AccessHandleData(p_hndl->HandleId)) T(std::forward<Args>(args)...) : nullptr;
 	}
 
@@ -122,9 +171,11 @@ namespace Borealis::Memory
 
 		HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->AllocAligned(sizeof(T));
 		Assert(p_hndl != nullptr, "Failed to allocate memory!");
-		
+
 		return p_hndl ? new (AccessHandleData(p_hndl->HandleId)) T(std::forward<Args>(args)...) : nullptr;
 	}
+
+#endif
 
 	template<typename T>
 	void Free(const T* address)

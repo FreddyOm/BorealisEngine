@@ -123,7 +123,6 @@ namespace Borealis::Core
 			Memory::MemAllocJanitor janitor(Memory::MemAllocatorContext::CORESYS);
 
 			m_NullService = Memory::RefCntAutoPtr<NullWindow>::Allocate();
-			m_Service = Memory::RefCntAutoPtr<NullWindow>::DynamicCastTo<BorealisWindow>(m_NullService); 
 		}
 
 		static Memory::RefCntAutoPtr<BorealisWindow>& Get() { return m_Service; }
