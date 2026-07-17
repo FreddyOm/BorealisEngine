@@ -16,9 +16,16 @@ namespace Borealis::Memory
 
 	std::unordered_map<uint64Ptr, void*> g_HandleTable =
 		std::unordered_map<uint64Ptr, void*>();
+	std::unordered_map<uint64Ptr, HandleInfo*> g_HandleInfoMap =
+		std::unordered_map<uint64Ptr, HandleInfo*>();
 	
 	// Maybe enter the MemBlockDesc as value and when using the handle, map to its data ptr?
-	BOREALIS_API HandleInfo* RegisterHandle(void* const p_refCntPtr)
+	BOREALIS_API HandleInfo* RegisterHandle(
+		void* const p_refCntPtr
+#ifdef BOREALIS_DEBUG
+		, const std::string& debugInfo
+#endif
+	)
 	{
 		Assert(p_refCntPtr != nullptr, "Cannot register nullptr as handle");
 
@@ -28,9 +35,16 @@ namespace Borealis::Memory
 
 		// Register the handle and the corresponding data pointer
 		g_HandleTable.insert({ handleID, p_refCntPtr });
-
 		// Return the handle info 
-		return new (g_HandleInfoAllocator.RawAlloc(sizeof(HandleInfo))) HandleInfo(handleID);
+#ifdef BOREALIS_DEBUG
+		HandleInfo* p_handleInfo = new (g_HandleInfoAllocator.RawAlloc(sizeof(HandleInfo))) HandleInfo(handleID, debugInfo);
+#else
+		HandleInfo* p_handleInfo = new (g_HandleInfoAllocator.RawAlloc(sizeof(HandleInfo))) HandleInfo(handleID);
+
+#endif
+		g_HandleInfoMap.insert({ handleID, p_handleInfo });
+
+		return p_handleInfo;
 	}
 
 	BOREALIS_API void UpdateHandle(const uint64Ptr handleId, void* const p_newData)
@@ -54,6 +68,7 @@ namespace Borealis::Memory
 
 		// Remove handle from handle table
 		g_HandleTable.erase(handleId);
+		g_HandleInfoMap.erase(handleId);
 		g_HandleInfoAllocator.FreeMemory(p_hndlInfo);
 	}
 
@@ -68,6 +83,52 @@ namespace Borealis::Memory
 		return g_HandleTable.find(handleId) == g_HandleTable.end() ? nullptr : g_HandleTable[handleId];
 	}
 
+	BOREALIS_API void ReportLiveHandles()
+	{
+		LogWarning("Reporting %u live handles.", g_HandleTable.size());
+
+		for (const auto& pair : g_HandleTable)
+		{
+			const char* allocCtxt = "DEFAULT";
+			
+			switch (g_HandleInfoMap[pair.first]->MemAllocCntxt)
+			{
+			case MemAllocatorContext::DEFAULT:
+				allocCtxt = "DEFAULT";
+				break;
+			case MemAllocatorContext::RENDERING_DEBUG:
+				allocCtxt = "RENDERING_DEBUG";
+				break;
+			case MemAllocatorContext::RENDERING:
+				allocCtxt = "RENDERING";
+				break;
+			case MemAllocatorContext::CORESYS:
+				allocCtxt = "CORESYS";
+				break;
+			case MemAllocatorContext::FRAME:
+				allocCtxt = "FRAME";
+				break;
+			case MemAllocatorContext::STATIC:
+				allocCtxt = "STATIC";
+				break;
+			case MemAllocatorContext::DEBUG:
+				allocCtxt = "DEBUG";
+				break;
+			default:
+				allocCtxt = "UNKNOWN";
+				break;
+			}
+#ifdef BOREALIS_DEBUG
+			LogWarning("Handle: [%u] | RefCnt: %i | Allocated on %s as %s", pair.first, g_HandleInfoMap[pair.first]->RefCount, allocCtxt, g_HandleInfoMap[pair.first]->m_DebugInfo.c_str());
+#else
+			LogWarning("Handle: [%u] | RefCnt: %i | Allocated on %s", pair.first, g_HandleInfoMap[pair.first]->RefCount, allocCtxt);
+#endif
+		}
+
+		Log("End");
+	}
+
+
 #pragma endregion global handle table
 
 #pragma region memory allocation
@@ -78,6 +139,7 @@ namespace Borealis::Memory
 	StackAllocator g_frameAllocator(2048);					// 2 KiB
 	StackAllocator g_staticAllocator(134217728);			// 128 MiB
 	PoolAllocator g_debugAllocator(4096, 65536);			// 256 MiB
+	PoolAllocator g_coresysAllocator(4096, 65536);			// 256 MiB
 	
 	HeapAllocator g_renderingDebugAllocator(67108864);		// 64 MiB
 	HeapAllocator g_renderingAllocator(67108864);			// 64 MiB
@@ -92,6 +154,10 @@ namespace Borealis::Memory
 		{
 			return dynamic_cast<IMemoryAllocator*>(&g_debugAllocator);
 		}
+		case MemAllocatorContext::CORESYS:
+		{
+			return dynamic_cast<IMemoryAllocator*>(&g_coresysAllocator);
+		}
 		case MemAllocatorContext::RENDERING:
 		{
 			return dynamic_cast<IMemoryAllocator*>(&g_renderingAllocator);
@@ -104,10 +170,13 @@ namespace Borealis::Memory
 		{
 			return dynamic_cast<IMemoryAllocator*>(&g_frameAllocator);
 		}
-		default:
 		case MemAllocatorContext::STATIC:
 		{
 			return dynamic_cast<IMemoryAllocator*>(&g_staticAllocator);
+		}
+		default:
+		{
+			return dynamic_cast<IMemoryAllocator*>(&g_defaultAllocator);
 		}
 		}
 	}

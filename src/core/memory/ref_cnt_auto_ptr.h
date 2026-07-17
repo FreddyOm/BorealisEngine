@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../config.h"
 #include "../types/types.h"
 #include "../debug/logger.h"
 #include "./memory.h"
@@ -11,6 +12,8 @@ namespace Borealis::Memory
 	struct RefCntAutoPtr
 	{
 		RefCntAutoPtr()
+			: m_pHandleInfo(nullptr)
+			//, m_DebugInfo(typeid(T).name())
 		{ }
 		
 		RefCntAutoPtr(HandleInfo* const p_hndlInfo)
@@ -20,8 +23,12 @@ namespace Borealis::Memory
 
 			Assert(this->m_pHandleInfo == nullptr,
 				"Cannot assign a raw pointer to a RefCntAutoPtr that is already referencing some data!");
-			
+
+			//Assert(p_hndlInfo->RefCount == 0, 
+			//	"Cannot assign a handle with existing references to a ref counted auto pointer object.");
+
 			this->m_pHandleInfo = p_hndlInfo;
+			++m_pHandleInfo->RefCount;
 		}
 
 		RefCntAutoPtr(const RefCntAutoPtr<T>& other)
@@ -32,8 +39,9 @@ namespace Borealis::Memory
 			// Assign the appropriate data
 			m_pHandleInfo = other.m_pHandleInfo;
 
-			// Increment RefCount
-			++m_pHandleInfo->RefCount;
+			// Increment RefCount only if source is valid
+			if (m_pHandleInfo != nullptr)
+				++m_pHandleInfo->RefCount;
 		}
 
 		RefCntAutoPtr(RefCntAutoPtr<T>&& other) noexcept
@@ -50,17 +58,7 @@ namespace Borealis::Memory
 
 		~RefCntAutoPtr()
 		{
-			// Decrease ref count if possible
-			if (m_pHandleInfo != nullptr)
-			{
-				if (--m_pHandleInfo->RefCount <= 0)
-				{
-					// Call destructor, release all memory and clean up!
-					void* data = AccessHandleData(m_pHandleInfo->HandleId);
-					static_cast<T*>(data)->~T();
-					RemoveHandle(m_pHandleInfo->HandleId, m_pHandleInfo);
-				}
-			}
+			Reset();
 		}
 
 		RefCntAutoPtr& operator=(HandleInfo* const p_hndlInfo)
@@ -72,6 +70,7 @@ namespace Borealis::Memory
 				"Cannot assign a raw pointer to a RefCntAutoPtr that is already referencing some data!");
 
 			this->m_pHandleInfo = p_hndlInfo;
+			++this->m_pHandleInfo->RefCount;
 			return *this;
 		}
 
@@ -80,11 +79,15 @@ namespace Borealis::Memory
 			Assert(other.m_pHandleInfo != m_pHandleInfo,
 				"Cannot assign a ref counted pointer to itself!");
 
+			// Clean up existing data before reassigning
+			Reset();
+
 			// Assign the appropriate data
 			m_pHandleInfo = other.m_pHandleInfo;
 
-			// Increment RefCount
-			++m_pHandleInfo->RefCount;
+			// Increment RefCount if source is valid
+			if (m_pHandleInfo != nullptr)
+				++m_pHandleInfo->RefCount;
 
 			return *this;
 		}
@@ -94,11 +97,13 @@ namespace Borealis::Memory
 			Assert(other.m_pHandleInfo != m_pHandleInfo && *this != other,
 				"Cannot assign a ref counted pointer to itself!");
 
+			// Clean up existing data before reassigning
+			Reset();
+
 			// Assign the appropriate data
 			m_pHandleInfo = other.m_pHandleInfo;
 
 			// Do not increment RefCount since data is moved!
-
 			other.m_pHandleInfo = nullptr;
 
 			return *this;
@@ -114,8 +119,70 @@ namespace Borealis::Memory
 			return m_pHandleInfo != nullptr;
 		}
 
+#ifdef BOREALIS_DEBUG
+
 		template<typename ...Args>
-		static HandleInfo* Allocate(Args ... args)
+		static HandleInfo* Allocate(Args... args)
+		{
+			if (g_memoryAllocatorContext.empty())
+			{
+				LogError("No memory allocator assigned for allocation! Use a MemAllocJanitor to push an allocator context!");
+				return nullptr;
+			}
+
+			HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->Alloc(sizeof(T), typeid(T).name());
+			if (p_hndl)
+			{
+				new (AccessHandleData(p_hndl->HandleId)) T(args...);
+				return p_hndl;
+			}
+
+			LogError("Couldn't allocate memory!");
+			return nullptr;
+		}
+
+		static HandleInfo* AllocBlock(Types::uint64 blockSize)
+		{
+			if (g_memoryAllocatorContext.empty())
+			{
+				LogError("No memory allocator assigned for allocation! Use a MemAllocJanitor to push an allocator context!");
+				return nullptr;
+			}
+
+			HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->Alloc(blockSize, typeid(T).name());
+			if (p_hndl)
+			{
+				new (AccessHandleData(p_hndl->HandleId)) T();
+				return p_hndl;
+			}
+
+			LogError("Couldn't allocate memory!");
+			return nullptr;
+		}
+
+		static HandleInfo* AllocAligned()
+		{
+			if (g_memoryAllocatorContext.empty())
+			{
+				LogError("No memory allocator assigned for allocation! Use a MemAllocJanitor to push an allocator context!");
+				return nullptr;
+			}
+
+			HandleInfo* p_hdnl = GetMemoryAllocator(g_memoryAllocatorContext.top())->AllocAligned(sizeof(T), typeid(T).name());
+			if (p_hdnl)
+			{
+				new (AccessHandleData(p_hdnl->HandleId)) T();
+				return p_hdnl;
+			}
+
+			LogError("Couldn't allocate memory!");
+			return nullptr;
+		}
+
+#else
+
+		template<typename ...Args>
+		static HandleInfo* Allocate(Args... args)
 		{
 			if (g_memoryAllocatorContext.empty())
 			{
@@ -124,8 +191,8 @@ namespace Borealis::Memory
 			}
 
 			HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->Alloc(sizeof(T));
-			if (p_hndl) 
-			{	
+			if (p_hndl)
+			{
 				new (AccessHandleData(p_hndl->HandleId)) T(args...);
 				return p_hndl;
 			}
@@ -172,6 +239,9 @@ namespace Borealis::Memory
 			return nullptr;
 		}
 
+#endif
+
+
 		/// <summary>
 		/// Casts a type stored in a RefCntAutoPtr into a derived type or the other way around.
 		/// </summary>
@@ -187,7 +257,7 @@ namespace Borealis::Memory
 			
 			// Here we have to increment the ref count manually since we create a new RefCntAutoPtr out of a handleInfo which will not increase the ref cnt.
 			// But since the dynamic cast takes a RefCntAutoPtr and returns one as well, this is basically a copy!
-			++ref.m_pHandleInfo->RefCount;
+			//++ref.m_pHandleInfo->RefCount;
 
 			return RefCntAutoPtr<S>(ref.m_pHandleInfo);
 		}
@@ -201,9 +271,33 @@ namespace Borealis::Memory
 
 			// Here we have to increment the ref count manually since we create a new RefCntAutoPtr out of a handleInfo which will not increase the ref cnt.
 			// But since the static cast takes a RefCntAutoPtr and returns one as well, this is basically a copy!
-			++ref.m_pHandleInfo->RefCount;
+			//++ref.m_pHandleInfo->RefCount;
 
 			return RefCntAutoPtr<S>(ref.m_pHandleInfo);
+		}
+
+		void Reset()
+		{
+			// Decrease ref count if possible
+			if (m_pHandleInfo != nullptr)
+			{
+				if (g_HandleTable.empty() ||g_HandleTable.find(m_pHandleInfo->HandleId) == g_HandleTable.end())
+				{
+					// Handle has already been removed (probably destroyed by another cleanup)
+					m_pHandleInfo = nullptr;
+					return;
+				}
+
+				if (--m_pHandleInfo->RefCount == 0)
+				{
+					// Call destructor, release all memory and clean up!
+					void* data = AccessHandleData(m_pHandleInfo->HandleId);
+					static_cast<T*>(data)->~T();
+					RemoveHandle(m_pHandleInfo->HandleId, m_pHandleInfo);
+					m_pHandleInfo = nullptr;
+				}
+			}
+
 		}
 
 		bool operator==(const RefCntAutoPtr<T> &other) const noexcept

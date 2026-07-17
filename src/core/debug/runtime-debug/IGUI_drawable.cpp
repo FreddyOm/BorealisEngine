@@ -19,4 +19,8 @@ namespace Borealis::Runtime::Debug
 	ImFont* IGUIDrawable::inter_light = nullptr;
 	ImFont* IGUIDrawable::inter_bold = nullptr;
 	ImFont* IGUIDrawable::lexend_light = nullptr;
+	ImFont* IGUIDrawable::lexend_bold = nullptr;
+	ImFont* IGUIDrawable::calibri = nullptr;
+	ImFont* IGUIDrawable::calibri_light = nullptr;
+	ImFont* IGUIDrawable::calibri_bold = nullptr;
 }

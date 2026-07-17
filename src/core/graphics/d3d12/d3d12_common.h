@@ -33,3 +33,8 @@
 
 // Borealis API-agnostic helpers
 #include "../helpers/helpers.h"
+
+// DirectXTK12 headers
+#include <WICTextureLoader.h>
+#include <ResourceUploadBatch.h>
+#include <DirectXHelpers.h>

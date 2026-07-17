@@ -32,7 +32,7 @@ namespace Borealis::Helpers
 			// Reserve all allocated elements inside the inactive elements set
 			for (Types::int32 i = 0; i < N; ++i)
 			{
-				Memory::MemAllocJanitor janitor(Memory::MemAllocatorContext::DEFAULT);
+				Memory::MemAllocJanitor janitor(Memory::MemAllocatorContext::CORESYS);
 				m_inactiveElements.insert(Memory::RefCntAutoPtr<T>::Allocate(args...));
 
 				//Memory::HandleInfo* pHandleInfo = m_memPool.Alloc(sizeof(T));
@@ -96,6 +96,12 @@ namespace Borealis::Helpers
 		std::set<Memory::RefCntAutoPtr<T>>& GetActiveElements()
 		{
 			return m_activeElements;
+		}
+
+		void Clear()
+		{
+			m_activeElements.clear();
+			m_inactiveElements.clear();
 		}
 
 	private:

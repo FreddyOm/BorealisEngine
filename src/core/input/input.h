@@ -18,10 +18,10 @@ struct GLFWwindow;
 
 namespace Borealis::Input
 {	
-    struct IInputSystemBase
+    struct BOREALIS_API IInputSystemBase
     {
 		IInputSystemBase() = default;
-		virtual ~IInputSystemBase() = default;
+        virtual ~IInputSystemBase() = default;
 
         BOREALIS_DELETE_COPY_CONSTRUCT(IInputSystemBase)
         BOREALIS_DELETE_MOVE_CONSTRUCT(IInputSystemBase)
@@ -38,29 +38,44 @@ namespace Borealis::Input
 		virtual const std::set<Memory::RefCntAutoPtr<Gamepad>>& GetGamepads() const = 0;
     };
 
+    class BOREALIS_API NullInputSystem : public IInputSystemBase
+    {
+    public:
+        void UpdateInputState() { }
+
+        virtual std::set<Memory::RefCntAutoPtr<IInputDevice>>& GetAllDevices() { return m_NullDevices; }
+        virtual const Memory::RefCntAutoPtr<Mouse> GetMouse() const { return Memory::RefCntAutoPtr<Mouse>(); }
+        virtual const Memory::RefCntAutoPtr<Keyboard> GetKeyboard() const { return Memory::RefCntAutoPtr<Keyboard>(); }
+        virtual const std::set<Memory::RefCntAutoPtr<Gamepad>>& GetGamepads() const { return m_NullGamepads; }
+   
+    private:
+        std::set<Memory::RefCntAutoPtr<IInputDevice>> m_NullDevices = {};
+        std::set<Memory::RefCntAutoPtr<Gamepad>> m_NullGamepads = {};
+    };
+
 
 #ifdef BOREALIS_WIN
 
     struct BOREALIS_API WinInputSystem : public IInputSystemBase
     {
         WinInputSystem(GLFWwindow* window);
-        ~WinInputSystem() override;
+        ~WinInputSystem();
 
         BOREALIS_DELETE_COPY_CONSTRUCT(WinInputSystem)
         BOREALIS_DELETE_MOVE_CONSTRUCT(WinInputSystem)
         BOREALIS_DELETE_COPY_ASSIGN(WinInputSystem)
         BOREALIS_DELETE_MOVE_ASSIGN(WinInputSystem)
 
-		void UpdateInputState() override;
+		void UpdateInputState();
 
         static void OnDeviceConnected(Memory::RefCntAutoPtr<IInputDevice> device, InputDeviceCategory category);
 		static void OnDeviceDisconnected(Memory::RefCntAutoPtr<IInputDevice> device, InputDeviceCategory category);
 
-		std::set<Memory::RefCntAutoPtr<IInputDevice>>& GetAllDevices() override;
+		virtual std::set<Memory::RefCntAutoPtr<IInputDevice>>& GetAllDevices();
 
-		const Memory::RefCntAutoPtr<Mouse> GetMouse() const override;
-		const Memory::RefCntAutoPtr<Keyboard> GetKeyboard() const override;
-		const std::set<Memory::RefCntAutoPtr<Gamepad>>& GetGamepads() const override;
+		virtual const Memory::RefCntAutoPtr<Mouse> GetMouse() const;
+		virtual const Memory::RefCntAutoPtr<Keyboard> GetKeyboard() const;
+		virtual const std::set<Memory::RefCntAutoPtr<Gamepad>>& GetGamepads() const;
 
     private:
 
@@ -79,24 +94,24 @@ namespace Borealis::Input
 
     struct LinuxInputSystem : public IInputSystemBase
     {
-        LinuxInputSystem();
-        ~LinuxInputSystem() override;
+        LinuxInputSystem(GLFWwindow* window);
+        ~LinuxInputSystem();
 
         BOREALIS_DELETE_COPY_CONSTRUCT(LinuxInputSystem)
         BOREALIS_DELETE_MOVE_CONSTRUCT(LinuxInputSystem)
         BOREALIS_DELETE_COPY_ASSIGN(LinuxInputSystem)
         BOREALIS_DELETE_MOVE_ASSIGN(LinuxInputSystem)
 
-        void UpdateInputState() override;
+        virtual void UpdateInputState();
 
         static void OnDeviceConnected(Memory::RefCntAutoPtr<IInputDevice> device, InputDeviceCategory category);
         static void OnDeviceDisconnected(Memory::RefCntAutoPtr<IInputDevice> device, InputDeviceCategory category);
 
-        std::set<Memory::RefCntAutoPtr<IInputDevice>>& GetAllDevices() override;
+        virtual std::set<Memory::RefCntAutoPtr<IInputDevice>>& GetAllDevices();
 
-        const Memory::RefCntAutoPtr<Mouse> GetMouse() const override;
-        const Memory::RefCntAutoPtr<Keyboard> GetKeyboard() const override;
-        const std::set<Memory::RefCntAutoPtr<Gamepad>>& GetGamepads() const override;
+        const Memory::RefCntAutoPtr<Mouse> GetMouse() const;
+        const Memory::RefCntAutoPtr<Keyboard> GetKeyboard() const;
+        const std::set<Memory::RefCntAutoPtr<Gamepad>>& GetGamepads() const;
     };
 
 #elif BOREALIS_OSX
@@ -128,5 +143,43 @@ namespace Borealis::Input
     using InputSystem = Borealis::Input::OsxInputSystem;
 #endif
 
+    class BOREALIS_API InputSystemLocator
+    {
+    public:
+        static void Initialize() 
+        { 
+            Memory::MemAllocJanitor janitor(Memory::MemAllocatorContext::CORESYS);
+
+            m_NullService = Memory::RefCntAutoPtr<NullInputSystem>::Allocate();
+        }
+
+        static Memory::RefCntAutoPtr<IInputSystemBase>& Get() { return m_Service; }
+
+        static void Provide(Memory::RefCntAutoPtr<IInputSystemBase> service)
+        {
+            if (!service.IsValid())
+            {
+                // Revert to null service.
+                m_Service = Memory::RefCntAutoPtr<NullInputSystem>::DynamicCastTo<IInputSystemBase>(m_NullService);
+            }
+            else
+            {
+                m_Service = service;
+            }
+        }
+
+        static void Reset()
+        {
+            if (m_Service.IsValid())
+                m_Service.Reset();
+
+            if (m_NullService.IsValid())
+                m_NullService.Reset();
+        }
+
+    private:
+        static Memory::RefCntAutoPtr<IInputSystemBase> m_Service;
+        static Memory::RefCntAutoPtr<NullInputSystem> m_NullService;
+    };
 }
 

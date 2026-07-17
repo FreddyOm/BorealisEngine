@@ -80,7 +80,15 @@ namespace Borealis::Memory
 		return p_freePoolElement;
 	}
 
-	HandleInfo* PoolAllocator::Alloc(const uint16 allocSize)
+#ifdef BOREALIS_DEBUG
+
+	/// <summary>
+	/// Allocates a free pool element.
+	/// </summary>
+	/// <param name="allocSize">The allocation size to allocate. Usually sizeof(T).</param>
+	/// <param name="debugInfo">Debug information for the allocation.</param>
+	/// <returns>A handle to the pool elements data.</returns>
+	HandleInfo* PoolAllocator::Alloc(const uint16 allocSize, const std::string& debugInfo)
 	{
 		Assert(allocSize <= m_poolElementSize,
 			"The size of an allocated object (%u) may not exceed the pool element size (%u)", allocSize, m_poolElementSize);
@@ -98,24 +106,75 @@ namespace Borealis::Memory
 		
 		++allocationCount;
 
-		return RegisterHandle(p_freePoolElement);
+		return RegisterHandle(p_freePoolElement, debugInfo);
 	}
 
-	void PoolAllocator::FreeMemory(const void* const address)
+	/// <summary>
+	/// Allocates a free pool element and aligns the data.
+	/// </summary>
+	/// <param name="allocSize">The allocation size to allocate. Usually sizeof(T).</param>
+	/// <param name="debugInfo">Debug information for the allocation.</param>
+	/// <returns>A handle to the pool elements data.</returns>
+	HandleInfo* PoolAllocator::AllocAligned(const uint16 allocSize, const std::string& debugInfo)
 	{
-		Assert(reinterpret_cast<uint64Ptr>(address) >= m_pPoolBase &&
-			reinterpret_cast<uint64Ptr>(address) <= m_pPoolBase + (m_poolElementCount * m_poolElementSize) + m_poolElementSize,
-			"The given memory address '0x%p' is not part of the allocator pool!", reinterpret_cast<const void*>(address));
+		Assert(allocSize * 2 <= m_poolElementSize,
+			"The size of an aligned allocated object (%u) may not exceed the pool element size (%u)", allocSize, m_poolElementSize);
 
-#ifdef CLEAR_POOL_ELEMENTS_ON_FREE
-		memset(const_cast<void*>(address), 0, poolElementSize);
-#endif
-			
-		usedMemorySize -= m_poolElementSize;
+		if (m_pFreePoolElementList.size() <= 0)
+		{
+			LogError("Pool ran out of free elements!");
+			return nullptr;
+		}
 
-		m_pFreePoolElementList.push(reinterpret_cast<uint64Ptr>(address));
-		Assert(allocationCount > 0, "Trying to free memory that has not been allocated using this allocator!");
-		++freeCount;
+		// If allocation is possible, lookup the next free pool element and return its base ptr.
+		void* p_freePoolElement = GetFreePoolElement();
+
+		// Calculate align offset
+		uint64Ptr alignOffset = (allocSize - (reinterpret_cast<uint64Ptr>(p_freePoolElement) % allocSize));
+
+		// Offset base pointer for proper alignment
+		p_freePoolElement =
+			reinterpret_cast<void*>(reinterpret_cast<uint64Ptr>(p_freePoolElement) + alignOffset);
+
+		// Store align offset right before the data
+		uint64Ptr p_alignOffsetAddress = reinterpret_cast<uint64Ptr>(p_freePoolElement) - sizeof(AllocationOffset);
+		AllocationOffset* p_alignOffset = new (reinterpret_cast<void*>(p_alignOffsetAddress)) AllocationOffset();
+
+		*p_alignOffset = alignOffset;
+
+		// Update internal data
+		usedMemorySize += m_poolElementSize;
+		++allocationCount;
+
+		return RegisterHandle(p_freePoolElement, debugInfo);
+	}
+
+#else
+
+	/// <summary>
+	/// Allocates a free pool element.
+	/// </summary>
+	/// <param name="allocSize">The allocation size to allocate. Usually sizeof(T).</param>
+	/// <returns>A handle to the pool elements data.</returns>
+	HandleInfo* PoolAllocator::Alloc(const uint16 allocSize)
+	{
+		Assert(allocSize <= m_poolElementSize,
+			"The size of an allocated object (%u) may not exceed the pool element size (%u)", allocSize, m_poolElementSize);
+
+		if (m_pFreePoolElementList.size() <= 0)
+		{
+			LogError("Pool ran out of free elements!");
+			return nullptr;
+		}
+
+		void* p_freePoolElement = GetFreePoolElement();
+
+		// Update internal data
+		usedMemorySize += m_poolElementSize;
+
+		++allocationCount;
+
+		return RegisterHandle(p_freePoolElement);
 	}
 
 	/// <summary>
@@ -141,9 +200,9 @@ namespace Borealis::Memory
 		uint64Ptr alignOffset = (allocSize - (reinterpret_cast<uint64Ptr>(p_freePoolElement) % allocSize));
 
 		// Offset base pointer for proper alignment
-		p_freePoolElement = 
+		p_freePoolElement =
 			reinterpret_cast<void*>(reinterpret_cast<uint64Ptr>(p_freePoolElement) + alignOffset);
-			
+
 		// Store align offset right before the data
 		uint64Ptr p_alignOffsetAddress = reinterpret_cast<uint64Ptr>(p_freePoolElement) - sizeof(AllocationOffset);
 		AllocationOffset* p_alignOffset = new (reinterpret_cast<void*>(p_alignOffsetAddress)) AllocationOffset();
@@ -153,9 +212,29 @@ namespace Borealis::Memory
 		// Update internal data
 		usedMemorySize += m_poolElementSize;
 		++allocationCount;
-		
+
 		return RegisterHandle(p_freePoolElement);
 	}
+
+#endif
+
+	void PoolAllocator::FreeMemory(const void* const address)
+	{
+		Assert(reinterpret_cast<uint64Ptr>(address) >= m_pPoolBase &&
+			reinterpret_cast<uint64Ptr>(address) <= m_pPoolBase + (m_poolElementCount * m_poolElementSize) + m_poolElementSize,
+			"The given memory address '0x%p' is not part of the allocator pool!", reinterpret_cast<const void*>(address));
+
+#ifdef CLEAR_POOL_ELEMENTS_ON_FREE
+		memset(const_cast<void*>(address), 0, poolElementSize);
+#endif
+			
+		usedMemorySize -= m_poolElementSize;
+
+		m_pFreePoolElementList.push(reinterpret_cast<uint64Ptr>(address));
+		Assert(allocationCount > 0, "Trying to free memory that has not been allocated using this allocator!");
+		++freeCount;
+	}
+
 
 	/// <summary>
 	/// Frees an aligned pool element from the pool allocator.

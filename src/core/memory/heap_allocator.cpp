@@ -88,9 +88,10 @@ namespace Borealis::Memory
 		return *this;
 	}
 
-	HandleInfo* HeapAllocator::Alloc(const uint16 allocSize)
+#ifdef BOREALIS_DEBUG
+	HandleInfo* HeapAllocator::Alloc(const uint16 allocSize, const std::string& debugInfo)
 	{
-		Assert(p_freeMemBlockList != nullptr && p_freeMemBlockList->size() > 0, 
+		Assert(p_freeMemBlockList != nullptr && p_freeMemBlockList->size() > 0,
 			"The heap allocator does not seem to be inititalized yet!");
 		Assert(totalMemorySize > (allocSize + sizeof(HeapDescription)),
 			"The requested allocation size exceeds the total memory available in the heap allocator!");
@@ -101,15 +102,59 @@ namespace Borealis::Memory
 			{
 				++allocationCount;
 				usedMemorySize += allocSize + sizeof(HeapDescription);
-				
-				return it->AllocMemoryFromBlock(allocSize);
+
+				return it->AllocMemoryFromBlock(allocSize, false, debugInfo);
 			}
 		}
-		
+
 		// Failed to obtain a valid memory block from the heap!
 		return nullptr;
 	}
-	
+
+	HandleInfo* HeapAllocator::AllocAligned(const uint16 allocSize, const std::string& debugInfo)
+	{
+		Assert(p_freeMemBlockList != nullptr && p_freeMemBlockList->size() > 0, "The heap allocator does not seem to be inititalized yet!");
+		Assert(totalMemorySize > (allocSize + sizeof(HeapDescription)), "The requested allocation size exceeds the total memory available in the heap allocator!");
+
+		for (std::list<HeapFreeListEntry>::iterator it = p_freeMemBlockList->begin(); it != p_freeMemBlockList->end(); ++it)
+		{
+			if (it->AvailableSize() > allocSize * 2)
+			{
+				++allocationCount;
+				usedMemorySize += allocSize + sizeof(HeapDescription);
+
+				return it->AllocMemoryFromBlock(allocSize, true, debugInfo);
+			}
+		}
+
+		// Failed to obtain a valid memory block from the heap!
+		return nullptr;
+	}
+
+#else
+
+	HandleInfo* HeapAllocator::Alloc(const uint16 allocSize)
+	{
+		Assert(p_freeMemBlockList != nullptr && p_freeMemBlockList->size() > 0,
+			"The heap allocator does not seem to be inititalized yet!");
+		Assert(totalMemorySize > (allocSize + sizeof(HeapDescription)),
+			"The requested allocation size exceeds the total memory available in the heap allocator!");
+
+		for (std::list<HeapFreeListEntry>::iterator it = p_freeMemBlockList->begin(); it != p_freeMemBlockList->end(); ++it)
+		{
+			if (it->AvailableSize() > allocSize + sizeof(HeapDescription))
+			{
+				++allocationCount;
+				usedMemorySize += allocSize + sizeof(HeapDescription);
+
+				return it->AllocMemoryFromBlock(allocSize, false);
+			}
+		}
+
+		// Failed to obtain a valid memory block from the heap!
+		return nullptr;
+	}
+
 	HandleInfo* HeapAllocator::AllocAligned(const uint16 allocSize)
 	{
 		Assert(p_freeMemBlockList != nullptr && p_freeMemBlockList->size() > 0, "The heap allocator does not seem to be inititalized yet!");
@@ -129,6 +174,8 @@ namespace Borealis::Memory
 		// Failed to obtain a valid memory block from the heap!
 		return nullptr;
 	}
+
+#endif	
 
 	bool HeapAllocator::ReturnFreeBlock(std::list<HeapFreeListEntry>::iterator nextFreeMemBlock, const HeapDescription* const p_returnedMemBlockDesc)
 	{
@@ -352,7 +399,10 @@ namespace Borealis::Memory
 		p_freeMemBlockList->erase(first);
 	}
 	
-	HandleInfo* HeapFreeListEntry::AllocMemoryFromBlock(const uint16 blockSize, const bool alignToSize)
+
+#ifdef BOREALIS_DEBUG
+
+	HandleInfo* HeapFreeListEntry::AllocMemoryFromBlock(const uint16 blockSize, const bool alignToSize, const std::string& debugInfo)
 	{
 		Assert(alignToSize ? (blockSize * 2) + sizeof(HeapDescription) <= AvailableSize() :
 			blockSize + sizeof(HeapDescription) < AvailableSize(),
@@ -369,7 +419,7 @@ namespace Borealis::Memory
 		// Calculate final data ptr
 		void* p_data = reinterpret_cast<void*>(p_blockBase + sizeof(HeapDescription) + alignOffset);
 
-		HandleInfo* p_hndlInfo = RegisterHandle(p_data);
+		HandleInfo* p_hndlInfo = RegisterHandle(p_data, debugInfo);
 
 		// Store and initialize the description at the beginning of the block
 		const HeapDescription* p_desc = 
@@ -385,4 +435,44 @@ namespace Borealis::Memory
 
 		return p_hndlInfo;
 	}
+
+#else
+
+	HandleInfo* HeapFreeListEntry::AllocMemoryFromBlock(const uint16 blockSize, const bool alignToSize)
+	{
+		Assert(alignToSize ? (blockSize * 2) + sizeof(HeapDescription) <= AvailableSize() :
+			blockSize + sizeof(HeapDescription) < AvailableSize(),
+			"Cannot split a memory block that is smaller than the requested memory block size");
+
+		// Find alignment offset if necessary
+		const uint64Ptr p_blockBase = reinterpret_cast<uint64Ptr>(p_BlockStart);
+		const uint64Ptr alignOffset = alignToSize ?
+			blockSize - ((p_blockBase + sizeof(HeapDescription)) % blockSize) : 0;
+
+		Assert(alignOffset < 65.536,
+			"Alignment offset is larger than two bytes. Cannot store this offset in front of the data!");
+
+		// Calculate final data ptr
+		void* p_data = reinterpret_cast<void*>(p_blockBase + sizeof(HeapDescription) + alignOffset);
+
+		HandleInfo* p_hndlInfo = RegisterHandle(p_data);
+
+		// Store and initialize the description at the beginning of the block
+		const HeapDescription* p_desc =
+			new (reinterpret_cast<void*>(p_blockBase)) HeapDescription(p_hndlInfo->HandleId, blockSize, alignOffset);
+
+		// Also store align offset pre data pointer! May intersect HeapDescription's padding!
+		const uint16* p_preDataAlignOffset =
+			new (reinterpret_cast<void*>(reinterpret_cast<Types::uint64Ptr>(p_data) - sizeof(uint16))) uint16(static_cast<uint16>(alignOffset));
+
+		// Update start of this free list element
+		p_BlockStart = reinterpret_cast<void*>(
+			reinterpret_cast<Types::uint64Ptr>(p_data) + blockSize);
+
+		return p_hndlInfo;
+	}
+
+
+#endif
+
 }

@@ -37,7 +37,7 @@ namespace Borealis::Runtime::Debug
 		/// <summary>
 		/// Method that specifies how the OnGui is called.
 		/// </summary>
-		virtual void UpdateDrawable() = 0;
+		virtual void Update() = 0;
 
 		void ToggleWindow();
 		bool IsOpen();
@@ -45,6 +45,10 @@ namespace Borealis::Runtime::Debug
 		static ImFont* inter_light;
 		static ImFont* inter_bold;
 		static ImFont* lexend_light;
+		static ImFont* lexend_bold;
+		static ImFont* calibri;
+		static ImFont* calibri_light;
+		static ImFont* calibri_bold;
 
 	protected:
 

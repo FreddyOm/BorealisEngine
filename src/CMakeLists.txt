@@ -69,6 +69,7 @@ message(STATUS "Building ${CMAKE_PROJECT_NAME} v${CMAKE_PROJECT_VERSION} ...")
 
 # Cross-platform sources & headers
 set(COMMON_SOURCES 
+    core/application/application.cpp
     core/types/string_id.cpp
     core/window/window.cpp
     core/debug/logger.cpp
@@ -91,18 +92,21 @@ set(COMMON_SOURCES
     core/math/math.cpp
     core/math/random.cpp
     core/math/crc_hash.cpp
+    core/graphics/graphics.cpp
     core/graphics/vulkan/borealis_vulkan.cpp
     core/graphics/helpers/helpers.cpp
     core/graphics/helpers/texture.cpp
     core/input/input.cpp
     core/input/keyboard.cpp
     core/io/file_io.cpp
+    core/time/time.cpp
 )
 
 # Project include files
 set(COMMON_HEADERS
     config.h
     borealis_engine.h
+    core/application/application.h
     core/types/types.h
     core/types/string_id.h
     core/window/window.h
@@ -144,6 +148,8 @@ set(COMMON_HEADERS
     core/input/borealis_devices.h
     core/input/input_device.h
     core/io/file_io.h
+    core/time/time.h
+    core/time/time_internal.h
 )
 
 # Windows platform specific sources & headers

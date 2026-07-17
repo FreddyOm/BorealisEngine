@@ -265,6 +265,8 @@ namespace Borealis::Input
 	WinInputSystem::WinInputSystem(GLFWwindow* window)
 		: m_GLFWWindow(window)
 	{
+		Assert(window, "GLFWwindow handle is NULL! Make sure to call OpenWindow() before initializing the input system.");
+
 		// Initialize COM
 		Assert(SUCCEEDED(CoInitializeEx(nullptr, COINIT_MULTITHREADED)), "Failed to initialize COM!");
 
@@ -282,13 +284,22 @@ namespace Borealis::Input
 	}
 
 	WinInputSystem::~WinInputSystem()
-	{
+	   {
+		   g_pGameInputReading.Reset();
+
+		   // Clear devices
+		   g_pWinGamepadsInternal.clear();
+		   g_GamepadPool.Clear();
+		g_Keyboard.Reset();
+		g_Mouse.Reset();
+
+		g_AllDevices.clear();
+
 		// Release game input
-		if(g_pGameInput)
+		if (g_pGameInput)
 			g_pGameInput->UnregisterCallback(g_gameInputCallbackToken, 0);
 
-		// Clear gamepads
-		g_pWinGamepadsInternal.clear();
+		g_pGameInput.Reset();
 
 		// Uninitialize COM
 		CoUninitialize();
@@ -703,7 +714,7 @@ namespace Borealis::Input
 
 #ifdef BOREALIS_LINUX
 
-	LinuxInputSystem::LinuxInputSystem()
+	LinuxInputSystem::LinuxInputSystem(GLFWwindow* window)
 	{
 		Assert(false, "Not implemented yet!");
 	}
@@ -751,5 +762,9 @@ namespace Borealis::Input
 	}
 
 #endif
+
+	// Service locator global static data
+	Memory::RefCntAutoPtr<IInputSystemBase> InputSystemLocator::m_Service;
+	Memory::RefCntAutoPtr<NullInputSystem> InputSystemLocator::m_NullService;
 
 }

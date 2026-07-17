@@ -225,5 +225,9 @@ namespace Borealis::Core
 	{
 		return m_WindowMode;
 	}
+
+	// Service locator global static data
+	Memory::RefCntAutoPtr<BorealisWindow> WindowLocator::m_Service;
+	Memory::RefCntAutoPtr<NullWindow> WindowLocator::m_NullService;
 }
 

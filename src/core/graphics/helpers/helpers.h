@@ -3,6 +3,7 @@
 #include "../../helpers/macros.h"
 #include "../pipeline_config.h"
 #include "../../types/types.h"
+#include "../../math/math.h"
 
 #ifdef BOREALIS_WIN
 #include <d3d12.h>
@@ -26,8 +27,31 @@ namespace Borealis::Graphics::Helpers
 		virtual Borealis::Types::int64 InitializePipeline() = 0;
 		virtual Borealis::Types::int64 DeinitializePipeline() = 0;
 		virtual void WaitForPendingOperations() = 0;
+		virtual void StartFrame(Math::Vector4<float> clearColor = Math::Vector4<float>{ 0.1, 0.3, 0.5, 1.0 }) = 0;
+		virtual Types::int32 PresentFrame() = 0;
+		virtual const bool IsVsyncEnabled() const = 0;
+		virtual void SetVsyncEnabled(const bool enabled) = 0;
 		
-		const Borealis::Graphics::GraphicsBackend m_GraphicsBackend;
 		const Borealis::Graphics::PipelineDesc m_PipelineDesc;
+		const Borealis::Graphics::GraphicsBackend m_GraphicsBackend;
+	};
+
+
+	// Null implementation for service locator fallback 
+	class BOREALIS_API NullRenderer : public IBorealisRenderer
+	{
+	public:
+		NullRenderer()
+			: IBorealisRenderer(Borealis::Graphics::GraphicsBackend::UNDEFINED, Borealis::Graphics::PipelineDesc())
+		{ }
+		virtual ~NullRenderer() { }
+
+		virtual Borealis::Types::int64 InitializePipeline() override { return 0; }
+		virtual Borealis::Types::int64 DeinitializePipeline() override { return 0; }
+		virtual void WaitForPendingOperations() override { }
+		virtual void StartFrame(Math::Vector4<float> clearColor) override { }
+		virtual Types::int32 PresentFrame() override { return 0; }
+		virtual const bool IsVsyncEnabled() const override { return false; }
+		virtual void SetVsyncEnabled(const bool enabled) override { }
 	};
 }

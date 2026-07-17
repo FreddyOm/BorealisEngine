@@ -691,6 +691,11 @@ namespace Borealis::Math
 			w -= sub.w;
 		}
 
+		const T* Data()
+		{
+			return &x;
+		}
+
 
 		void Reset()
 		{
