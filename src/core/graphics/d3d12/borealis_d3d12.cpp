@@ -205,9 +205,12 @@ namespace Borealis::Graphics
 			Assert(SUCCEEDED(hResult),
 				"Failed to query ID3D12InfoQueue: %s", StrFromHResult(hResult));
 
-			infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
-			infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
-			infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+			hResult = infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+			Assert(SUCCEEDED(hResult), "Failed to set break on severity for D3D12_MESSAGE_SEVERITY_ERROR");
+			hResult = infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+			Assert(SUCCEEDED(hResult), "Failed to set break on severity for D3D12_MESSAGE_SEVERITY_CORRUPTION");
+			hResult = infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+			Assert(SUCCEEDED(hResult), "Failed to set break on severity for D3D12_MESSAGE_SEVERITY_WARNING");
 
 			// Disable breaking on this warning because of a suspected bug in the D3D12 SDK layer.
 			const int D3D12_MESSAGE_ID_FENCE_ZERO_WAIT_ = 1424; // not in all copies of d3d12sdklayers.h
@@ -215,9 +218,10 @@ namespace Borealis::Graphics
 			D3D12_INFO_QUEUE_FILTER filter = {};
 			filter.DenyList.NumIDs = 1;
 			filter.DenyList.pIDList = disabledMessages;
-			infoQueue->AddStorageFilterEntries(&filter);
-
-			//pInfoQueue->Release();
+			
+			hResult = infoQueue->AddStorageFilterEntries(&filter);
+			Assert(SUCCEEDED(hResult), "Failed to add storage filter entries to ID3D12InfoQueue");
+			
 			g_DebugController->Release();
 		}
 		else
