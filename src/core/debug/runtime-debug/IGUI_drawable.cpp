@@ -1,26 +1,19 @@
 #include "IGUI_drawable.h"
 
 // TODO: Figure out how I can setup and use debug gui only in debug and relwithdebinfo builds
-//#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
-
+// #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
 namespace Borealis::Runtime::Debug
 {
-	void IGUIDrawable::ToggleWindow()
-	{
-		isOpen = !isOpen;
-	}
+    void IGUIDrawable::ToggleWindow() { isOpen = !isOpen; }
 
-	bool IGUIDrawable::IsOpen()
-	{
-		return isOpen;
-	}
+    bool IGUIDrawable::IsOpen() { return isOpen; }
 
-	ImFont* IGUIDrawable::inter_light = nullptr;
-	ImFont* IGUIDrawable::inter_bold = nullptr;
-	ImFont* IGUIDrawable::lexend_light = nullptr;
-	ImFont* IGUIDrawable::lexend_bold = nullptr;
-	ImFont* IGUIDrawable::calibri = nullptr;
-	ImFont* IGUIDrawable::calibri_light = nullptr;
-	ImFont* IGUIDrawable::calibri_bold = nullptr;
-}
+    ImFont* IGUIDrawable::inter_light = nullptr;
+    ImFont* IGUIDrawable::inter_bold = nullptr;
+    ImFont* IGUIDrawable::lexend_light = nullptr;
+    ImFont* IGUIDrawable::lexend_bold = nullptr;
+    ImFont* IGUIDrawable::calibri = nullptr;
+    ImFont* IGUIDrawable::calibri_light = nullptr;
+    ImFont* IGUIDrawable::calibri_bold = nullptr;
+}    // namespace Borealis::Runtime::Debug

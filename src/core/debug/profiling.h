@@ -1,6 +1,6 @@
 #pragma once
 
-//#define USE_PIX_PROFILER
+// #define USE_PIX_PROFILER
 
 #ifdef USE_PIX_PROFILER
 

@@ -1,4 +1,5 @@
 #include "./random.h"
+
 #include <stdint.h>
 
 using namespace Borealis::Types;
@@ -7,12 +8,10 @@ using namespace Borealis::Types;
 
 namespace Borealis::Math::Random
 {
-    static uint64 shuffle_table[] = { 0x632ec6da3cfd0aba, 0xd4a61297f0caafd7, 0xa9592612e03fc9aa, 0x39ab614509b1661e };
-    static uint64 s[] = { 0x180ec6d33cfd0aba, 0xd5a61266f0c9392c, 0xa9582618e03fc9aa, 0x39abdc4529b1661c };
+    static uint64 shuffle_table[] = {0x632ec6da3cfd0aba, 0xd4a61297f0caafd7, 0xa9592612e03fc9aa, 0x39ab614509b1661e};
+    static uint64 s[] = {0x180ec6d33cfd0aba, 0xd5a61266f0c9392c, 0xa9582618e03fc9aa, 0x39abdc4529b1661c};
 
-    static inline uint64_t rotl(const uint64_t x, int k) {
-        return (x << k) | (x >> (64 - k));
-    }
+    static inline uint64_t rotl(const uint64_t x, int k) { return (x << k) | (x >> (64 - k)); }
 
     uint64 Next32()
     {
@@ -42,4 +41,4 @@ namespace Borealis::Math::Random
 
         return result;
     }
-}
+}    // namespace Borealis::Math::Random

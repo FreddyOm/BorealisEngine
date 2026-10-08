@@ -1,11 +1,12 @@
 #pragma once
 
-#include <stdio.h>
 #include "../types/types.h"
+
+#include <stdio.h>
 
 namespace Borealis::Debug
 {
-	struct DebugInfoDesc;
+    struct DebugInfoDesc;
 
-	Borealis::Types::int16 LogMessageInternal(DebugInfoDesc debugInfoDesc);
-}
+    Borealis::Types::int16 LogMessageInternal(DebugInfoDesc debugInfoDesc);
+}    // namespace Borealis::Debug

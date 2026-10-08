@@ -1,4 +1,5 @@
 #include "borealis_d3d11.h"
+
 #include "../../debug/logger.h"
 
 #if defined(BOREALIS_WIN)
@@ -9,22 +10,21 @@ namespace Borealis::Graphics
     {
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
         Assert(!m_isInitialized,
-            "Pipeline is not deinitialized! Make sure to call IBorealisRenderer::DeinitializePipeline() before destroying the renderer.");
+            "Pipeline is not deinitialized! Make sure to call IBorealisRenderer::DeinitializePipeline() before destroying the "
+            "renderer.");
 #endif
     }
 
-    Borealis::Types::int64 BorealisD3D11Renderer::InitializePipeline()
-    {
-        return 0;
-    }
+    Borealis::Types::int64 BorealisD3D11Renderer::InitializePipeline() { return 0; }
 
     Borealis::Types::int64 BorealisD3D11Renderer::DeinitializePipeline()
     {
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
-        if (m_DXGIDebug)
+        if(m_DXGIDebug)
         {
-            m_DXGIDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
+            m_DXGIDebug->ReportLiveObjects(
+                DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
         }
 
         m_isInitialized = false;
@@ -32,10 +32,7 @@ namespace Borealis::Graphics
         return 0;
     }
 
-    ID3D11Device* const BorealisD3D11Renderer::GetDevice() const
-    {
-        return m_Device.Get();
-    }
-}
+    ID3D11Device* const BorealisD3D11Renderer::GetDevice() const { return m_Device.Get(); }
+}    // namespace Borealis::Graphics
 
 #endif

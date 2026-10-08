@@ -27,6 +27,7 @@ FetchContent_MakeAvailable(googletest)
 
 # Project source files
 set(SOURCES 
+    ../src/core/Logging_Tests/LoggingTests.cpp
     test_allocator.cpp
     test_debug.cpp
     test_graphics.cpp

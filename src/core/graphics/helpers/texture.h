@@ -1,7 +1,7 @@
 #pragma once
 #include "../../../config.h"
-#include "../../types/types.h"
 #include "../../helpers/macros.h"
+#include "../../types/types.h"
 
 #ifdef BOREALIS_WIN
 
@@ -13,7 +13,6 @@
 #include <vulkan/vulkan.h>
 
 #endif
-
 
 namespace Borealis::Graphics
 {
@@ -154,9 +153,10 @@ namespace Borealis::Graphics
 
 #ifdef BOREALIS_WIN
 
-    // TODO: Change this so that the texture creates and destroys itself properly instead of calling BorealisD3D12Renderer::CreateTexture.
-    // This is better since destroying the texture resource would require an extra function call. After changing this, the resource would 
-    // freed when the destructor is called. The texture, in association with the RefCntAutoPtr, would be freed as soon as no ref is not anymore used.
+    // TODO: Change this so that the texture creates and destroys itself properly instead of calling
+    // BorealisD3D12Renderer::CreateTexture. This is better since destroying the texture resource would require an extra function
+    // call. After changing this, the resource would freed when the destructor is called. The texture, in association with the
+    // RefCntAutoPtr, would be freed as soon as no ref is not anymore used.
 
     struct BorealisD3D12Renderer;
 
@@ -164,12 +164,9 @@ namespace Borealis::Graphics
     {
         friend BorealisD3D12Renderer;
 
-        BorealisD3D12Texture()
-        {}
+        BorealisD3D12Texture() { }
 
-        BorealisD3D12Texture(ID3D12Resource* pTexResource)
-            : m_TextureResource(pTexResource)
-        {}
+        BorealisD3D12Texture(ID3D12Resource* pTexResource) : m_TextureResource(pTexResource) { }
 
         ~BorealisD3D12Texture();
 
@@ -181,48 +178,34 @@ namespace Borealis::Graphics
         const Types::uint16 GetWidth() const;
         const Types::uint16 GetHeight() const;
 
-        ID3D12Resource** GetTexResource()
-        {
-            return m_TextureResource.GetAddressOf();
-        }
+        ID3D12Resource** GetTexResource() { return m_TextureResource.GetAddressOf(); }
 
-        D3D12_CPU_DESCRIPTOR_HANDLE* GetCPUHandle()
-        {
-            return &m_CPUHandle;
-        }
+        D3D12_CPU_DESCRIPTOR_HANDLE* GetCPUHandle() { return &m_CPUHandle; }
 
-        D3D12_GPU_DESCRIPTOR_HANDLE* GetGPUHandle()
-        {
-            return &m_GPUHandle;
-        }
+        D3D12_GPU_DESCRIPTOR_HANDLE* GetGPUHandle() { return &m_GPUHandle; }
 
-    private:
-
+       private:
         void CommitTexture();
 
-    private:
-
+       private:
         Microsoft::WRL::ComPtr<ID3D12Resource> m_TextureResource = nullptr;
         TextureFormat m_TexFormat = TextureFormat::TEX_FORMAT_UNKNOWN;
 
-        D3D12_CPU_DESCRIPTOR_HANDLE m_CPUHandle{};
-        D3D12_GPU_DESCRIPTOR_HANDLE m_GPUHandle{};
+        D3D12_CPU_DESCRIPTOR_HANDLE m_CPUHandle {};
+        D3D12_GPU_DESCRIPTOR_HANDLE m_GPUHandle {};
 
         Types::uint16 m_Width = 0;
         Types::uint16 m_Height = 0;
-        // Store filepath? Or GUID? 
+        // Store filepath? Or GUID?
     };
 
 #else
 
     struct BOREALIS_API BorealisVulkanTexture
     {
-        BorealisVulkanTexture()
-        {}
+        BorealisVulkanTexture() { }
 
-        BorealisVulkanTexture(VkDescriptorSet& texResource)
-            : m_TextureResource(texResource)
-        {}
+        BorealisVulkanTexture(VkDescriptorSet& texResource) : m_TextureResource(texResource) { }
 
         ~BorealisVulkanTexture() = default;
 
@@ -234,27 +217,22 @@ namespace Borealis::Graphics
         const Types::uint16 GetWidth() const;
         const Types::uint16 GetHeight() const;
 
-        VkDescriptorSet& GetTexResource()
-        {
-            return m_TextureResource;
-        }
+        VkDescriptorSet& GetTexResource() { return m_TextureResource; }
 
-    private:
-
-        VkDescriptorSet m_TextureResource;  // TODO: Change this to the appropriate Vulkan tex resource
+       private:
+        VkDescriptorSet m_TextureResource;    // TODO: Change this to the appropriate Vulkan tex resource
         TextureFormat m_TexFormat = TextureFormat::TEX_FORMAT_UNKNOWN;
 
         Types::uint16 m_Width = 0;
         Types::uint16 m_Height = 0;
-        // Store filepath? Or GUID? 
+        // Store filepath? Or GUID?
     };
 
 #endif
-
 
 #if defined(BOREALIS_WIN)
     using Texture = BorealisD3D12Texture;
 #else
     using Texture = BorealisVulkanTexture;
 #endif
-}
+}    // namespace Borealis::Graphics

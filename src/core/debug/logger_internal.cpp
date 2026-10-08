@@ -1,7 +1,8 @@
 #include "logger_internal.h"
+
 #include "logger.h"
 
-#ifdef BOREALIS_WIN 
+#ifdef BOREALIS_WIN
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -13,12 +14,12 @@
 
 namespace Borealis::Debug
 {
-	Borealis::Types::int16 LogMessageInternal(const DebugInfoDesc desc)
-	{
-        #ifdef BOREALIS_WIN
-        
+    Borealis::Types::int16 LogMessageInternal(const DebugInfoDesc desc)
+    {
+#ifdef BOREALIS_WIN
+
         static HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-        switch (desc.logType)
+        switch(desc.logType)
         {
             case LogLevel::WARNING:
             {
@@ -41,15 +42,15 @@ namespace Borealis::Debug
                 break;
             }
         }
-        #endif
+#endif
 
-		const Borealis::Types::int16 result = printf("%s", desc.msg.c_str());
-		printf("\n%s, %u\n", desc.fileName.c_str(), desc.line);
-		
-        #ifdef BOREALIS_WIN
+        const Borealis::Types::int16 result = printf("%s", desc.msg.c_str());
+        printf("\n%s, %u\n", desc.fileName.c_str(), desc.line);
+
+#ifdef BOREALIS_WIN
         SetConsoleTextAttribute(hConsole, 15);
-        #endif
-        
+#endif
+
         return result;
-	}
-}
+    }
+}    // namespace Borealis::Debug

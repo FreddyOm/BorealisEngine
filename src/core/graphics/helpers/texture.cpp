@@ -8,44 +8,28 @@
 
 #endif
 
-
 namespace Borealis::Graphics
 {
 
 #ifdef BOREALIS_WIN
 
-	const Types::uint16 Borealis::Graphics::BorealisD3D12Texture::GetWidth() const
-	{
-		return m_Width;
-	}
+    const Types::uint16 Borealis::Graphics::BorealisD3D12Texture::GetWidth() const { return m_Width; }
 
-	BorealisD3D12Texture::~BorealisD3D12Texture()
-	{
-		g_SRVDescHeapAllocator.Free(m_CPUHandle, m_GPUHandle);
-	}
+    BorealisD3D12Texture::~BorealisD3D12Texture() { g_SRVDescHeapAllocator.Free(m_CPUHandle, m_GPUHandle); }
 
-	const Types::uint16 Borealis::Graphics::BorealisD3D12Texture::GetHeight() const
-	{
-		return m_Height;
-	}
+    const Types::uint16 Borealis::Graphics::BorealisD3D12Texture::GetHeight() const { return m_Height; }
 
-	void BorealisD3D12Texture::CommitTexture()
-	{
-		m_Height = m_TextureResource->GetDesc().Height;
-		m_Width = m_TextureResource->GetDesc().Width;
-	}
+    void BorealisD3D12Texture::CommitTexture()
+    {
+        m_Height = m_TextureResource->GetDesc().Height;
+        m_Width = m_TextureResource->GetDesc().Width;
+    }
 
 #else
 
-	const Types::uint16 Borealis::Graphics::BorealisVulkanTexture::GetWidth() const
-	{
-		return m_Width;
-	}
+    const Types::uint16 Borealis::Graphics::BorealisVulkanTexture::GetWidth() const { return m_Width; }
 
-	const Types::uint16 Borealis::Graphics::BorealisVulkanTexture::GetHeight() const
-	{
-		return m_Height;
-	}
+    const Types::uint16 Borealis::Graphics::BorealisVulkanTexture::GetHeight() const { return m_Height; }
 
 #endif
-}
+}    // namespace Borealis::Graphics

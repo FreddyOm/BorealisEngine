@@ -7,4 +7,4 @@ namespace Borealis::Math::Random
 {
     BOREALIS_API Types::uint64 Next32();
     BOREALIS_API Types::uint64 Next64();
-}
+}    // namespace Borealis::Math::Random

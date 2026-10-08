@@ -1,28 +1,26 @@
 #include "runtime_debug.h"
 
-//#if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
+// #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
+#include "../../graphics/graphics.h"
+#include "../../graphics/helpers/helpers.h"
+#include "../../graphics/pipeline_config.h"
+#include "../../time/time_internal.h"
+#include "../../window/window.h"
 #include "../logger.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
-#include "../../time/time_internal.h"
-
-#include "../../graphics/helpers/helpers.h"
-#include "../../graphics/pipeline_config.h"
-#include "../../graphics/graphics.h"
-#include "../../window/window.h"
 
 #ifdef BOREALIS_WIN
-//#include "imgui/imgui_impl_win32.h"
+// #include "imgui/imgui_impl_win32.h"
+#include "../../graphics/d3d12/borealis_d3d12.h"
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_dx12.h"
-
-#include "../../graphics/d3d12/borealis_d3d12.h"
-//#include "../../graphics/d3d11/borealis_d3d11.h"
+// #include "../../graphics/d3d11/borealis_d3d11.h"
 
 #else
 
-//#include "imgui/imgui_impl_vulkan.h"
+// #include "imgui/imgui_impl_vulkan.h"
 
 #endif
 
@@ -31,311 +29,317 @@ using namespace Borealis::Graphics::Helpers;
 using namespace Borealis::Graphics;
 using namespace Borealis::Core;
 
-
 namespace Borealis::Runtime::Debug
 {
-	/// <summary>
-	/// Uninitializes the gui context.
-	/// </summary>
-	void RuntimeDebugger::Detatch()
-	{
-		if (m_Initialized)
-		{
-			m_Initialized = false;
+    /// <summary>
+    /// Uninitializes the gui context.
+    /// </summary>
+    void RuntimeDebugger::Detatch()
+    {
+        if(m_Initialized)
+        {
+            m_Initialized = false;
 
-			m_DebugLabels.clear();
-			m_CategoryButtons.clear();
-			m_RuntimeGUIDrawables.clear();
+            m_DebugLabels.clear();
+            m_CategoryButtons.clear();
+            m_RuntimeGUIDrawables.clear();
 
-			RendererLocator::Get()->WaitForPendingOperations();
+            RendererLocator::Get()->WaitForPendingOperations();
 
-			switch (RendererLocator::Get()->m_GraphicsBackend)
-			{
+            switch(RendererLocator::Get()->m_GraphicsBackend)
+            {
 #ifdef BOREALIS_WIN
-				case GraphicsBackend::D3D11:
-				{
-					ImGui_ImplDX11_Shutdown();
-					break;
-				}
-				case GraphicsBackend::D3D12:
-				{
-					ImGui_ImplDX12_Shutdown();
-					break;
-				}
+                case GraphicsBackend::D3D11:
+                {
+                    ImGui_ImplDX11_Shutdown();
+                    break;
+                }
+                case GraphicsBackend::D3D12:
+                {
+                    ImGui_ImplDX12_Shutdown();
+                    break;
+                }
 #endif
-				case GraphicsBackend::VULKAN:
-				{
-					//ImGui_ImplVulkan_Shutdown();
-					break;
-				}
-				default:
-				{
-					Assert(false, "Unsupported graphics backend for runtime debugger GUI!");
-					break;
-				}
-			}
-			
-			ImGui_ImplGlfw_Shutdown();
-			ImGui::DestroyContext();
+                case GraphicsBackend::VULKAN:
+                {
+                    // ImGui_ImplVulkan_Shutdown();
+                    break;
+                }
+                default:
+                {
+                    Assert(false, "Unsupported graphics backend for runtime debugger GUI!");
+                    break;
+                }
+            }
 
-			//guiDrawables.clear();
-		}
-	}
+            ImGui_ImplGlfw_Shutdown();
+            ImGui::DestroyContext();
 
-	// TODO: Fix runtime error in release config where font atlas is nullptr
+            // guiDrawables.clear();
+        }
+    }
 
-	/// <summary>
-	/// Initializes the gui context.
-	/// </summary>
-	void RuntimeDebugger::Attatch()
-	{
-		/*ImGui_ImplWin32_EnableDpiAwareness();
-		float main_scale = ImGui_ImplWin32_GetDpiScaleForMonitor(::MonitorFromPoint(POINT{ 0, 0 }, MONITOR_DEFAULTTOPRIMARY));*/
+    // TODO: Fix runtime error in release config where font atlas is nullptr
 
-		Memory::RefCntAutoPtr<IBorealisRenderer> m_Renderer = RendererLocator::Get();
+    /// <summary>
+    /// Initializes the gui context.
+    /// </summary>
+    void RuntimeDebugger::Attatch()
+    {
+        /*ImGui_ImplWin32_EnableDpiAwareness();
+        float main_scale = ImGui_ImplWin32_GetDpiScaleForMonitor(::MonitorFromPoint(POINT{ 0, 0 }, MONITOR_DEFAULTTOPRIMARY));*/
 
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
+        Memory::RefCntAutoPtr<IBorealisRenderer> m_Renderer = RendererLocator::Get();
 
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
 
-		lexend_bold = io.Fonts->AddFontFromFileTTF("./resources/fonts/Lexend-Bold.ttf", 24.0f);
-		calibri_bold = io.Fonts->AddFontFromFileTTF("./resources/fonts/Calibri-Bold.ttf", 24.0f);
-		inter_bold = io.Fonts->AddFontFromFileTTF("./resources/fonts/Inter-Bold.ttf", 24.0f);
-		inter_light = io.Fonts->AddFontFromFileTTF("./resources/fonts/Inter-Light.ttf", 24.0f);
-		lexend_light = io.Fonts->AddFontFromFileTTF("./resources/fonts/Lexend-Light.ttf", 24.0f);
-		calibri = io.Fonts->AddFontFromFileTTF("./resources/fonts/Calibri.ttf", 24.0f);
-		calibri_light = io.Fonts->AddFontFromFileTTF("./resources/fonts/Calibri-Light.ttf", 24.0f);
+        ImGuiIO& io = ImGui::GetIO();
+        (void) io;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-		ImFontConfig config;
-		config.MergeMode = true;
-		config.GlyphMinAdvanceX = 14.0f; // Use if you want to make the icon monospaced
-		static const ImWchar icon_ranges[] = { 0xf000, 0xf372, 0 };
-		io.Fonts->AddFontFromFileTTF("./resources/fonts/IconFont.ttf", 14.0f, &config, icon_ranges);
+        lexend_bold = io.Fonts->AddFontFromFileTTF("./resources/fonts/Lexend-Bold.ttf", 24.0f);
+        calibri_bold = io.Fonts->AddFontFromFileTTF("./resources/fonts/Calibri-Bold.ttf", 24.0f);
+        inter_bold = io.Fonts->AddFontFromFileTTF("./resources/fonts/Inter-Bold.ttf", 24.0f);
+        inter_light = io.Fonts->AddFontFromFileTTF("./resources/fonts/Inter-Light.ttf", 24.0f);
+        lexend_light = io.Fonts->AddFontFromFileTTF("./resources/fonts/Lexend-Light.ttf", 24.0f);
+        calibri = io.Fonts->AddFontFromFileTTF("./resources/fonts/Calibri.ttf", 24.0f);
+        calibri_light = io.Fonts->AddFontFromFileTTF("./resources/fonts/Calibri-Light.ttf", 24.0f);
 
-		//io.Fonts->Build();
+        ImFontConfig config;
+        config.MergeMode = true;
+        config.GlyphMinAdvanceX = 14.0f;    // Use if you want to make the icon monospaced
+        static const ImWchar icon_ranges[] = {0xf000, 0xf372, 0};
+        io.Fonts->AddFontFromFileTTF("./resources/fonts/IconFont.ttf", 14.0f, &config, icon_ranges);
 
-		// Use CCE Colors
-		ImGui::StyleColorsBorealis();
+        // io.Fonts->Build();
 
-		// Set Window specs
-		ImGui::GetStyle().WindowRounding = 6.0f;
-		ImGui::GetStyle().ChildRounding = 6.0f;
-		ImGui::GetStyle().FrameRounding = 6.0f;
-		ImGui::GetStyle().GrabRounding = 0.0f;
-		ImGui::GetStyle().PopupRounding = 6.0f;
-		ImGui::GetStyle().ScrollbarRounding = 6.0f;
+        // Use CCE Colors
+        ImGui::StyleColorsBorealis();
 
-		// Setup scaling
-		ImGuiStyle& style = ImGui::GetStyle();
-		//style.ScaleAllSizes(main_scale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
-		
-		// TODO: Make sure the correct graphics backend is used
-		
-		Assert(m_Renderer->m_GraphicsBackend != GraphicsBackend::UNDEFINED,
-			"Cannot initialize Dear Imgui for undefined graphics backend!");
+        // Set Window specs
+        ImGui::GetStyle().WindowRounding = 6.0f;
+        ImGui::GetStyle().ChildRounding = 6.0f;
+        ImGui::GetStyle().FrameRounding = 6.0f;
+        ImGui::GetStyle().GrabRounding = 0.0f;
+        ImGui::GetStyle().PopupRounding = 6.0f;
+        ImGui::GetStyle().ScrollbarRounding = 6.0f;
 
-		// Windwos only graphics APIs will always use Win32 in Borealis for now!
-		if (m_Renderer->m_GraphicsBackend == GraphicsBackend::D3D11 || m_Renderer->m_GraphicsBackend == GraphicsBackend::D3D12)
-		{
-			Assert(ImGui_ImplGlfw_InitForOther(Core::WindowLocator::Get()->GetGLFWWindow(), true),
-				"Failed to initialize the runtime debugger GUI with GLFW.");
-		}
-		
-		// For now, fall-through because windows impl is always reliant on win32
-		switch (m_Renderer->m_GraphicsBackend)
-		{
+        // Setup scaling
+        ImGuiStyle& style = ImGui::GetStyle();
+        // style.ScaleAllSizes(main_scale);        // Bake a fixed style scale. (until we have a solution for dynamic style
+        // scaling, changing this requires resetting Style + calling this again)
+
+        // TODO: Make sure the correct graphics backend is used
+
+        Assert(m_Renderer->m_GraphicsBackend != GraphicsBackend::UNDEFINED,
+            "Cannot initialize Dear Imgui for undefined graphics backend!");
+
+        // Windwos only graphics APIs will always use Win32 in Borealis for now!
+        if(m_Renderer->m_GraphicsBackend == GraphicsBackend::D3D11 || m_Renderer->m_GraphicsBackend == GraphicsBackend::D3D12)
+        {
+            Assert(ImGui_ImplGlfw_InitForOther(Core::WindowLocator::Get()->GetGLFWWindow(), true),
+                "Failed to initialize the runtime debugger GUI with GLFW.");
+        }
+
+        // For now, fall-through because windows impl is always reliant on win32
+        switch(m_Renderer->m_GraphicsBackend)
+        {
 #ifdef BOREALIS_WIN
-			case GraphicsBackend::D3D11:
-			{
-				/*Assert(ImGui_ImplDX11_Init(Graphics::g_pDevice.Get(), Graphics::g_pContext.Get()),
-					"Failed to initialize the runtime debugger GUI with D3D11.");*/
-				break;
-			}
-			case GraphicsBackend::D3D12:
-			{
-				Memory::RefCntAutoPtr<BorealisD3D12Renderer> pD3D12Renderer = Memory::RefCntAutoPtr<IBorealisRenderer>::DynamicCastTo<BorealisD3D12Renderer>(m_Renderer);
-				Assert(pD3D12Renderer.IsValid(), "Failed to cast generic IBorealisRenderer to BorealisD3D12Renderer renderer!");
+            case GraphicsBackend::D3D11:
+            {
+                /*Assert(ImGui_ImplDX11_Init(Graphics::g_pDevice.Get(), Graphics::g_pContext.Get()),
+                        "Failed to initialize the runtime debugger GUI with D3D11.");*/
+                break;
+            }
+            case GraphicsBackend::D3D12:
+            {
+                Memory::RefCntAutoPtr<BorealisD3D12Renderer> pD3D12Renderer =
+                    Memory::RefCntAutoPtr<IBorealisRenderer>::DynamicCastTo<BorealisD3D12Renderer>(m_Renderer);
+                Assert(pD3D12Renderer.IsValid(), "Failed to cast generic IBorealisRenderer to BorealisD3D12Renderer renderer!");
 
-				ImGui_ImplDX12_InitInfo d3d12InitInfo{};
-				d3d12InitInfo.Device = pD3D12Renderer->GetDevice();
-				d3d12InitInfo.CommandQueue = pD3D12Renderer->GetCommandQueue();
-				d3d12InitInfo.NumFramesInFlight = 2;	// TODO: Fix me!
-				d3d12InitInfo.RTVFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-				d3d12InitInfo.DSVFormat = DXGI_FORMAT_UNKNOWN;
-				d3d12InitInfo.SrvDescriptorHeap = pD3D12Renderer->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).Get();
-				d3d12InitInfo.SrvDescriptorAllocFn = [](ImGui_ImplDX12_InitInfo*, D3D12_CPU_DESCRIPTOR_HANDLE* out_cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE* out_gpu_handle) { return g_SRVDescHeapAllocator.Alloc(out_cpu_handle, out_gpu_handle); };
-				d3d12InitInfo.SrvDescriptorFreeFn = [](ImGui_ImplDX12_InitInfo*, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle) { return g_SRVDescHeapAllocator.Free(cpu_handle, gpu_handle); };
+                ImGui_ImplDX12_InitInfo d3d12InitInfo {};
+                d3d12InitInfo.Device = pD3D12Renderer->GetDevice();
+                d3d12InitInfo.CommandQueue = pD3D12Renderer->GetCommandQueue();
+                d3d12InitInfo.NumFramesInFlight = 2;    // TODO: Fix me!
+                d3d12InitInfo.RTVFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+                d3d12InitInfo.DSVFormat = DXGI_FORMAT_UNKNOWN;
+                d3d12InitInfo.SrvDescriptorHeap = pD3D12Renderer->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).Get();
+                d3d12InitInfo.SrvDescriptorAllocFn = [](ImGui_ImplDX12_InitInfo*,
+                                                         D3D12_CPU_DESCRIPTOR_HANDLE* out_cpu_handle,
+                                                         D3D12_GPU_DESCRIPTOR_HANDLE* out_gpu_handle) {
+                    return g_SRVDescHeapAllocator.Alloc(out_cpu_handle, out_gpu_handle);
+                };
+                d3d12InitInfo.SrvDescriptorFreeFn =
+                    [](ImGui_ImplDX12_InitInfo*, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle, D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle) {
+                        return g_SRVDescHeapAllocator.Free(cpu_handle, gpu_handle);
+                    };
 
-				Assert(ImGui_ImplDX12_Init(&d3d12InitInfo), "Failed to initialize the runtime debugger GUI with D3D12.");
-				break;
-			}
+                Assert(ImGui_ImplDX12_Init(&d3d12InitInfo), "Failed to initialize the runtime debugger GUI with D3D12.");
+                break;
+            }
 #endif
-			case GraphicsBackend::VULKAN:
-			{
-				//Assert(ImGui_ImplSDL2_InitForVulkan(), "Failed to initialize the runtime debugger GUI with Vulkan.");
-				// break;
-			}
+            case GraphicsBackend::VULKAN:
+            {
+                // Assert(ImGui_ImplSDL2_InitForVulkan(), "Failed to initialize the runtime debugger GUI with Vulkan.");
+                //  break;
+            }
 
-			case GraphicsBackend::UNDEFINED:
-			default:
-			{
-				Assert(false, "Couldn't resolve the rendering backend!");
-				break;
-			}
+            case GraphicsBackend::UNDEFINED:
+            default:
+            {
+                Assert(false, "Couldn't resolve the rendering backend!");
+                break;
+            }
+        }
 
-		}
+        m_Initialized = true;
+    }
 
-		m_Initialized = true;
-	}
+    /// <summary>
+    /// ImGuis draw data.
+    /// </summary>
+    ImDrawData* RuntimeDebugger::m_pDrawData = nullptr;
 
-	/// <summary>
-	/// ImGuis draw data. 
-	/// </summary>
-	ImDrawData* RuntimeDebugger::m_pDrawData = nullptr;
+    /// <summary>
+    /// Timepoints for the runtime debugger frame time.
+    /// </summary>
+    Time::TimePoint m_RuntimeFrameStart;
+    Time::TimePoint m_RuntimeFrameEnd;
 
-	/// <summary>
-	/// Timepoints for the runtime debugger frame time.
-	/// </summary>
-	Time::TimePoint m_RuntimeFrameStart;
-	Time::TimePoint m_RuntimeFrameEnd;
+    void RuntimeDebugger::Update()
+    {
+        m_RuntimeFrameStart = Time::Now();
 
+        Assert(m_Initialized, "Cannot draw GUI when not initialized. Call Attatch() during initialization!");
 
-	void RuntimeDebugger::Update()
-	{
-		m_RuntimeFrameStart = Time::Now();
+        static Graphics::GraphicsBackend graphicsBackend = RendererLocator::Get()->m_GraphicsBackend;
 
-		Assert(m_Initialized, "Cannot draw GUI when not initialized. Call Attatch() during initialization!");
-
-		static Graphics::GraphicsBackend graphicsBackend = RendererLocator::Get()->m_GraphicsBackend;
-
-		switch (graphicsBackend)
-		{
+        switch(graphicsBackend)
+        {
 #ifdef BOREALIS_WIN
-		case GraphicsBackend::D3D11:
-			ImGui_ImplDX11_NewFrame();
-			break;
-		case GraphicsBackend::D3D12:
-			ImGui_ImplDX12_NewFrame();
-			break;
+            case GraphicsBackend::D3D11:
+                ImGui_ImplDX11_NewFrame();
+                break;
+            case GraphicsBackend::D3D12:
+                ImGui_ImplDX12_NewFrame();
+                break;
 #endif
-		case GraphicsBackend::VULKAN:
-			LogError("Not yet implemented!");
-			break;
-		default:
-			Assert(false, "Unsupported graphics backend for runtime debugger GUI!");
-			break;
-		}
+            case GraphicsBackend::VULKAN:
+                LogError("Not yet implemented!");
+                break;
+            default:
+                Assert(false, "Unsupported graphics backend for runtime debugger GUI!");
+                break;
+        }
 
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
-		OnGui();
+        OnGui();
 
-		ImGui::Render();
-		m_pDrawData = ImGui::GetDrawData();
+        ImGui::Render();
+        m_pDrawData = ImGui::GetDrawData();
 
-		switch (graphicsBackend)
-		{
+        switch(graphicsBackend)
+        {
 #ifdef BOREALIS_WIN
-		case GraphicsBackend::D3D11:
-		{
-			m_pDrawData = ImGui::GetDrawData();
-			ImGui_ImplDX11_RenderDrawData(m_pDrawData);
-			break;
-		}
-		case GraphicsBackend::D3D12:
-		{
-			Memory::RefCntAutoPtr<BorealisD3D12Renderer> pD3D12Renderer = Memory::RefCntAutoPtr<IBorealisRenderer>::DynamicCastTo<BorealisD3D12Renderer>(RendererLocator::Get());
-			Assert(pD3D12Renderer.IsValid(), "Failed to cast the renderer to BorealisD3D12Renderer.");
-			HRESULT hResult = S_OK;
-			
-			// Draw render data
-			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), pD3D12Renderer->GetCommandList());
+            case GraphicsBackend::D3D11:
+            {
+                m_pDrawData = ImGui::GetDrawData();
+                ImGui_ImplDX11_RenderDrawData(m_pDrawData);
+                break;
+            }
+            case GraphicsBackend::D3D12:
+            {
+                Memory::RefCntAutoPtr<BorealisD3D12Renderer> pD3D12Renderer =
+                    Memory::RefCntAutoPtr<IBorealisRenderer>::DynamicCastTo<BorealisD3D12Renderer>(RendererLocator::Get());
+                Assert(pD3D12Renderer.IsValid(), "Failed to cast the renderer to BorealisD3D12Renderer.");
+                HRESULT hResult = S_OK;
 
-			break;
-		}
+                // Draw render data
+                ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), pD3D12Renderer->GetCommandList());
+
+                break;
+            }
 #endif
-		case GraphicsBackend::VULKAN:
-		{
-			break;
-		}
-		default:	// NONE, UNKNOWN
-		{
-			// Nothing
-			Assert(false, "Graphics-Backend could not be specified!");
-			break;
-		}
-		}
+            case GraphicsBackend::VULKAN:
+            {
+                break;
+            }
+            default:    // NONE, UNKNOWN
+            {
+                // Nothing
+                Assert(false, "Graphics-Backend could not be specified!");
+                break;
+            }
+        }
 
-		m_RuntimeFrameEnd = Time::Now();
-		m_RuntimeFrameDuration = Time::GetDurationInMs(m_RuntimeFrameStart, m_RuntimeFrameEnd);
-	}
+        m_RuntimeFrameEnd = Time::Now();
+        m_RuntimeFrameDuration = Time::GetDurationInMs(m_RuntimeFrameStart, m_RuntimeFrameEnd);
+    }
 
-	void RuntimeDebugger::OnGui()
-	{
-		if (isOpen)
-		{
-			// The runtime debugger itself is a whole, screen-filling Dear ImGui window itself.
-			// In order to create those overlay elements (labels and category buttons) the window has no background!
-			
-			
-			// ----- Do not draw anything that should have background or borders down here! -----
-			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-			ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-			ImGui::PushStyleColor(ImGuiCol_BorderShadow, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    void RuntimeDebugger::OnGui()
+    {
+        if(isOpen)
+        {
+            // The runtime debugger itself is a whole, screen-filling Dear ImGui window itself.
+            // In order to create those overlay elements (labels and category buttons) the window has no background!
 
-			DrawCategoryButtons();
-			DrawDebugInfoLabels();
+            // ----- Do not draw anything that should have background or borders down here! -----
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+            ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+            ImGui::PushStyleColor(ImGuiCol_BorderShadow, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 
-			ImGui::PopStyleColor(3);
+            DrawCategoryButtons();
+            DrawDebugInfoLabels();
 
-			ImGui::ShowDemoWindow();
+            ImGui::PopStyleColor(3);
 
-			// ----- Now you can draw normal windows and GUI stuff -----
-			
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(30, 20));
+            ImGui::ShowDemoWindow();
 
-			for (auto& runtimeDebugWindow : m_RuntimeGUIDrawables)
-			{
-				runtimeDebugWindow->Update();
-			}
+            // ----- Now you can draw normal windows and GUI stuff -----
 
-			ImGui::PopStyleVar();
-		}
-	}
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(30, 20));
 
-	void RuntimeDebugger::DrawCategoryButtons()
-	{
-		ImGui::SetNextWindowPos(ImVec2(0,20));
-		ImGui::SetNextWindowSize(ImVec2(150, 500));
+            for(auto& runtimeDebugWindow : m_RuntimeGUIDrawables)
+            {
+                runtimeDebugWindow->Update();
+            }
 
-		ImGui::Begin("Debug Categories", &isOpen, m_ImGuiFlags);
+            ImGui::PopStyleVar();
+        }
+    }
 
-		for (Types::uint16 i = 0; i < m_CategoryButtons.size(); ++i)
-		{
-			m_CategoryButtons[i]->Draw(i);
-		}
+    void RuntimeDebugger::DrawCategoryButtons()
+    {
+        ImGui::SetNextWindowPos(ImVec2(0, 20));
+        ImGui::SetNextWindowSize(ImVec2(150, 500));
 
-		ImGui::End();
-	}
+        ImGui::Begin("Debug Categories", &isOpen, m_ImGuiFlags);
 
-	void RuntimeDebugger::DrawDebugInfoLabels()
-	{
-		ImGui::SetNextWindowPos(ImVec2(130, 20));
-		ImGui::SetNextWindowSize(ImVec2(Core::WindowLocator::Get()->GetWindowWidth(), 100));
+        for(Types::uint16 i = 0; i < m_CategoryButtons.size(); ++i)
+        {
+            m_CategoryButtons[i]->Draw(i);
+        }
 
-		ImGui::Begin("DebugInfoLabels", &isOpen, m_ImGuiFlags);
+        ImGui::End();
+    }
 
-		for (Types::uint16 i = 0; i < m_DebugLabels.size(); ++i)
-		{
-			m_DebugLabels[i]->Draw();
-		}
+    void RuntimeDebugger::DrawDebugInfoLabels()
+    {
+        ImGui::SetNextWindowPos(ImVec2(130, 20));
+        ImGui::SetNextWindowSize(ImVec2(Core::WindowLocator::Get()->GetWindowWidth(), 100));
 
-		ImGui::End();
-	}
+        ImGui::Begin("DebugInfoLabels", &isOpen, m_ImGuiFlags);
 
-}
+        for(Types::uint16 i = 0; i < m_DebugLabels.size(); ++i)
+        {
+            m_DebugLabels[i]->Draw();
+        }
 
-//#endif
+        ImGui::End();
+    }
+
+}    // namespace Borealis::Runtime::Debug
+// #endif

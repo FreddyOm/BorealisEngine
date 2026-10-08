@@ -1,14 +1,13 @@
 #pragma once
 #include "../types/types.h"
 
-
 namespace Borealis::Input
 {
-	enum class KEYBOARD_KEYS : Types::uint16
-	{
+    enum class KEYBOARD_KEYS : Types::uint16
+    {
         LMB = 0x01,
         RMB = 0x02,
-		CONTROL_BREAK = 0x03,
+        CONTROL_BREAK = 0x03,
         MMB = 0x04,
         X1MB = 0x05,
         X2MB = 0x06,
@@ -18,7 +17,7 @@ namespace Borealis::Input
         // 0x0A - 0x0B RESERVED
         CLEAR = 0x0C,
         ENTER = 0x0D,
-		// 0x0E-0F UNASSIGNED
+        // 0x0E-0F UNASSIGNED
         SHIFT = 0x10,
         CTRL = 0x11,
         ALT = 0x12,
@@ -61,7 +60,7 @@ namespace Borealis::Input
         _7 = 0x37,
         _8 = 0x38,
         _9 = 0x39,
-		// 0x3A-40 UNDEFINED
+        // 0x3A-40 UNDEFINED
         A = 0x41,
         B = 0x42,
         C = 0x43,
@@ -137,7 +136,7 @@ namespace Borealis::Input
         NUM_LOCK = 0x90,
         SCROLL_LOCK = 0x91,
         // 0x92 - 0x96 OEM SPECIFIC
-		// 0x97 - 0x9F UNASSIGNED
+        // 0x97 - 0x9F UNASSIGNED
         LSHIFT = 0xA0,
         RSHIFT = 0xA1,
         LCTRL = 0xA2,
@@ -176,15 +175,15 @@ namespace Borealis::Input
         RIGHT_BRACE = 0xDD,
         APOSTROPHE = 0xDE,
         MISC = 0xDF,
-		// 0xE0 RESERVED
+        // 0xE0 RESERVED
         // 0xE1 OEM SPECIFIC
         PIPE = 0xE2,
         // 0xE3 - 0xE4 OEM SPECIFIC
         IME_PROCESS = 0xE5,
         // 0xE6 OEM SPECIFIC
         PACKET = 0xE7,
-		// 0xE8 UNASSIGNED
-		// 0xE9 - 0xF5 OEM SPECIFIC
+        // 0xE8 UNASSIGNED
+        // 0xE9 - 0xF5 OEM SPECIFIC
         ATTN = 0xF6,
         CRSEL = 0xF7,
         EXSEL = 0xF8,
@@ -197,18 +196,18 @@ namespace Borealis::Input
         KEYBOARD_KEYS_SIZE = 0xFF
     };
 
-	//class Keyboard
-	//{
-	//	public:
-	//	Keyboard() = default;
-	//	~Keyboard() = default;
+    // class Keyboard
+    //{
+    //	public:
+    //	Keyboard() = default;
+    //	~Keyboard() = default;
 
-	//	void DetectButtonUpDownEvents();
- //       Borealis::Events::Action<KEYBOARD_KEYS> onKeyDown;
- //       Borealis::Events::Action<KEYBOARD_KEYS> onKeyUp;
+    //	void DetectButtonUpDownEvents();
+    //       Borealis::Events::Action<KEYBOARD_KEYS> onKeyDown;
+    //       Borealis::Events::Action<KEYBOARD_KEYS> onKeyUp;
 
-	//private:
-	//	std::bitset<256> prevKeyboardKeyStates{ 0 };
-	//	std::bitset<256> keyboardKeyStates{ 0 };
-	//};
-}
+    // private:
+    //	std::bitset<256> prevKeyboardKeyStates{ 0 };
+    //	std::bitset<256> keyboardKeyStates{ 0 };
+    // };
+}    // namespace Borealis::Input

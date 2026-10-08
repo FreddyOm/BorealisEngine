@@ -1,15 +1,15 @@
 #pragma once
 
-#include <stdarg.h>
-#include <utility>
-#include <string>   // TODO: Try to remove <string> from the equation.
-
 #include "../../config.h"
 #include "../types/types.h"
 #include "logger_internal.h"
 
+#include <stdarg.h>
+#include <string>    // TODO: Try to remove <string> from the equation.
+#include <utility>
+
 #ifdef BOREALIS_WIN
-    #include <comdef.h>
+#include <comdef.h>
 #endif
 
 #ifndef THROW_ON_ASSERT
@@ -26,14 +26,14 @@ namespace Borealis::Debug
         ASSERTION,
     };
 
-    struct DebugInfoDesc // 24 byte
+    struct DebugInfoDesc    // 24 byte
     {
         DebugInfoDesc(const std::string msg, const std::string file, const Borealis::Types::int16 line, const LogLevel type)
             : line(line), logType(type), fileName(file)
         {
             this->msg = "[";
 
-            switch (type)
+            switch(type)
             {
                 case LogLevel::WARNING:
                 {
@@ -56,19 +56,18 @@ namespace Borealis::Debug
                     break;
                 }
             }
-            
+
             this->msg += "] ";
-            
+
             this->msg += "[";
-            //this->msg += DateTime::GetTime();
+            // this->msg += DateTime::GetTime();
             this->msg += "] " + msg;
         }
 
-        ~DebugInfoDesc()
-        { }
+        ~DebugInfoDesc() { }
 
         Borealis::Types::int16 line = 0;
-        LogLevel logType = (LogLevel)0; // NONE
+        LogLevel logType = (LogLevel) 0;    // NONE
         std::string fileName = "";
         std::string msg = "";
     };
@@ -76,32 +75,36 @@ namespace Borealis::Debug
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
 
 #ifdef BOREALIS_WIN
-    #define StrFromHResult(hr) _com_error(hr).ErrorMessage()
+#define StrFromHResult(hr) _com_error(hr).ErrorMessage()
 #else
-    #define StrFromHResult(hr)
-#endif
-    
-    #define Log(message, ...) Borealis::Debug::LogInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
-    #define LogWarning(message, ...) Borealis::Debug::LogWarningInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
-    #define LogError(message, ...) Borealis::Debug::LogErrorInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
-    #define Assert(assertion, message, ...) Borealis::Debug::AssertInternal(__FILE__, __LINE__, assertion, message, ##__VA_ARGS__)
-
-#else
-
-    #define StrFromHResult(hr)
-
-    #define Log(message, ...)
-    #define LogWarning(message, ...)
-    #define LogError(message, ...)
-    #define Assert(message, assertion, ...)
-
+#define StrFromHResult(hr)
 #endif
 
-    BOREALIS_API Borealis::Types::int16 LogInternal(const char* file, const Borealis::Types::int16 line, const char* message, ...);
+#define Log(message, ...) Borealis::Debug::LogInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
+#define LogWarning(message, ...) Borealis::Debug::LogWarningInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
+#define LogError(message, ...) Borealis::Debug::LogErrorInternal(__FILE__, __LINE__, message, ##__VA_ARGS__)
+#define Assert(assertion, message, ...) Borealis::Debug::AssertInternal(__FILE__, __LINE__, assertion, message, ##__VA_ARGS__)
 
-    BOREALIS_API Borealis::Types::int16 LogWarningInternal(const char* file, const Borealis::Types::int16 line, const char* message, ...);
+#else
 
-    BOREALIS_API Borealis::Types::int16 LogErrorInternal(const char* file, const Borealis::Types::int16 line, const char* message, ...);
+#define StrFromHResult(hr)
 
-    BOREALIS_API Borealis::Types::int16 AssertInternal(const char* file, const Borealis::Types::int16 line, const bool assertion, const char* message, ...);
-}
+#define Log(message, ...)
+#define LogWarning(message, ...)
+#define LogError(message, ...)
+#define Assert(message, assertion, ...)
+
+#endif
+
+    BOREALIS_API Borealis::Types::int16 LogInternal(
+        const char* file, const Borealis::Types::int16 line, const char* message, ...);
+
+    BOREALIS_API Borealis::Types::int16 LogWarningInternal(
+        const char* file, const Borealis::Types::int16 line, const char* message, ...);
+
+    BOREALIS_API Borealis::Types::int16 LogErrorInternal(
+        const char* file, const Borealis::Types::int16 line, const char* message, ...);
+
+    BOREALIS_API Borealis::Types::int16 AssertInternal(
+        const char* file, const Borealis::Types::int16 line, const bool assertion, const char* message, ...);
+}    // namespace Borealis::Debug

@@ -1,121 +1,116 @@
 #pragma once
 #include "../../../config.h"
-#include "../../types/types.h"
 #include "../../helpers/macros.h"
-#include "../../memory/ref_cnt_auto_ptr.h"
-#include "../helpers/texture.h"
 #include "../../math/math.h"
+#include "../../memory/ref_cnt_auto_ptr.h"
+#include "../../types/types.h"
+#include "../helpers/texture.h"
 
 #ifdef BOREALIS_WIN
-#include <vector>
 #include "../helpers/d3d12_helpers.h"
 #include "../helpers/helpers.h"
 #include "../pipeline_config.h"
 
+#include <vector>
+
 namespace Borealis::Graphics
 {
-	extern Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_RTVDescHeapAllocator;
-	extern Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_SRVDescHeapAllocator;
-	extern Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_DSVDescHeapAllocator;
+    extern Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_RTVDescHeapAllocator;
+    extern Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_SRVDescHeapAllocator;
+    extern Borealis::Graphics::Helpers::D3D12DescriptorHeapAllocator g_DSVDescHeapAllocator;
 
-	// TODO: Move this to helpers / general renderer file and make this activate debug layer depending on the backend used currently
-	extern BOREALIS_API void InitD3D12LiveObjects();
-	extern BOREALIS_API void ReportD3D12LiveObjects();
+    // TODO: Move this to helpers / general renderer file and make this activate debug layer depending on the backend used
+    // currently
+    extern BOREALIS_API void InitD3D12LiveObjects();
+    extern BOREALIS_API void ReportD3D12LiveObjects();
 
-	struct BOREALIS_API BorealisD3D12Renderer : public Helpers::IBorealisRenderer
-	{
-		BorealisD3D12Renderer(PipelineDesc& pipelineDesc)
-			: IBorealisRenderer(GraphicsBackend::D3D12, pipelineDesc)
-		{ }
+    struct BOREALIS_API BorealisD3D12Renderer : public Helpers::IBorealisRenderer
+    {
+        BorealisD3D12Renderer(PipelineDesc& pipelineDesc) : IBorealisRenderer(GraphicsBackend::D3D12, pipelineDesc) { }
 
-		~BorealisD3D12Renderer();
-		
-		BOREALIS_DELETE_COPY_CONSTRUCT(BorealisD3D12Renderer)
-		BOREALIS_DELETE_MOVE_CONSTRUCT(BorealisD3D12Renderer)
-		BOREALIS_DELETE_COPY_ASSIGN(BorealisD3D12Renderer)
-		BOREALIS_DELETE_MOVE_ASSIGN(BorealisD3D12Renderer)
+        ~BorealisD3D12Renderer();
 
-		Borealis::Types::int64 InitializePipeline() override;
-		Borealis::Types::int64 DeinitializePipeline() override;
+        BOREALIS_DELETE_COPY_CONSTRUCT(BorealisD3D12Renderer)
+        BOREALIS_DELETE_MOVE_CONSTRUCT(BorealisD3D12Renderer)
+        BOREALIS_DELETE_COPY_ASSIGN(BorealisD3D12Renderer)
+        BOREALIS_DELETE_MOVE_ASSIGN(BorealisD3D12Renderer)
 
-		// Getters
-		ID3D12Device8* const GetDevice() const;
-		ID3D12CommandQueue* const GetCommandQueue() const;
-		ID3D12GraphicsCommandList7* const GetCommandList() const;
-		IDXGISwapChain4* const GetSwapChain() const;
-		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetDescriptorHeap(const D3D12_DESCRIPTOR_HEAP_TYPE descHeapType) const;
-		ID3D12Resource* const GetRenderTarget(const Types::int32) const;
-		ID3D12Resource* const GetCurrentRenderTarget() const;
-		D3D12_CPU_DESCRIPTOR_HANDLE& GetRTVDescriptor(const Types::int32 rtvDescIdx);
-		Helpers::FrameContext* const GetCurrentFrameContext();
-		const bool IsVsyncEnabled() const override;
+        Borealis::Types::int64 InitializePipeline() override;
+        Borealis::Types::int64 DeinitializePipeline() override;
 
-		// Setters
-		void SetVsyncEnabled(const bool enabled) override;
-		bool ToggleFullscreen();
+        // Getters
+        ID3D12Device8* const GetDevice() const;
+        ID3D12CommandQueue* const GetCommandQueue() const;
+        ID3D12GraphicsCommandList7* const GetCommandList() const;
+        IDXGISwapChain4* const GetSwapChain() const;
+        Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetDescriptorHeap(const D3D12_DESCRIPTOR_HEAP_TYPE descHeapType) const;
+        ID3D12Resource* const GetRenderTarget(const Types::int32) const;
+        ID3D12Resource* const GetCurrentRenderTarget() const;
+        D3D12_CPU_DESCRIPTOR_HANDLE& GetRTVDescriptor(const Types::int32 rtvDescIdx);
+        Helpers::FrameContext* const GetCurrentFrameContext();
+        const bool IsVsyncEnabled() const override;
 
+        // Setters
+        void SetVsyncEnabled(const bool enabled) override;
+        bool ToggleFullscreen();
 
-		// Functional
-		Types::int32 PresentFrame() override;
-		Helpers::FrameContext* const WaitForNextFrameContext();
-		//void OnWindowResize(const Borealis::Core::WindowEvent& event);
-		void WaitForPendingOperations() override;
-		Memory::RefCntAutoPtr<Texture> CreateTexture(const wchar_t* path);
-		void StartFrame(Math::Vector4<float> clearColor = Math::Vector4<float>{ 0.1, 0.3, 0.5, 1.0 }) override;
+        // Functional
+        Types::int32 PresentFrame() override;
+        Helpers::FrameContext* const WaitForNextFrameContext();
+        // void OnWindowResize(const Borealis::Core::WindowEvent& event);
+        void WaitForPendingOperations() override;
+        Memory::RefCntAutoPtr<Texture> CreateTexture(const wchar_t* path);
+        void StartFrame(Math::Vector4<float> clearColor = Math::Vector4<float> {0.1, 0.3, 0.5, 1.0}) override;
 
+        Microsoft::WRL::ComPtr<ID3D12Fence> m_CommandQueueFence;
+        Types::uint64 m_LastSignaledFenceValue = 0;
 
-		Microsoft::WRL::ComPtr<ID3D12Fence> m_CommandQueueFence;
-		Types::uint64 m_LastSignaledFenceValue = 0;		
+       private:
+        Borealis::Types::int64 SetupPipeline();
+        Borealis::Types::int64 SetupAssets();
+        HRESULT RegisterDescriptorHeapAllocator(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& descHeap,
+            const Types::int16 numDescriptors,
+            const D3D12_DESCRIPTOR_HEAP_TYPE heapType,
+            const Types::uint8 nodeMask = 0);
+        HRESULT CreateRenderTargets();
 
+       protected:
+        Microsoft::WRL::ComPtr<IDXGISwapChain4> m_SwapChain;
+        Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue;
+        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList;
 
-	private:
+        std::vector<Helpers::FrameContext> m_FrameContexts = {};
+        Helpers::FrameContext* m_CurrentFrameContext = nullptr;
 
-		Borealis::Types::int64 SetupPipeline();
-		Borealis::Types::int64 SetupAssets();
-		HRESULT RegisterDescriptorHeapAllocator(Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& descHeap, const Types::int16 numDescriptors,
-			const D3D12_DESCRIPTOR_HEAP_TYPE heapType, const Types::uint8 nodeMask = 0);
-		HRESULT CreateRenderTargets();
+        Microsoft::WRL::ComPtr<ID3D12Device8> m_Device;
 
-	protected:
+        Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RTV_DescriptorHeap;
+        Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_SRV_DescriptorHeap;
+        Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DSV_DescriptorHeap;
 
-		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_SwapChain;
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue;
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList7> m_CommandList;
+        std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_RenderTargets =
+            ::std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>>();
+        std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_RTV_DescriptorHandles = std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>();
 
-		std::vector<Helpers::FrameContext> m_FrameContexts = {};
-		Helpers::FrameContext* m_CurrentFrameContext = nullptr;
+        // Synchronization objects
+        HANDLE m_FenceEvent = nullptr;
+        HANDLE m_SwapChainWaitable = nullptr;
 
-		Microsoft::WRL::ComPtr<ID3D12Device8> m_Device;
+        bool m_Fullscreen = false;
 
-		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RTV_DescriptorHeap;
-		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_SRV_DescriptorHeap;
-		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DSV_DescriptorHeap;
-		
-		std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_RenderTargets = 
-			::std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>>();
-		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_RTV_DescriptorHandles = 
-			std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>();
-
-		// Synchronization objects
-		HANDLE m_FenceEvent = nullptr;
-		HANDLE m_SwapChainWaitable = nullptr;
-
-		bool m_Fullscreen = false;
-		
-		// Evaluate if necessary
-		bool m_VSync = true;
-		bool m_SwapChainOccluded = false;
-		bool m_SwapChainTearingSupport = true;
-		Types::uint64 m_FrameIndex = 0;
-		Types::int16 m_CurrentFrameContextIdx = 0;
+        // Evaluate if necessary
+        bool m_VSync = true;
+        bool m_SwapChainOccluded = false;
+        bool m_SwapChainTearingSupport = true;
+        Types::uint64 m_FrameIndex = 0;
+        Types::int16 m_CurrentFrameContextIdx = 0;
 
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
-		
-	private:
-		
-		bool m_isInitialized = false;
-#endif		
-	};
-}
+
+       private:
+        bool m_isInitialized = false;
+#endif
+    };
+}    // namespace Borealis::Graphics
 
 #endif

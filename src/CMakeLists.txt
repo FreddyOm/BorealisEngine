@@ -73,6 +73,7 @@ set(COMMON_SOURCES
     core/types/string_id.cpp
     core/window/window.cpp
     core/debug/logger.cpp
+    core/Logging/BorealisLogger.cpp
     core/debug/logger_internal.cpp
     core/debug/runtime-debug/runtime_debug.cpp
     core/debug/runtime-debug/IGUI_drawable.cpp
@@ -111,6 +112,8 @@ set(COMMON_HEADERS
     core/types/string_id.h
     core/window/window.h
     core/debug/logger.h
+    core/Logging/ILogger.h
+    core/Logging/BorealisLogger.h
     core/debug/logger_internal.h
     core/debug/runtime-debug/runtime_debug.h
     core/debug/runtime-debug/debug_info_label.h
@@ -150,6 +153,7 @@ set(COMMON_HEADERS
     core/io/file_io.h
     core/time/time.h
     core/time/time_internal.h
+    #thirdparty/boost-ext/di.hpp
 )
 
 # Windows platform specific sources & headers

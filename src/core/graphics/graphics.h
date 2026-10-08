@@ -1,8 +1,7 @@
 #pragma once
 #include "../../config.h"
-#include "helpers/helpers.h"
 #include "../memory/ref_cnt_auto_ptr.h"
-
+#include "helpers/helpers.h"
 
 // Platform specific includes
 #if defined(BOREALIS_WIN)
@@ -15,7 +14,6 @@
 #include "d3d12/borealis_d3d12.h"
 #include "vulkan/borealis_vulkan.h"
 
-
 #elif defined(BOREALIS_LINUX) || defined(BOREALIS_OSX)
 // TODO: Implement
 #include "vulkan/borealis_vulkan.h"
@@ -26,9 +24,9 @@ namespace Borealis::Graphics
 {
     class BOREALIS_API RendererLocator
     {
-    public:
-        static void Initialize() 
-        { 
+       public:
+        static void Initialize()
+        {
             Memory::MemAllocJanitor janitor(Memory::MemAllocatorContext::CORESYS);
 
             m_NullService = Memory::RefCntAutoPtr<Helpers::NullRenderer>::Allocate();
@@ -38,10 +36,11 @@ namespace Borealis::Graphics
 
         static void Provide(Memory::RefCntAutoPtr<Helpers::IBorealisRenderer> service)
         {
-            if (!service.IsValid())
+            if(!service.IsValid())
             {
                 // Revert to null service.
-                m_Service = Memory::RefCntAutoPtr<Helpers::NullRenderer>::DynamicCastTo<Helpers::IBorealisRenderer>(m_NullService);
+                m_Service =
+                    Memory::RefCntAutoPtr<Helpers::NullRenderer>::DynamicCastTo<Helpers::IBorealisRenderer>(m_NullService);
             }
             else
             {
@@ -51,15 +50,13 @@ namespace Borealis::Graphics
 
         static void Reset()
         {
-            if (m_Service.IsValid())
-                m_Service.Reset();
+            if(m_Service.IsValid()) m_Service.Reset();
 
-            if (m_NullService.IsValid())
-                m_NullService.Reset();
+            if(m_NullService.IsValid()) m_NullService.Reset();
         }
 
-    private:
+       private:
         static Memory::RefCntAutoPtr<Helpers::IBorealisRenderer> m_Service;
         static Memory::RefCntAutoPtr<Helpers::NullRenderer> m_NullService;
     };
-}
+}    // namespace Borealis::Graphics

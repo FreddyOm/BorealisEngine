@@ -4,20 +4,18 @@
 
 #if defined(BOREALIS_LINUX)
 
-#include "../../types/types.h"
-#include "../helpers/helpers.h"
 #include "../../helpers/macros.h"
 #include "../../memory/ref_cnt_auto_ptr.h"
+#include "../../types/types.h"
+#include "../helpers/helpers.h"
 #include "../helpers/texture.h"
-
 #include <vulkan/vulkan.h>
 
 namespace Borealis::Graphics
 {
     struct BorealisVulkanRenderer : public Helpers::IBorealisRenderer
     {
-    public:
-
+       public:
         BorealisVulkanRenderer(const PipelineDesc& pipelineDesc)
             : Helpers::IBorealisRenderer(GraphicsBackend::VULKAN, pipelineDesc)
         { }
@@ -33,12 +31,11 @@ namespace Borealis::Graphics
         Types::int64 DeinitializePipeline() override;
         void WaitForPendingOperations() override;
 
-    private:
-
+       private:
 #if defined(BOREALIS_DEBUG) || defined(BOREALIS_RELWITHDEBINFO)
         bool m_isInitialized = false;
 #endif
     };
-}
+}    // namespace Borealis::Graphics
 
 #endif

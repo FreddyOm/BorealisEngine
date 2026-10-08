@@ -5,6 +5,4 @@
 #endif
 
 namespace Borealis::Graphics::Helpers
-{
-	
-}
+{ }

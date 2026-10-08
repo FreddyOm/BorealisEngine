@@ -2,6 +2,6 @@
 
 namespace Borealis::Core::Time
 {
-	void StartFrameTimer();
-	void EndFrameTimer();
-}
+    void StartFrameTimer();
+    void EndFrameTimer();
+}    // namespace Borealis::Core::Time

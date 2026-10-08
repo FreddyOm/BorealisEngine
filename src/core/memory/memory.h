@@ -1,207 +1,210 @@
 #pragma once
 
 #include "../../config.h"
-#include "../types/types.h"
 #include "../debug/logger.h"
-#include "allocator.h"
 #include "../types/string_id.h"
-
+#include "../types/types.h"
+#include "allocator.h"
+#include <unordered_map>
 
 #include <stack>
-#include <unordered_map>
-#include <utility>
 #include <typeinfo>
+#include <utility>
 
-// TODO: Fix this! Use memory.h as main include and expose refcntautoptr via this header, and remove the direct allocation capabilities here!
+// TODO: Fix this! Use memory.h as main include and expose refcntautoptr via this header, and remove the direct allocation
+// capabilities here!
 // TODO: Build a memory system that is non-global and can be initialized and deinitialized.
 namespace Borealis::Memory
 {
 #pragma region forward declarations
-	
-	struct PoolAllocator;
+
+    struct PoolAllocator;
 
 #pragma endregion forward decleration
 
-	typedef Types::uint8 AllocationOffset;
+    typedef Types::uint8 AllocationOffset;
 
-	enum class BOREALIS_API MemAllocatorContext : Types::int8
-	{
-		// Default none value
-		NONE = -1,
+    enum class BOREALIS_API MemAllocatorContext : Types::int8
+    {
+        // Default none value
+        NONE = -1,
 
-		// Default allocations like uncategorized allocs or pool objects
-		DEFAULT = 0,
+        // Default allocations like uncategorized allocs or pool objects
+        DEFAULT = 0,
 
-		// Memory dedicated to the core systems created in the app
-		CORESYS = 1,
+        // Memory dedicated to the core systems created in the app
+        CORESYS = 1,
 
-		// Memory dedicated to rendering
-		RENDERING = 2,
+        // Memory dedicated to rendering
+        RENDERING = 2,
 
-		// Memory dedicated to rendering
-		RENDERING_DEBUG = 3,
+        // Memory dedicated to rendering
+        RENDERING_DEBUG = 3,
 
-		// Memory dedicated to debug systems, like ImGui debug data, debug logging, ...
-		DEBUG = 4,
+        // Memory dedicated to debug systems, like ImGui debug data, debug logging, ...
+        DEBUG = 4,
 
-		// Memory dedicated to per-frame allocations
-		FRAME = 5,
+        // Memory dedicated to per-frame allocations
+        FRAME = 5,
 
-		// Static and persistent data that reside in 
-		// memory and don't need to be deallocated
-		STATIC = 6,		
+        // Static and persistent data that reside in
+        // memory and don't need to be deallocated
+        STATIC = 6,
 
-		// The numbers of contexts in the list. Keep this updated!
-		NUM_CONTEXTS = 7,
+        // The numbers of contexts in the list. Keep this updated!
+        NUM_CONTEXTS = 7,
+    };
 
-	};
-	
-	extern BOREALIS_API std::stack<MemAllocatorContext> g_memoryAllocatorContext;
-
+    extern BOREALIS_API std::stack<MemAllocatorContext> g_memoryAllocatorContext;
 
 #pragma region handle table
 
-	struct HandleInfo	// 16 bytes
-	{
-		explicit HandleInfo(
-			const Types::uint64Ptr handleId
+    struct HandleInfo    // 16 bytes
+    {
+        explicit HandleInfo(const Types::uint64Ptr handleId
 #ifdef BOREALIS_DEBUG
-			, const std::string& debugInfo
+            ,
+            const std::string& debugInfo
 #endif
-		)
-			: HandleId(handleId)
-			, RefCount(0)
-			, MemAllocCntxt(g_memoryAllocatorContext.empty() ? MemAllocatorContext::DEFAULT : g_memoryAllocatorContext.top())
+            )
+            : HandleId(handleId),
+              RefCount(0),
+              MemAllocCntxt(g_memoryAllocatorContext.empty() ? MemAllocatorContext::DEFAULT : g_memoryAllocatorContext.top())
 #ifdef BOREALIS_DEBUG
-			, m_DebugInfo(debugInfo)
+              ,
+              m_DebugInfo(debugInfo)
 #endif
-		{ }
+        { }
 
-		~HandleInfo() = default;
+        ~HandleInfo() = default;
 
-		Types::uint64Ptr HandleId = 0;		// 8 bytes
-		Types::int32 RefCount = 0;			// 4 bytes
-		MemAllocatorContext MemAllocCntxt = MemAllocatorContext::NONE;	// 1 bytes
+        Types::uint64Ptr HandleId = 0;                                    // 8 bytes
+        Types::int32 RefCount = 0;                                        // 4 bytes
+        MemAllocatorContext MemAllocCntxt = MemAllocatorContext::NONE;    // 1 bytes
 #ifdef BOREALIS_DEBUG
-		std::string m_DebugInfo = "";
+        std::string m_DebugInfo = "";
 #endif
-		Types::int8 Padding[3]{};			// 3 bytes
-	};
+        Types::int8 Padding[3] {};    // 3 bytes
+    };
 
-	extern BOREALIS_API PoolAllocator g_HandleInfoAllocator;
-	extern BOREALIS_API std::unordered_map<Types::uint64Ptr, void*> g_HandleTable;
+    extern BOREALIS_API PoolAllocator g_HandleInfoAllocator;
+    extern BOREALIS_API std::unordered_map<Types::uint64Ptr, void*> g_HandleTable;
 
-	BOREALIS_API HandleInfo* RegisterHandle(void* const p_dataPtr
+    BOREALIS_API HandleInfo* RegisterHandle(void* const p_dataPtr
 #ifdef BOREALIS_DEBUG
-		, const std::string& debugInfo
+        ,
+        const std::string& debugInfo
 #endif
-		);
-	BOREALIS_API void UpdateHandle(const Types::uint64Ptr handleId, void* const p_newData);
-	BOREALIS_API void RemoveHandle(const Types::uint64Ptr handleId, HandleInfo* const p_hndlInfo);
-	BOREALIS_API void* const AccessHandleData(const Types::uint64Ptr handleId);
-	BOREALIS_API void ReportLiveHandles();
+    );
+    BOREALIS_API void UpdateHandle(const Types::uint64Ptr handleId, void* const p_newData);
+    BOREALIS_API void RemoveHandle(const Types::uint64Ptr handleId, HandleInfo* const p_hndlInfo);
+    BOREALIS_API void* const AccessHandleData(const Types::uint64Ptr handleId);
+    BOREALIS_API void ReportLiveHandles();
 
 #pragma endregion handle table
 
 #pragma region global memory allocation
 
-	struct BOREALIS_API MemAllocJanitor
-	{
-		explicit MemAllocJanitor(const MemAllocatorContext context = MemAllocatorContext::DEFAULT);
-		~MemAllocJanitor();
-	};
+    struct BOREALIS_API MemAllocJanitor
+    {
+        explicit MemAllocJanitor(const MemAllocatorContext context = MemAllocatorContext::DEFAULT);
+        ~MemAllocJanitor();
+    };
 
-	BOREALIS_API IMemoryAllocator* GetMemoryAllocator(const MemAllocatorContext context);
-	
-	// Problem with pushing and popping allocators is that the user might not know which allocator was used to allocate when freeing! 
-	BOREALIS_API void PushAllocator(const MemAllocatorContext context);
-	BOREALIS_API void PopAllocator();
-	BOREALIS_API void FlushAllocator();
+    BOREALIS_API IMemoryAllocator* GetMemoryAllocator(const MemAllocatorContext context);
+
+    // Problem with pushing and popping allocators is that the user might not know which allocator was used to allocate when
+    // freeing!
+    BOREALIS_API void PushAllocator(const MemAllocatorContext context);
+    BOREALIS_API void PopAllocator();
+    BOREALIS_API void FlushAllocator();
 
 #ifdef BOREALIS_DEBUG
 
-	template<typename T, typename... Args>
-	T* Allocate(Args&&... args)
-	{
-		if (g_memoryAllocatorContext.empty())
-		{
-			LogError("No memory allocator assigned for allocation! Use a MemAllocJanitor to push an allocator context!");
-			return nullptr;
-		}
+    template <typename T, typename... Args>
+    T* Allocate(Args&&... args)
+    {
+        if(g_memoryAllocatorContext.empty())
+        {
+            LogError("No memory allocator assigned for allocation! Use a MemAllocJanitor to push an allocator context!");
+            return nullptr;
+        }
 
-		HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->Alloc(sizeof(T), typeid(T).name());
-		Assert(p_hndl != nullptr, "Failed to allocate memory!");
-		
-		return p_hndl ? new (AccessHandleData(p_hndl->HandleId)) T(std::forward<Args>(args)...) : nullptr;
-	}
+        HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->Alloc(sizeof(T), typeid(T).name());
+        Assert(p_hndl != nullptr, "Failed to allocate memory!");
 
-	template<typename T, typename... Args>
-	T* AllocAligned(Args&&... args)
-	{
-		if (g_memoryAllocatorContext.empty())
-			return nullptr;
+        return p_hndl ? new (AccessHandleData(p_hndl->HandleId)) T(std::forward<Args>(args)...) : nullptr;
+    }
 
-		HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->AllocAligned(sizeof(T), typeid(T).name());
-		Assert(p_hndl != nullptr, "Failed to allocate memory!");
-		
-		return p_hndl ? new (AccessHandleData(p_hndl->HandleId)) T(std::forward<Args>(args)...) : nullptr;
-	}
+    template <typename T, typename... Args>
+    T* AllocAligned(Args&&... args)
+    {
+        if(g_memoryAllocatorContext.empty()) return nullptr;
+
+        HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->AllocAligned(sizeof(T), typeid(T).name());
+        Assert(p_hndl != nullptr, "Failed to allocate memory!");
+
+        return p_hndl ? new (AccessHandleData(p_hndl->HandleId)) T(std::forward<Args>(args)...) : nullptr;
+    }
 
 #else
 
-	template<typename T, typename... Args>
-	T* Allocate(Args&&... args)
-	{
-		if (g_memoryAllocatorContext.empty())
-		{
-			LogError("No memory allocator assigned for allocation! Use a MemAllocJanitor to push an allocator context!");
-			return nullptr;
-		}
+    template <typename T, typename... Args>
+    T* Allocate(Args&&... args)
+    {
+        if(g_memoryAllocatorContext.empty())
+        {
+            LogError("No memory allocator assigned for allocation! Use a MemAllocJanitor to push an allocator context!");
+            return nullptr;
+        }
 
-		HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->Alloc(sizeof(T));
-		Assert(p_hndl != nullptr, "Failed to allocate memory!");
+        HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->Alloc(sizeof(T));
+        Assert(p_hndl != nullptr, "Failed to allocate memory!");
 
-		return p_hndl ? new (AccessHandleData(p_hndl->HandleId)) T(std::forward<Args>(args)...) : nullptr;
-	}
+        return p_hndl ? new (AccessHandleData(p_hndl->HandleId)) T(std::forward<Args>(args)...) : nullptr;
+    }
 
-	template<typename T, typename... Args>
-	T* AllocAligned(Args&&... args)
-	{
-		if (g_memoryAllocatorContext.empty())
-			return nullptr;
+    template <typename T, typename... Args>
+    T* AllocAligned(Args&&... args)
+    {
+        if(g_memoryAllocatorContext.empty()) return nullptr;
 
-		HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->AllocAligned(sizeof(T));
-		Assert(p_hndl != nullptr, "Failed to allocate memory!");
+        HandleInfo* p_hndl = GetMemoryAllocator(g_memoryAllocatorContext.top())->AllocAligned(sizeof(T));
+        Assert(p_hndl != nullptr, "Failed to allocate memory!");
 
-		return p_hndl ? new (AccessHandleData(p_hndl->HandleId)) T(std::forward<Args>(args)...) : nullptr;
-	}
+        return p_hndl ? new (AccessHandleData(p_hndl->HandleId)) T(std::forward<Args>(args)...) : nullptr;
+    }
 
 #endif
 
-	template<typename T>
-	void Free(const T* address)
-	{
-		if (g_memoryAllocatorContext.empty())
-		{
-			LogError("No memory allocator pushed to the allocator stack. Use \"PushAllocator()\" to add an allocator to the global stack.");
-			return;
-		}
+    template <typename T>
+    void Free(const T* address)
+    {
+        if(g_memoryAllocatorContext.empty())
+        {
+            LogError(
+                "No memory allocator pushed to the allocator stack. Use \"PushAllocator()\" to add an allocator to the global "
+                "stack.");
+            return;
+        }
 
-		GetMemoryAllocator(g_memoryAllocatorContext.top())->FreeMemory(address);
-	}
+        GetMemoryAllocator(g_memoryAllocatorContext.top())->FreeMemory(address);
+    }
 
-	template<typename T>
-	void FreeAligned(const T* address)
-	{
-		if (g_memoryAllocatorContext.empty())
-		{
-			LogError("No memory allocator pushed to the allocator stack. Use \"PushAllocator()\" to add an allocator to the global stack.");
-			return;
-		}
+    template <typename T>
+    void FreeAligned(const T* address)
+    {
+        if(g_memoryAllocatorContext.empty())
+        {
+            LogError(
+                "No memory allocator pushed to the allocator stack. Use \"PushAllocator()\" to add an allocator to the global "
+                "stack.");
+            return;
+        }
 
-		GetMemoryAllocator(g_memoryAllocatorContext.top())->FreeAligned(address);
-	}
+        GetMemoryAllocator(g_memoryAllocatorContext.top())->FreeAligned(address);
+    }
 
 #pragma endregion global memory allocation
 
-}
+}    // namespace Borealis::Memory

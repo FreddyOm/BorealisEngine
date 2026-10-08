@@ -2,13 +2,13 @@
 
 #include "../../config.h"
 #include "../helpers/macros.h"
-#include "allocator.h"
 #include "../types/types.h"
+#include "allocator.h"
 
 #include <stack>
 
-#ifndef CLEAR_POOL_ELEMENTS_ON_FREE	// Resets the memory whenever Free() is called.
-//#define CLEAR_POOL_ELEMENTS_ON_FREE
+#ifndef CLEAR_POOL_ELEMENTS_ON_FREE    // Resets the memory whenever Free() is called.
+// #define CLEAR_POOL_ELEMENTS_ON_FREE
 #endif
 
 // TODO: Provide both memory efficient pool alloc (using bitmask for empty pool elements) and fast pool alloc (using stack)
@@ -16,58 +16,54 @@
 
 namespace Borealis::Memory
 {
-	class BOREALIS_API PoolAllocator : public IMemoryAllocator
-	{
-	public:
+    class BOREALIS_API PoolAllocator : public IMemoryAllocator
+    {
+       public:
+        PoolAllocator(Borealis::Types::int32 poolElementNum,
+            Borealis::Types::uint64 elementSize = 65536);    // Default elementSize is 64 kiB
 
-		PoolAllocator(Borealis::Types::int32 poolElementNum, 
-			Borealis::Types::uint64 elementSize = 65536);	// Default elementSize is 64 kiB
+        BOREALIS_DELETE_COPY_CONSTRUCT(PoolAllocator)
+        BOREALIS_DELETE_MOVE_CONSTRUCT(PoolAllocator)
+        BOREALIS_DELETE_COPY_ASSIGN(PoolAllocator)
+        BOREALIS_DELETE_MOVE_ASSIGN(PoolAllocator)
 
-		BOREALIS_DELETE_COPY_CONSTRUCT(PoolAllocator)
-		BOREALIS_DELETE_MOVE_CONSTRUCT(PoolAllocator)
-		BOREALIS_DELETE_COPY_ASSIGN(PoolAllocator)
-		BOREALIS_DELETE_MOVE_ASSIGN(PoolAllocator)
+        ~PoolAllocator() override;
 
-		~PoolAllocator() override;
-
-	public: 
-
+       public:
 #ifdef BOREALIS_DEBUG
 
-		HandleInfo* Alloc(const Types::uint16 allocSize, const std::string& debugInfo = "") override;
-		HandleInfo* AllocAligned(const Types::uint16 allocSize, const std::string& debugInfo = "") override;
+        HandleInfo* Alloc(const Types::uint16 allocSize, const std::string& debugInfo = "") override;
+        HandleInfo* AllocAligned(const Types::uint16 allocSize, const std::string& debugInfo = "") override;
 
 #else
 
-		HandleInfo* Alloc(const Types::uint16 allocSize) override;
-		HandleInfo* AllocAligned(const Types::uint16 allocSize) override;
+        HandleInfo* Alloc(const Types::uint16 allocSize) override;
+        HandleInfo* AllocAligned(const Types::uint16 allocSize) override;
 
 #endif
 
-		void* RawAlloc(const Types::uint16 allocSize);
+        void* RawAlloc(const Types::uint16 allocSize);
 
-		void FreeMemory(const void* const address) override;
-		void FreeAligned(const void* const address) override;
+        void FreeMemory(const void* const address) override;
+        void FreeAligned(const void* const address) override;
 
-		void Clear() override;
+        void Clear() override;
 
-		Borealis::Types::uint64 GetTotalMemorySize() const override;
-		Borealis::Types::uint64 GetUsedMemorySize() const override;
-		Borealis::Types::uint64 GetAvailableMemorySize() const override;
-		Borealis::Types::int8 GetAllocFreeRatio() const override;	
+        Borealis::Types::uint64 GetTotalMemorySize() const override;
+        Borealis::Types::uint64 GetUsedMemorySize() const override;
+        Borealis::Types::uint64 GetAvailableMemorySize() const override;
+        Borealis::Types::int8 GetAllocFreeRatio() const override;
 
-	protected:
+       protected:
+        void* const GetFreePoolElement();
 
-		void* const GetFreePoolElement();		
+       private:
+        Borealis::Types::uint64Ptr m_pPoolBase = 0;
+        Borealis::Types::uint64 m_poolElementSize = 0;
+        Borealis::Types::int32 m_poolElementCount = 0;
 
-	private:
+        std::stack<Borealis::Types::uint64Ptr> m_pFreePoolElementList;
 
-		Borealis::Types::uint64Ptr m_pPoolBase = 0;
-		Borealis::Types::uint64 m_poolElementSize = 0;
-		Borealis::Types::int32 m_poolElementCount = 0;
-
-		std::stack<Borealis::Types::uint64Ptr> m_pFreePoolElementList;
-
-		Borealis::Types::int8 m_padding[4] = {0};
-	};
-}
+        Borealis::Types::int8 m_padding[4] = {0};
+    };
+}    // namespace Borealis::Memory
