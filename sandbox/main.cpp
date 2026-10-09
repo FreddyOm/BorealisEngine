@@ -7,11 +7,12 @@ using namespace Borealis::Graphics;
 using namespace Borealis::Runtime::Debug;
 using namespace Borealis::Types;
 using namespace Borealis::Input;
+using namespace Borealis::Memory;
 
 int main()
 {
     {
-        Borealis::Core::Application app = Borealis::Core::Application("Borealis Sandbox");
+        Application app = Application("Borealis Sandbox");
 
         while(app.IsRunning())
         {
@@ -19,11 +20,11 @@ int main()
         }
     }
 
-    Borealis::Memory::ReportLiveHandles();
+    ReportLiveHandles();
 
 #ifdef BOREALIS_WIN
-    Borealis::Graphics::ReportD3D12LiveObjects();    // The corresponding initialization is done in Graphics initialization code
-                                                     // -> dependency on ID3D12Device!
+    ReportD3D12LiveObjects();    // The corresponding initialization is done in Graphics initialization code
+                                 // -> dependency on ID3D12Device!
 #endif
     // #endif
 
