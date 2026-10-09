@@ -47,7 +47,7 @@ IncludeCategories:
 IndentWrappedFunctionNames: true 
 InsertNewlineAtEOF: false
 InsertTrailingCommas: Wrapped
-LineEnding: CRLF
+LineEnding: LF
 NamespaceIndentation: All
 PointerAlignment: Left
 SortIncludes:
